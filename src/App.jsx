@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Services from "./routers/Services"; // Import services page
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Testimonials from "./routers/Testimonials";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Hero />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/testimonials" element={<Testimonials />} />
           </Routes>
         </main>
         <Footer />
