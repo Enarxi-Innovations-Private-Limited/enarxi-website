@@ -3,7 +3,7 @@ import enarxiLogoWhite from "@assets/images/logo/logo-white.svg";
 
 const Footer = () => {
   return (
-    <footer className="bg-footer-background text-footer-foreground relative top-999 px-5">
+    <footer className="bg-footer-background text-footer-foreground w-full px-5">
       <div className="container mx-auto px-6 py-2   ">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-6 mb-12 justify-items-center">
@@ -79,7 +79,7 @@ const Footer = () => {
         <div className="border-t border-footer-border mb-8"></div>
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-footer-muted text-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center text-footer-muted text-sm mb-2">
           <p>© 2021 Enarxi Group. All Rights Reserved</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="hover:text-footer-foreground transition-colors">
