@@ -30,30 +30,6 @@ const testimonials = [
   },
 ];
 
-const googleReviews = [
-  {
-    user: "Techforneeds",
-    review: "Good Job! Team Enarxi.",
-    rating: 5,
-  },
-  {
-    user: "Techforneeds",
-    review:
-      "Aspired based experience through students by consuming latest scientists’ ideas from classroom to market.",
-    rating: 5,
-  },
-  {
-    user: "Techforneeds",
-    review: "Good Job! Team Enarxi.",
-    rating: 5,
-  },
-  {
-    user: "Techforneeds",
-    review:
-      "The study has emphasized with the basics of electronic & software combining IoTs, EVs, and cloud.",
-    rating: 5,
-  },
-];
 
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
