@@ -5,8 +5,10 @@ import Hero from "./components/Hero";
 function App() {
   return (
     <>
-      <Header />
-      <Hero />
+      <div className="h-screen">
+        <Header />
+        <Hero />
+      </div>
       <Footer />
     </>
   );
