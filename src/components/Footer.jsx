@@ -1,86 +1,11 @@
-// import enarxiLogo from "../assets/image.png";
-// import {
-//   FaWhatsapp,
-//   FaInstagram,
-//   FaFacebook,
-//   FaLinkedin,
-// } from "react-icons/fa";
-// import { MdEmail } from "react-icons/md";
-// import { FiPhoneCall } from "react-icons/fi";
-
-// export default function Footer() {
-//   return (
-//     <footer className="bg-black text-white">
-//       <div className="w-[85%] mx-auto py-10 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700">
-//         {/* Logo + Office */}
-//         <div>
-//           <img src={enarxiLogo} alt="Enarxi Logo" className="h-10 mb-4" />
-//           <p className="text-gray-300 font-light text-sm mb-4">
-//             Enarxi Innovations Pvt Ltd, <br />
-//             18/2, 2nd floor, Valluvan St, <br />
-//             Purasaiwakkam, Chennai, Tamil Nadu 600007
-//           </p>
-//           <p className="text-gray-500 text-xs">
-//             © 2021 Enarxi Group. All Rights Reserved
-//           </p>
-//         </div>
-
-//         {/* Contact Us */}
-//         <div>
-//           <h4 className="uppercase text-sm font-semibold mb-4">Contact Us</h4>
-//           <p className="text-gray-300 text-sm">+91-9600676639</p>
-//           <a
-//             href="mailto:info@enarxi.com"
-//             className="text-gray-300 text-sm hover:underline"
-//           >
-//             info@enarxi.com
-//           </a>
-//         </div>
-
-//         {/* Social Links */}
-//         <div>
-//           <h4 className="uppercase text-sm font-semibold mb-4">Follow Us On</h4>
-//           <div className="flex space-x-4 text-xl text-gray-300">
-//             <a href="#" className="hover:text-green-500">
-//               <FaWhatsapp />
-//             </a>
-//             <a href="#" className="hover:text-red-500">
-//               <MdEmail />
-//             </a>
-//             <a href="#" className="hover:text-blue-400">
-//               <FiPhoneCall />
-//             </a>
-//             <a href="#" className="hover:text-pink-500">
-//               <FaInstagram />
-//             </a>
-//             <a href="#" className="hover:text-blue-600">
-//               <FaFacebook />
-//             </a>
-//             <a href="#" className="hover:text-blue-500">
-//               <FaLinkedin />
-//             </a>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Bottom Links */}
-//       <div className="w-[85%] mx-auto py-4 flex flex-col md:flex-row justify-between text-xs text-gray-500">
-//         <div className="flex space-x-4 mt-2 md:mt-0">
-//           <a href="#" className="hover:underline">
-//             Terms of Service
-//           </a>
-//           <a href="#" className="hover:underline">
-//             Privacy Policy
-//           </a>
-//         </div>
-//       </div>
-//     </footer>
-//   );
-// }
-
-// Footer.jsx;
-
-import { MessageCircle, Mail, Phone, Instagram, Facebook, Linkedin } from 'lucide-react';
+import {
+  MessageCircle,
+  Mail,
+  Phone,
+  Instagram,
+  Facebook,
+  Linkedin,
+} from "lucide-react";
 import enarxiwhiteLogo from "../assets/images/logo-white.svg";
 
 const Footer = () => {
@@ -95,7 +20,11 @@ const Footer = () => {
               {/* <h2 className="text-footer-brand text-2xl font-bold tracking-wider mb-2">
                 ENARXI
               </h2> */}
-              <img src={enarxiwhiteLogo} alt="Enarxi Logo" className="h-12 md:h-15" />
+              <img
+                src={enarxiwhiteLogo}
+                alt="Enarxi Logo"
+                className="h-12 md:h-15"
+              />
               {/* <p className="text-footer-muted text-sm tracking-wide">
                 INNOVATIONS PRIVATE LIMITED
               </p> */}
@@ -134,22 +63,40 @@ const Footer = () => {
                 FOLLOW US ON
               </h3>
               <div className="flex space-x-4">
-                <a href="#" className="text-footer-foreground hover:text-footer-brand transition-colors">
+                <a
+                  href="#"
+                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                >
                   <MessageCircle className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-footer-foreground hover:text-footer-brand transition-colors">
+                <a
+                  href="#"
+                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                >
                   <Mail className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-footer-foreground hover:text-footer-brand transition-colors">
+                <a
+                  href="#"
+                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                >
                   <Phone className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-footer-foreground hover:text-footer-brand transition-colors">
+                <a
+                  href="#"
+                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                >
                   <Instagram className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-footer-foreground hover:text-footer-brand transition-colors">
+                <a
+                  href="#"
+                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                >
                   <Facebook className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-footer-foreground hover:text-footer-brand transition-colors">
+                <a
+                  href="#"
+                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                >
                   <Linkedin className="w-6 h-6" />
                 </a>
               </div>
@@ -164,10 +111,16 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center text-footer-muted text-sm">
           <p>© 2021 Enarxi Group. All Rights Reserved</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-footer-foreground transition-colors">
+            <a
+              href="#"
+              className="hover:text-footer-foreground transition-colors"
+            >
               Terms of Service
             </a>
-            <a href="#" className="hover:text-footer-foreground transition-colors">
+            <a
+              href="#"
+              className="hover:text-footer-foreground transition-colors"
+            >
               Privacy Policy
             </a>
           </div>

@@ -30,7 +30,6 @@ const testimonials = [
   },
 ];
 
-
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
   const [visibleReviews, setVisibleReviews] = useState(4);
@@ -41,7 +40,7 @@ export default function Testimonials() {
     setCurrent((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
 
   return (
-    <section className="w-full bg-gray-50 py-16 px-4">
+    <section className="w-full bg-gray-50 py-16 px-2">
       {/* Title */}
       <h2 className="text-center text-2xl font-semibold mb-10">
         Their Experience With Us
