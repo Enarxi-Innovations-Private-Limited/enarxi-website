@@ -24,45 +24,30 @@ export default function CtaInvite({
           </div>
 
           {/* Right: CTA stack */}
-          <div className="flex flex-col justify-center">
-            {/* On mobile show avatars block first, on desktop keep it below button */}
-            <div className="order-1 md:order-2 mt-6 md:mt-0">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <img
-                    src={avatar1}
-                    alt="Team member 1"
-                    className="h-10 w-10 rounded-full ring-2 ring-white object-cover"
-                    loading="lazy"
-                  />
-                  <img
-                    src={avatar2}
-                    alt="Team member 2"
-                    className="h-10 w-10 -ml-3 rounded-full ring-2 ring-white object-cover"
-                    loading="lazy"
-                  />
-                  <img
-                    src={avatar3}
-                    alt="Team member 3"
-                    className="h-10 w-10 -ml-3 rounded-full ring-2 ring-white object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <p className="text-sm text-slate-300">
-                  Join with our team to get your product ideas done
-                </p>
+          <div className="flex flex-col items-center justify-center text-center">
+            {/* Avatars + Text */}
+            <div className="order-1 md:order-2 mt-6 md:mt-0 flex flex-col items-center gap-2">
+              <div className="flex -space-x-3">
+                <img src={avatar1} alt="Team member 1" className="h-10 w-10 rounded-full ring-2 ring-white object-cover" loading="lazy" />
+                <img src={avatar2} alt="Team member 2" className="h-10 w-10 rounded-full ring-2 ring-white object-cover" loading="lazy" />
+                <img src={avatar3} alt="Team member 3" className="h-10 w-10 rounded-full ring-2 ring-white object-cover" loading="lazy" />
               </div>
+              <p className="text-sm text-slate-300">
+                Join with our team to get your product ideas done
+              </p>
             </div>
 
-            <div className="order-2 md:order-1 mt-6 md:mt-0 md:self-start">
+            {/* Button */}
+            <div className="order-2 md:order-1 mt-6 md:mt-0 md:pb-4">
               <a
                 href={ctaHref}
-                className="inline-flex w-full md:w-auto items-center justify-center rounded-full bg-[#09B8DC] px-8 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#09B8DC] focus:ring-offset-[#0B1A27]"
+                className="inline-flex items-center justify-center rounded-full bg-[#09B8DC] px-8 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#09B8DC] focus:ring-offset-[#0B1A27]"
               >
                 {ctaText}
               </a>
             </div>
           </div>
+
         </div>
       </div>
     </section>
