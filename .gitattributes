@@ -1,0 +1,14 @@
+# Always use LF for text files
+* text=auto eol=lf
+
+# Keep JSON files LF
+*.json text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+
+# Don't mess with images or binary files
+*.png binary
+*.jpg binary
+*.svg binary
