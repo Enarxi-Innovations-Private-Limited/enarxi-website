@@ -18,7 +18,7 @@ const features = [
   { icon: Scissors, title: 'Value engineering' },
 ];
 
-export function FeaturesSection() {
+export default function FeaturesSection() {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">

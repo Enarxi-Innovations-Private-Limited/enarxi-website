@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import enarxiLogo from "@assets/images/logo/logo.png";
+import enarxiLogo from "@assets/images/logo/logo.svg";
 
 const navItems = [
   { label: "Home", href: "/" },
