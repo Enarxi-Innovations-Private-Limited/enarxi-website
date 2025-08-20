@@ -105,16 +105,17 @@
 
 import { useState } from "react";
 import enarxiLogo from "../assets/images/image.png";
+import { href } from "react-router-dom";
 
 const navItems = [
   { label: "Home", href: "/" },
   {
-    label: "Services",
-    dropdown: [
-      { label: "Web Development", href: "/services/web-development" },
-      { label: "App Development", href: "/services/app-development" },
-      { label: "AI Solutions", href: "/services/ai-solutions" },
-    ],
+    label: "Services", href: "/services"
+    // dropdown: [
+    //   { label: "Web Development", href: "/services/web-development" },
+    //   { label: "App Development", href: "/services/app-development" },
+    //   { label: "AI Solutions", href: "/services/ai-solutions" },
+    // ],
   },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blogs", href: "/blogs" },
@@ -166,7 +167,7 @@ export default function Header() {
           } mt-4 md:mt-0 transition-all duration-300 ease-in-out md:flex-grow md:justify-center`}
         >
           <nav className="mb-4 md:mb-0">
-            <ul className="flex flex-col md:flex-row md:items-center md:space-x-8 md:space-y-0 space-y-4 font-semibold text-black uppercase tracking-wide">
+            <ul className="flex flex-col md:flex-row md:items-center md:space-x-8 md:space-y-0 space-y-4 text-black uppercase tracking-wide">
               {navItems.map((item) => (
                 <li
                   key={item.label}
@@ -178,13 +179,13 @@ export default function Header() {
                   {!item.dropdown ? (
                     <a
                       href={item.href}
-                      className="hover:text-[#09B8DC] transition"
+                      className="hover:text-[#09B8DC] transition font-poppins cursor-pointer"
                     >
                       {item.label}
                     </a>
                   ) : (
                     <>
-                      <div className="flex items-center space-x-1 hover:text-[#09B8DC] transition cursor-pointer">
+                      <div className="flex items-center space-x-1 hover:text-[#09B8DC] transition cursor-pointer font-poppins">
                         <span>{item.label}</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

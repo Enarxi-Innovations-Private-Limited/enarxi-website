@@ -32,7 +32,6 @@ const testimonials = [
 
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
-  const [visibleReviews, setVisibleReviews] = useState(4);
 
   const next = () =>
     setCurrent((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
