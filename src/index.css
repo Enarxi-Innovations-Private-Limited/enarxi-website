@@ -1,1 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 @import "tailwindcss";
+
+
+@theme{
+    --color-project_text_color_primary: rgb(10 21 36);
+    --font-poppins: "Poppins", sans-serif;
+    --font-noto: "Noto Sans JP", sans-serif;
+    --font-oswald: "Oswald", sans-serif;  
+    --color-footer-background: rgb(20,22,26);
+    --color-blacky: rgb(30 32 36);
+    --color-footer-foreground: rgb(217 217 217);
+    --color-footer-muted: rgb(153 153 153);
+    --color-footer-brand: rgb(255 255 255);
+    --color-footer-border: rgb(44 49 58);
+
+}
+
+@layer components {
+  .footer {
+    background-color: hsl(var(--color-footer-background));
+    color: hsl(var(--color-footer-foreground));
+    border-top: 1px solid hsl(var(--color-footer-border));
+    padding: 2rem;
+  }
+  .footer-muted {
+    color: hsl(var(--color-footer-muted));
+    
+  }
+  .footer-brand {
+    color: hsl(var(--color-footer-brand));
+    font-weight: bold;
+  }
+  .allComponent-text-color {
+    color: hsl(var(--color-hero-black));
+  }
+}
