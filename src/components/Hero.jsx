@@ -7,26 +7,32 @@ import {
 import avatar1 from "../assets/images/avatar-1.png";
 import avatar2 from "../assets/images/avatar-2.png";
 import avatar3 from "../assets/images/avatar-3.png";
+
 import bulb from "../assets/images/bulb.svg";
 import cpu from "../assets/images/cpu.svg";
 import run from "../assets/images/run.svg";
 import wallet from "../assets/images/wallet.svg";
 import Scissors from "../assets/images/scissors.svg";
 import badge from "../assets/images/badge.svg";
-import computer from "../assets/images/computer.svg";
+
 // import Handpackage from "../assets/vpackage.svg";
+import computer from "../assets/images/computer.svg";
 import idea from "../assets/images/idea.svg";
 import people from "../assets/images/people.svg";
+import packageHands from "../assets/images/package.svg"
+
 import HowWeTravel from "../assets/images/how-we-travel.svg";
 import IconProduct from "../assets/images/product-design.svg";
 import IconMCFirmware from "../assets/images/mc-firmware.svg";
 import IconPCB from "../assets/images/pcb-design.svg";
 import workDomain from "../assets/images/workdomain.svg";
+
 import tp1 from "../assets/images/tp1.svg";
 import tp2 from "../assets/images/tp2.svg";
 import tp3 from "../assets/images/tp3.svg";
 import tp4 from "../assets/images/tp4.svg";
 import tp5 from "../assets/images/tp5.svg";
+
 import heroImage from "../assets/images/heroImage.svg";
 
 export default function Home() {
@@ -53,7 +59,7 @@ export default function Home() {
     // { icon: Handpackage, value: "50+", label: "Products" },
     { icon: idea, value: "30+", label: "Events & Workshops" },
     { icon: people, value: "2000+", label: "Participants" },
-    { icon: computer, value: "500+", label: "Projects" },
+    { icon: packageHands, value: "500+", label: "Projects" },
   ];
 
   const features = [
