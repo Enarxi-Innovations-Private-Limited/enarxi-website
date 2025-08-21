@@ -53,6 +53,7 @@ export default function Home() {
     // { icon: Handpackage, value: "50+", label: "Products" },
     { icon: idea, value: "30+", label: "Events & Workshops" },
     { icon: people, value: "2000+", label: "Participants" },
+    { icon: computer, value: "500+", label: "Projects" },
   ];
 
   const features = [
@@ -76,9 +77,13 @@ export default function Home() {
     <div className="flex flex-col items-center w-full">
       {/* HERO */}
       <section className="w-full h-[calc(100vh-64px)] bg-gradient-to-b from-[#DEF4FF] to-white flex flex-col items-center justify-center text-center px-4">
-        <p className="text-[#1840A7] capitalize text-xl md:text-3xl lg:4xl font-noto mb-4 mt-6">
+        {/* <p className="text-[#1840A7] capitalize text-xl font-bold  md:text-3xl lg:4xl font-noto mb-4 mt-6">
           Don't just dream it, build it
-        </p>
+        </p> */}
+
+      <p class="font-noto font-medium leading-[100%] tracking-[0.78px] text-[#1840A7] text-center capitalize text-xl md:text-3xl lg:4xl mb-4 mt-6">
+        Don't Just Dream It, Build It
+      </p>
 
         <h1 className="font-semibold text-[#0A1524] max-w-4xl text-xl md:text-[34px] font-poppins leading-snug capitalize mb-6">
           Your imagination knows no bounds. Let's make something amazing
@@ -98,7 +103,6 @@ export default function Home() {
           />
         </div>
       </section>
-
       {/* STATS */}
       <section className="w-full bg-[#0B1A27] py-12">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-white text-center">
