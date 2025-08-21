@@ -24,8 +24,8 @@ export default function Blog() {
   const blogs = [
     {
       img: blog_1,
-      title: "Integer Maecenas Eget Viverra.",
-      desc: "ENARX’s Team Of Qualified PCB Designers And Fabricators Perform Swift And Dense Multilayer Layouts For Your Printed Circuit Boards. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality.",
+      title: "Integer Maecenas Eget Viverrassssss.",
+      desc: "ENARX’s Team Of Qualified PCB Designers And Fabricators Perform Swift And Dense Multilayer  We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality.Layouts For Your Printed Circuit Boards. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality. We Understand The Complex Demands Of The Market, Which Inspires Us To Provide You With Top–Notch Designs Linking To The Best Standards Of Practice And Quality.",
       date: "June 21,2022",
     },
     {
@@ -95,39 +95,44 @@ export default function Blog() {
       </div>
 
       {/* Modal */}
-      {selected && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50"
-          onClick={() => setSelected(null)} // close on backdrop click
-        >
-          <div className="bg-white p-6 rounded-xl w-[60%]">
-            <div
-              className="bg-white rounded-2xl shadow-xl w-full relative overflow-hidden mx-auto"
-              onClick={(e) => e.stopPropagation()} // stop closing when clicking inside
-            >
-              {/* Close button */}
-              <button
-                onClick={() => setSelected(null)}
-                className="absolute top-3 right-3 text-white bg-black/75 p-3 cursor-pointer rounded-full"
-              >
-                <X size={22} />
-              </button>
+     {/* Modal */}
+{selected && (
+  <div
+    className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+    onClick={() => setSelected(null)}
+  >
+    <div className="bg-white rounded-2xl p-2">
+    <div
+      className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col relative overflow-hidden"
+      onClick={(e) => e.stopPropagation()}
+      >
+      {/* Close button */}
+      <button
+        onClick={() => setSelected(null)}
+        className="absolute top-3 right-3 text-white bg-black/75 p-2 cursor-pointer rounded-full z-10"
+      >
+        <X size={20} />
+      </button>
 
-              <img
-                src={selected.img}
-                alt={selected.title}
-                className="w-full h-60 object-cover"
-              />
+      {/* Image */}
+      <img
+        src={selected.img}
+        alt={selected.title}
+        className="w-full h-48 object-cover"
+        />
 
-              <div className="p-6 max-h-[70vh] overflow-y-auto">
-                <h2 className="text-xl font-bold mb-1">{selected.title}</h2>
-                <p className="text-sm text-gray-500 mb-3">{selected.date}</p>
-                <p className="text-gray-600 leading-relaxed">{selected.desc}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Scrollable content */}
+      <div className="p-4 overflow-y-auto">
+        <h2 className="text-xl font-bold mb-1">{selected.title}</h2>
+        <p className="text-sm text-gray-500 mb-3">{selected.date}</p>
+        <p className="text-gray-600 leading-relaxed">{selected.desc}</p>
+      </div>
+         </div>
+    </div>
+  </div>
+)}
+
+
     </section>
   );
 }

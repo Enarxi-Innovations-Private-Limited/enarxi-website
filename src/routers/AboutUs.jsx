@@ -46,8 +46,8 @@ const AboutEnarxi = () => {
 
       {/* Mission Banner */}
       <section className="bg-gray-900 py-[7%] mt-12">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <p className="text-lg md:text-3xl font-semibold text-white leading-snug">
+        <div className="mx-auto md:w-[80%] px-6 text-center ">
+          <p className="text-lg md:text-2xl text-white leading-snug font-poppins md:text-justify">
             <span className="text-[#09B8DC]">Our Mission</span> Is To Empower
             Businesses Of All Sizes To Maximize Their Growth Potential And
             Revenue By Adapting Quickly And Increasing Customer Loyalty.

@@ -63,7 +63,7 @@ const Gallery = () => {
                 className="w-full h-56 object-cover"
               />
               <div className="p-4">
-                <p className="text-gray-600 text-sm font-medium">{data.p}</p>
+                <p className="text-gray-600 text-sm font-medium underline">{data.p}</p>
               </div>
             </div>
           ))}
@@ -75,15 +75,16 @@ const Gallery = () => {
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50"
             onClick={() => setSelected(null)} // Close modal on backdrop click
           >
+            
             <div
               className="bg-white rounded-2xl shadow-xl max-w-4xl w-[90%] relative overflow-hidden animate-fadeIn"
               onClick={(e) => e.stopPropagation()} // Prevent closing on content click
-            >
+              >
               {/* Close button */}
               <button
                 onClick={() => setSelected(null)}
                 className="absolute top-3 right-3 bg-black text-white rounded-full p-3 cursor-pointer"
-              >
+                >
                 <X size={24} />
               </button>
 
@@ -93,7 +94,7 @@ const Gallery = () => {
                   src={selected.img}
                   alt={selected.p}
                   className="w-full h-full object-cover"
-                />
+                  />
                 <div className="p-6 flex flex-col justify-center">
                   <h2 className="text-xl font-semibold mb-3">{selected.p}</h2>
                   <p className="text-gray-600 text-sm leading-relaxed">
@@ -104,8 +105,9 @@ const Gallery = () => {
                     standards.
                   </p>
                 </div>
+                  </div>
               </div>
-            </div>
+          
           </div>
         )}
       </div>
