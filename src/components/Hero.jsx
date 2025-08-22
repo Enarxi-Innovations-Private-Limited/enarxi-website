@@ -272,16 +272,22 @@ export default function Home() {
       </section>
 
       {/* TRUSTED BY */}
-            <div className="container mx-auto px-4 text-center mb-8">
-                <h2 className="text-oswald font-semibold mb-12">Trusted By</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 items-center">
-                    {logos?.map(({ src, alt }, idx) => (
-                        <div key={idx} className="flex justify-center">
-                            <img src={src} alt={alt} className="max-h-12 object-contain" loading="lazy" />
-                        </div>
-                    ))}
-                </div>
-            </div>
+      <section className="py-10 w-full flex flex-col justify-center items-center overflow-hidden">
+        <h2 className="text-center text-2xl font-bold mb-6 font-oswald">Trusted By</h2>
+
+        <div className="w-[90%] mx-auto overflow-hidden">
+        <div className="flex gap-20 justify-center items-center scroll">
+          {logos.concat(logos).map((logo, i) => (
+            <img
+            key={i}
+            src={logo.src}
+            alt={logo.alt}
+            className="h-12 object-contain"
+            />
+          ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

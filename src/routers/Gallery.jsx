@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-import gallery1 from "../assets/images/gallery-1.svg";
-import gallery2 from "../assets/images/gallery-2.svg";
-import gallery3 from "../assets/images/gallery-3.svg";
-import gallery4 from "../assets/images/gallery-4.svg";
+import gallery1 from "../assets/images/gallery-1.jpg";
+import gallery2 from "../assets/images/gallery-2.jpg";
+import gallery3 from "../assets/images/gallery-3.jpg";
+import gallery4 from "../assets/images/gallery-4.jpg";
 import gallery5 from "../assets/images/gallery-5.svg";
 import gallery6 from "../assets/images/gallery-6.svg";
 import gallery7 from "../assets/images/gallery-7.svg";

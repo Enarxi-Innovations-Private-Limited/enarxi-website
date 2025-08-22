@@ -18,9 +18,9 @@
   --color-footer-muted: rgb(153 153 153);
   --color-footer-brand: rgb(255 255 255);
   --color-footer-border: rgb(44 49 58);
-  --font-oswald: "Oswald", sans-serif;
+  <<<<<<< HEAD --font-oswald: "Oswald", sans-serif;
   --font-weight-700: 200;
-
+  =======>>>>>>>22d3580 (modified footer and reduce the image size from 10mb to 10kb)
 }
 
 @layer components {
@@ -77,4 +77,18 @@
     font-weight: 700;
     font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem)
   }
-}
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .scroll {
+    animation: scroll 10s linear infinite;
+    width: max-content;
+  }

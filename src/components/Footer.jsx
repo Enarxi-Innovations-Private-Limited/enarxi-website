@@ -10,26 +10,21 @@ import enarxiLogoWhite from "../assets/images/logo-white.svg";
 
 const Footer = () => {
   return (
-    <footer className="bg-footer-background text-footer-foreground w-full px-5">
-      <div className="container mx-auto px-6 py-2   ">
+      <footer className="flex flex-col container mx-auto px-6 py-2 bg-footer-background text-footer-foreground">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-6 mb-12 justify-items-center max-lg:justify-center">
-          {/* Brand Section */}
-          <div className="lg:col-span-1">
-            <div className="mb-8">
-              {/* <h2 className="text-footer-brand text-2xl font-bold tracking-wider mb-2">
-                ENARXI
-              </h2> */}
-              <img src={enarxiLogoWhite} alt="Enarxi Logo" className="h-12 md:h-15" />
-              {/* <p className="text-footer-muted text-sm tracking-wide">
-                INNOVATIONS PRIVATE LIMITED
-              </p> */}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-6 mb-12 md:justify-items-center items-start">
+          {/* image Section */}
+            <div className="mb-4">
+              <img
+                src={enarxiwhiteLogo}
+                alt="Enarxi Logo"
+                className="h-12 md:h-15"
+              />
           </div>
 
           {/* Office Section */}
-          <div className="lg:col-span-1">
-            <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wide text-center lg:text-left">
+          <div className="ml-3">
+            <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wide">
               OFFICE
             </h3>
             <div className="text-footer-foreground space-y-2">
@@ -41,7 +36,7 @@ const Footer = () => {
           </div>
 
           {/* Contact and Social Section */}
-          <div className="lg:col-span-1 space-y-8">
+          <div className="lg:col-span-1 space-y-8 ml-3">
             {/* Contact Us */}
             <div>
               <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wid text-center lg:text-left">
@@ -86,8 +81,8 @@ const Footer = () => {
         <div className="border-t border-footer-border mb-8"></div>
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-footer-muted text-sm mb-2">
-          <p>© 2021 Enarxi Group. All Rights Reserved</p>
+        <div className="flex flex-col md:flex-row justify-between items-center text-footer-muted text-sm">
+          <p>© 2025 Enarxi Group. All Rights Reserved</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="hover:text-footer-foreground transition-colors">
               Terms of Service
@@ -97,8 +92,8 @@ const Footer = () => {
             </a>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+
   );
 };
 
