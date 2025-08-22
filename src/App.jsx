@@ -7,10 +7,12 @@ import Testimonials from "./routers/Testimonials";
 import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
 import AboutUs from "./routers/AboutUs";
+import ScrolltoTop from "./scrolltoTop";
 
 function App() {
   return (
     <Router>
+      <ScrolltoTop />
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow">
