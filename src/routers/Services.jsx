@@ -266,17 +266,16 @@ const ContactForm = () => {
         <label htmlFor="service" className="sr-only">
           Select Service
         </label>
-        <select
-          id="service"
-          name="service"
-          value={formData.service}
-          onChange={handleChange}
-          className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          required
-        >
+        <select id="service"
+  name="service"
+  value={formData.service}
+  onChange={handleChange}
+  className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400 overflow-x-hidden"
+  required
+>
           <option value="">Select Service *</option>
           {FORM_OPTIONS.services.map((service, index) => (
-            <option key={index} value={service}>
+            <option key={index} value={service} className="truncate overflow-x-hidden">
               {service}
             </option>
           ))}
