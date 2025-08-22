@@ -16,7 +16,7 @@ const Footer = () => {
           {/* image Section */}
             <div className="mb-4">
               <img
-                src={enarxiwhiteLogo}
+                src={enarxiLogoWhite}
                 alt="Enarxi Logo"
                 className="h-12 md:h-15"
               />
@@ -39,10 +39,10 @@ const Footer = () => {
           <div className="lg:col-span-1 space-y-8 ml-3">
             {/* Contact Us */}
             <div>
-              <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wid text-center lg:text-left">
+              <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wide ">
                 CONTACT US
               </h3>
-              <div className="space-y-3 text-center lg:text-left">
+              <div className="space-y-3 ">
                 <p className="text-footer-foreground">+91-9600676639</p>
                 <p className="text-footer-foreground">info@enarxi.com</p>
               </div>
@@ -50,7 +50,7 @@ const Footer = () => {
 
             {/* Follow Us */}
             <div>
-              <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wide lg:text-left text-center">
+              <h3 className="text-footer-brand text-lg font-semibold mb-6 tracking-wide ">
                 FOLLOW US ON
               </h3>
               <div className="flex space-x-4 text-center lg:text-left">
