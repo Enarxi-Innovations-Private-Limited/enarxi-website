@@ -8,9 +8,9 @@ import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
 import AboutUs from "./routers/AboutUs";
 import ScrolltoTop from "./scrolltoTop";
-import HeroSectionNew from "./components/farmui/HeroSectionNew";
-import HeroHeader from "./components/farmui/HeroHeader";
-import FooterNew from "./components/farmui/FooterNew";
+import HeroSectionNew from "./components/newHero/HeroSectionNew";
+import HeroHeader from "./components/newHero/HeroHeader";
+import FooterNew from "./components/newHero/FooterNew";
 
 function App() {
   return (
