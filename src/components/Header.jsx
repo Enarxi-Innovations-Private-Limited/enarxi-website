@@ -25,8 +25,6 @@ export default function Header() {
               alt="Enarxi - Company Logo"
               className="h-10 w-auto"
               loading="lazy"
-              width="120"
-              height="40"
             />
           </a>
           <button
