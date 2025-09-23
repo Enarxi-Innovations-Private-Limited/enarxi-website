@@ -10,6 +10,7 @@ import AboutUs from "./routers/AboutUs";
 import ScrolltoTop from "./scrolltoTop";
 import HeroSectionNew from "./components/farmui/HeroSectionNew";
 import HeroHeader from "./components/farmui/HeroHeader";
+import NewAboutUs from "@components/NewAboutus";
 import FooterNew from "./components/farmui/FooterNew";
 
 function App() {
@@ -17,8 +18,8 @@ function App() {
     <Router>
       <ScrolltoTop />
       <div className="flex flex-col min-h-screen">
-        {/* <Header /> */}
-        <HeroHeader />
+        <Header />
+        {/* <HeroHeader /> */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Hero />} />
@@ -28,6 +29,7 @@ function App() {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/newHero" element={<HeroSectionNew />} />
+            <Route path="/newAbout" element={<NewAboutUs />} />
           </Routes>
         </main>
         {/* <Footer /> */}

@@ -14,5 +14,7 @@ export default defineConfig({
       "@lib": path.resolve(__dirname, "./src/lib"),
     },
   },
-
+  server: {
+    port: 3001, // Change this to the port you want
+  },
 })
