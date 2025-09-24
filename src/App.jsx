@@ -14,6 +14,7 @@ import NewAboutUs from "@components/NewAboutus";
 import AboutUs1 from "@components/new/Aboutus";
 import FooterNew from "./components/farmui/FooterNew";
 import Aboutusb from "./routers/AboutUsPageB";
+import AdminPortal from "./routers/AdminPortal";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="/newAbout" element={<NewAboutUs />} />
             <Route path="/naboutus" element={<Aboutusb />} />
             <Route path="/aboutuslvb" element={<AboutUs1 />} />
+            <Route path="/admin" element={<AdminPortal />} />
             
           </Routes>
         </main>
