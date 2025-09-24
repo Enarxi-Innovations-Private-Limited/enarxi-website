@@ -10,9 +10,10 @@ import AboutUs from "./routers/AboutUs";
 import ScrolltoTop from "./scrolltoTop";
 import HeroSectionNew from "./components/newHero/HeroSectionNew";
 import HeroHeader from "./components/newHero/HeroHeader";
+import AboutUs1 from "@components/new/Aboutus";
 import FooterNew from "./components/newHero/FooterNew";
-import FeedBack from "./routers/FeedBack";
 import AdminPortal from "./routers/AdminPortal";
+import FeedBack from "./routers/FeedBack";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/newHero" element={<HeroSectionNew />} />
             <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/aboutus1" element={<AboutUs1 />} />
             <Route path="/feedback" element={<FeedBack />} />
             <Route path="/admin" element={<AdminPortal />} />
           </Routes>

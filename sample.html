@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Enarxi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6 0%, #1e40af 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .value-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-gray-900 border-b border-gray-800 fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-xl font-bold gradient-text">ENARXI</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Home</a>
+                            <a href="about.html" class="px-3 py-2 rounded-md text-sm font-medium bg-gray-800 text-white">About</a>
+                            <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Services</a>
+                            <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Contact</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white focus:outline-none">
+                        <i data-feather="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-gray-800">
+        <div class="max-w-7xl mx-auto text-center" data-aos="fade-up">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6">
+                <span class="gradient-text">Our Story</span>
+            </h1>
+            <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-300">
+                Founded in 2020, Enarxi has been at the forefront of digital innovation, helping businesses transform and thrive in the digital age.
+            </p>
+        </div>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12">
+            <div class="bg-gray-900 p-8 rounded-xl shadow-lg" data-aos="fade-right">
+                <div class="flex items-center mb-6">
+                    <div class="p-3 rounded-full bg-blue-900 bg-opacity-30">
+                        <i data-feather="target" class="text-blue-500 w-6 h-6"></i>
+                    </div>
+                    <h2 class="ml-4 text-2xl font-bold text-white">Our Mission</h2>
+                </div>
+                <p class="text-gray-300">
+                    To empower businesses with cutting-edge digital solutions that drive growth, efficiency, and innovation. We believe in creating technology that makes a real difference.
+                </p>
+            </div>
+            <div class="bg-gray-900 p-8 rounded-xl shadow-lg" data-aos="fade-left">
+                <div class="flex items-center mb-6">
+                    <div class="p-3 rounded-full bg-blue-900 bg-opacity-30">
+                        <i data-feather="eye" class="text-blue-500 w-6 h-6"></i>
+                    </div>
+                    <h2 class="ml-4 text-2xl font-bold text-white">Our Vision</h2>
+                </div>
+                <p class="text-gray-300">
+                    To be the most trusted digital transformation partner for businesses worldwide, recognized for our innovation, integrity, and exceptional results.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-900">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    <span class="gradient-text">Meet Our Team</span>
+                </h2>
+                <p class="max-w-2xl mx-auto text-gray-300">
+                    A diverse group of passionate professionals dedicated to delivering excellence.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg team-card transition duration-300" data-aos="zoom-in">
+                    <img src="http://static.photos/people/400x400/1" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white">Alex Johnson</h3>
+                        <p class="text-blue-400 mb-4">CEO & Founder</p>
+                        <p class="text-gray-300 text-sm">Visionary leader with 15+ years in tech innovation.</p>
+                    </div>
+                </div>
+                <!-- Team Member 2 -->
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg team-card transition duration-300" data-aos="zoom-in" data-aos-delay="100">
+                    <img src="http://static.photos/people/400x400/2" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white">Sarah Williams</h3>
+                        <p class="text-blue-400 mb-4">CTO</p>
+                        <p class="text-gray-300 text-sm">Tech strategist specializing in scalable architectures.</p>
+                    </div>
+                </div>
+                <!-- Team Member 3 -->
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg team-card transition duration-300" data-aos="zoom-in" data-aos-delay="200">
+                    <img src="http://static.photos/people/400x400/3" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white">Michael Chen</h3>
+                        <p class="text-blue-400 mb-4">Lead Developer</p>
+                        <p class="text-gray-300 text-sm">Full-stack wizard with a passion for clean code.</p>
+                    </div>
+                </div>
+                <!-- Team Member 4 -->
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg team-card transition duration-300" data-aos="zoom-in" data-aos-delay="300">
+                    <img src="http://static.photos/people/400x400/4" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white">Emily Rodriguez</h3>
+                        <p class="text-blue-400 mb-4">UX Designer</p>
+                        <p class="text-gray-300 text-sm">Creating intuitive and beautiful user experiences.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    <span class="gradient-text">Our Core Values</span>
+                </h2>
+                <p class="max-w-2xl mx-auto text-gray-300">
+                    The principles that guide everything we do at Enarxi.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Value 1 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg value-card transition duration-300" data-aos="fade-up">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 rounded-full bg-blue-900 bg-opacity-30">
+                            <i data-feather="zap" class="text-blue-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="ml-4 text-xl font-bold text-white">Innovation</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        We constantly push boundaries to create solutions that redefine what's possible.
+                    </p>
+                </div>
+                <!-- Value 2 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg value-card transition duration-300" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 rounded-full bg-blue-900 bg-opacity-30">
+                            <i data-feather="shield" class="text-blue-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="ml-4 text-xl font-bold text-white">Integrity</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        We do what's right, not what's easy. Honesty and transparency guide our actions.
+                    </p>
+                </div>
+                <!-- Value 3 -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-lg value-card transition duration-300" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 rounded-full bg-blue-900 bg-opacity-30">
+                            <i data-feather="users" class="text-blue-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="ml-4 text-xl font-bold text-white">Collaboration</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        We believe the best results come from working together with clients and colleagues.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold gradient-text mb-4">ENARXI</h3>
+                    <p class="text-gray-300 text-sm">
+                        Transforming businesses through innovative digital solutions.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="about.html" class="text-gray-300 hover:text-white text-sm">About Us</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white text-sm">Careers</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white text-sm">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white text-sm">Web Development</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white text-sm">Mobile Apps</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white text-sm">Cloud Solutions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white">
+                            <i data-feather="twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white">
+                            <i data-feather="linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white">
+                            <i data-feather="facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white">
+                            <i data-feather="instagram"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-300 text-sm mt-4">info@enarxi.com</p>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+                <p>© 2023 Enarxi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        feather.replace();
+    </script>
+</body>
+</html>

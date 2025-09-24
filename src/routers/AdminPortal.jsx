@@ -1,102 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from './client/supabaseClient';
+import React, { useState     } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Sidebar from '../components/admin/Sidebar';
+import DashboardStats from '../components/admin/DashboardStats';
+import StaffTable from '../components/admin/StaffTable';
+import BlogsTable from '../components/admin/BlogsTable';
+import ReviewsTable from '../components/admin/ReviewsTable';
 
 const AdminPortal = () => {
-  const [pendingTestimonials, setPendingTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    fetchPendingTestimonials();
-  }, []);
-
-  const fetchPendingTestimonials = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('Testimonial Form')
-      .select('*')
-      .eq('status', 'pending');
-      
-    if (error) {
-      console.error('Error fetching testimonials:', error);
-    } else {
-      setPendingTestimonials(data);
-    }
-    setLoading(false);
-  };
-
-  const handleApproval = async (id, newStatus) => {
-    if (window.confirm(`Are you sure you want to ${newStatus} this testimonial?`)) {
-      const { error } = await supabase
-        .from('Testimonial Form')
-        .update({ status: newStatus })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error updating status:', error);
-        alert('Failed to update testimonial status.');
-      } else {
-        fetchPendingTestimonials();
-      }
+  const renderContent = () => { 
+    switch (activeSection) {
+      case 'dashboard':
+        return <DashboardStats />;
+      case 'staff':
+        return <StaffTable />;
+      case 'blogs':
+        return <BlogsTable />;
+      case 'reviews':
+        return <ReviewsTable />;
+      default:
+        return <DashboardStats />;
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
-        <div className="text-xl font-medium text-gray-700">Loading pending testimonials...</div>
-      </div>
-    );
-  }
-
-  if (pendingTestimonials.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
-        <div className="text-xl font-medium text-gray-700">No new testimonials to review at this time.</div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-10">Admin Portal</h1>
-        
-        <div className="space-y-6">
-          {pendingTestimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-semibold text-xl text-gray-900">{testimonial.customer_name || 'Anonymous'}</p>
-                  <p className="text-sm text-gray-500">{testimonial.email}</p>
-                </div>
-                {testimonial.rating && (
-                  <div className="text-yellow-500 font-bold text-lg">
-                    {'★'.repeat(testimonial.rating)}
-                  </div>
-                )}
-              </div>
-              
-              <p className="text-gray-700 leading-relaxed italic">
-                "{testimonial.feedback}"
-              </p>
-              
-              <div className="mt-6 flex space-x-4">
-                <button
-                  onClick={() => handleApproval(testimonial.id, 'approved')}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleApproval(testimonial.id, 'rejected')}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 transition duration-300"
-                >
-                  Reject
-                </button>
-              </div>
+    <div className="min-h-screen bg-white flex">
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <Sidebar
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 lg:ml-64">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h1 className="text-2xl font-bold text-[#0A1524] ml-2 lg:ml-0">
+                {activeSection === 'dashboard' && 'Dashboard'}
+                {activeSection === 'staff' && 'Staff Management'}
+                {activeSection === 'blogs' && 'Blog Review Section'}
+                {activeSection === 'reviews' && 'Customer Review Section'}
+              </h1>
             </div>
-          ))}
-        </div>
+            <div className="text-sm text-gray-500">
+              Admin Portal
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="p-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderContent()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
       </div>
     </div>
   );

@@ -112,6 +112,17 @@
   --color-footer-border: rgb(44 49 58);
   --font-oswald: "Oswald", sans-serif;
   --font-weight-700: 200;
+
+  /* After 22092025 */
+  --color-primary: #3b82f6;           /* blue-500 */
+  --color-primary-dark: #1e40af;      /* blue-900/darker */
+  --color-bg: #111827;                /* gray-900 */
+  --color-bg-alt: #1f2937;            /* gray-800 */
+  --color-text: #d1d5db;              /* gray-300 */
+
+  /* Fonts */
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 @layer components {
@@ -300,5 +311,26 @@
 
   body {
     @apply bg-background text-foreground;
+    background-color: var(--color-bg);
+    color: white;
+    font-family: var(--font-body);
+    .gradient-text {
+      background: linear-gradient(
+        90deg,
+        var(--color-primary) 0%,
+        var(--color-primary-dark) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  
+    .value-card:hover,
+    .team-card:hover {
+      transform: translateY(-5px);
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
   }
 }
