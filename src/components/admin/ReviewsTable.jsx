@@ -1,79 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, CheckCircle, Trash2, Star, X, Mail } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';// adjust path if needed
 
 const ReviewsTable = () => {
+  const [reviewsData, setReviewsData] = useState([]);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const reviewsData = [
-    {
-      id: 1,
-      reviewBy: 'Alice Johnson',
-      email: 'alice.johnson@email.com',
-      rating: 5,
-      comments: 'Excellent service! The team was very professional and delivered exactly what we needed. The project was completed on time and exceeded our expectations. I would definitely recommend Enarxi to anyone looking for quality web development services.',
-      submittedOn: '2024-01-15',
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      reviewBy: 'Robert Smith',
-      email: 'robert.smith@email.com',
-      rating: 4,
-      comments: 'Great experience working with Enarxi. The communication was clear throughout the project.',
-      submittedOn: '2024-01-14',
-      status: 'Pending',
-    },
-    {
-      id: 3,
-      reviewBy: 'Maria Garcia',
-      email: 'maria.garcia@email.com',
-      rating: 5,
-      comments: 'Outstanding work! The website they created for our business has significantly improved our online presence. The design is modern, user-friendly, and perfectly captures our brand identity. The team was responsive to all our feedback and made revisions promptly.',
-      submittedOn: '2024-01-13',
-      status: 'Pending',
-    },
-    {
-      id: 4,
-      reviewBy: 'James Wilson',
-      email: 'james.wilson@email.com',
-      rating: 3,
-      comments: 'Good service overall, but there were some delays in the initial phases.',
-      submittedOn: '2024-01-12',
-      status: 'Pending',
-    },
-    {
-      id: 5,
-      reviewBy: 'Lisa Brown',
-      email: 'lisa.brown@email.com',
-      rating: 5,
-      comments: 'Fantastic team to work with! They understood our requirements perfectly and delivered a solution that works seamlessly. The attention to detail and quality of work is impressive.',
-      submittedOn: '2024-01-11',
-      status: 'Pending',
-    },
-  ];
+  // Fetch pending reviews on mount
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
-  const handleViewMore = (review) => {
-    setSelectedReview(review);
+  const fetchReviews = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('Testimonial Form') // ⚠️ exact table name
+      .select('*')
+      .eq('status', 'pending'); // fetch only pending reviews
+
+    if (error) {
+      console.error('Error fetching reviews:', error);
+      setReviewsData([]);
+    } else {
+      setReviewsData(data);
+    }
+    setLoading(false);
   };
 
-  const handleApprove = (reviewId, reviewBy) => {
-    console.log(`Approve action for review ID: ${reviewId}, Reviewer: ${reviewBy}`);
-    setSelectedReview(null);
+  // Approve / Reject handlers
+  const handleUpdateStatus = async (reviewId, newStatus) => {
+    const { error } = await supabase
+      .from('Testimonial Form')
+      .update({ status: newStatus })
+      .eq('id', reviewId);
+
+    if (error) {
+      console.error(`Error updating review ${reviewId}:`, error);
+      alert('Failed to update review status.');
+    } else {
+      fetchReviews(); // refresh after update
+      setSelectedReview(null);
+    }
   };
 
-  const handleDelete = (reviewId, reviewBy) => {
-    console.log(`Delete action for review ID: ${reviewId}, Reviewer: ${reviewBy}`);
-    setSelectedReview(null);
-  };
+  // Utilities
+  const truncateText = (text, maxLength = 60) =>
+    text?.length > maxLength ? text.substring(0, maxLength) + '...' : text;
 
-  const truncateText = (text, maxLength = 60) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, index) => (
+  const renderStars = (rating = 0) =>
+    Array.from({ length: 5 }, (_, index) => (
       <Star
         key={index}
         className={`h-4 w-4 ${
@@ -81,45 +58,61 @@ const ReviewsTable = () => {
         }`}
       />
     ));
-  };
 
+  // Animation configs
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
   };
 
   const rowVariants = {
     hidden: { opacity: 0, x: -20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 30,
-      },
+      transition: { type: 'spring', stiffness: 300, damping: 30 },
     },
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-600">
+        Loading reviews...
+      </div>
+    );
+  }
+
+  // No reviews state
+  if (reviewsData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-600">
+        No new reviews to review at this time.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Customer Review Section</h2>
-          <p className="text-gray-600">Review and manage customer feedback and testimonials.</p>
+          <h2 className="text-2xl font-bold text-[#0A1524] mb-2">
+            Customer Review Section
+          </h2>
+          <p className="text-gray-600">
+            Review and manage customer feedback and testimonials.
+          </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">
-            {reviewsData.length} reviews pending approval
-          </span>
-        </div>
+        <span className="text-sm text-gray-500">
+          {reviewsData.length} reviews pending approval
+        </span>
       </div>
 
+      {/* Table */}
       <motion.div
         className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
@@ -130,19 +123,19 @@ const ReviewsTable = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Review By
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Rating
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Comments
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Actions
                 </th>
               </tr>
@@ -160,56 +153,62 @@ const ReviewsTable = () => {
                   className="hover:bg-gray-50 transition-colors duration-200"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-[#0A1524]">{review.reviewBy}</div>
+                    <div className="text-sm font-medium text-[#0A1524]">
+                      {review.customer_name || 'Anonymous'}
+                    </div>
                     <div className="text-xs text-gray-500">
-                      {new Date(review.submittedOn).toLocaleDateString()}
+                      {review.created_at
+                        ? new Date(review.created_at).toLocaleDateString()
+                        : ''}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-500">
                       <Mail className="h-4 w-4 mr-1" />
-                      {review.email}
+                      {review.email || 'N/A'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {renderStars(review.rating)}
-                      <span className="ml-2 text-sm text-gray-600">({review.rating}/5)</span>
+                      {renderStars(review.rating || 0)}
+                      <span className="ml-2 text-sm text-gray-600">
+                        ({review.rating || 0}/5)
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-600 max-w-xs">
-                      {truncateText(review.comments)}
+                      {truncateText(review.feedback || '')}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       <motion.button
-                        onClick={() => handleViewMore(review)}
+                        onClick={() => setSelectedReview(review)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium flex items-center"
                       >
                         <Eye className="h-3 w-3 mr-1" />
                         View More
                       </motion.button>
                       <motion.button
-                        onClick={() => handleApprove(review.id, review.reviewBy)}
+                        onClick={() => handleUpdateStatus(review.id, 'approved')}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center"
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium flex items-center"
                       >
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Approve
                       </motion.button>
                       <motion.button
-                        onClick={() => handleDelete(review.id, review.reviewBy)}
+                        onClick={() => handleUpdateStatus(review.id, 'rejected')}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center"
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium flex items-center"
                       >
                         <Trash2 className="h-3 w-3 mr-1" />
-                        Delete
+                        Reject
                       </motion.button>
                     </div>
                   </td>
@@ -217,35 +216,6 @@ const ReviewsTable = () => {
               ))}
             </motion.tbody>
           </table>
-        </div>
-      </motion.div>
-
-      {/* Review Statistics */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-4"
-      >
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-[#0A1524]">{reviewsData.length}</div>
-          <div className="text-sm text-gray-600">Pending Reviews</div>
-        </div>
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-[#0A1524]">
-            {(reviewsData.reduce((sum, review) => sum + review.rating, 0) / reviewsData.length).toFixed(1)}
-          </div>
-          <div className="text-sm text-gray-600">Average Rating</div>
-        </div>
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-[#0A1524]">
-            {reviewsData.filter(review => review.rating === 5).length}
-          </div>
-          <div className="text-sm text-gray-600">5-Star Reviews</div>
-        </div>
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-[#0A1524]">156</div>
-          <div className="text-sm text-gray-600">Total Approved</div>
         </div>
       </motion.div>
 
@@ -280,51 +250,61 @@ const ReviewsTable = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500">Reviewer</label>
-                    <p className="text-lg font-medium text-[#0A1524]">{selectedReview.reviewBy}</p>
+                    <p className="text-lg font-medium text-[#0A1524]">
+                      {selectedReview.customer_name || 'Anonymous'}
+                    </p>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-gray-500">Email</label>
-                    <p className="text-gray-600">{selectedReview.email}</p>
+                    <p className="text-gray-600">{selectedReview.email || 'N/A'}</p>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-gray-500">Rating</label>
                     <div className="flex items-center mt-1">
-                      {renderStars(selectedReview.rating)}
-                      <span className="ml-2 text-gray-600">({selectedReview.rating}/5)</span>
+                      {renderStars(selectedReview.rating || 0)}
+                      <span className="ml-2 text-gray-600">
+                        ({selectedReview.rating || 0}/5)
+                      </span>
                     </div>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-gray-500">Comments</label>
-                    <p className="text-gray-700 leading-relaxed mt-1">{selectedReview.comments}</p>
+                    <p className="text-gray-700 leading-relaxed mt-1">
+                      {selectedReview.feedback}
+                    </p>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-gray-500">Submitted On</label>
-                    <p className="text-gray-600">{new Date(selectedReview.submittedOn).toLocaleDateString()}</p>
+                    <p className="text-gray-600">
+                      {selectedReview.created_at
+                        ? new Date(selectedReview.created_at).toLocaleDateString()
+                        : ''}
+                    </p>
                   </div>
                 </div>
                 
                 <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
                   <motion.button
-                    onClick={() => handleApprove(selectedReview.id, selectedReview.reviewBy)}
+                    onClick={() => handleUpdateStatus(selectedReview.id, 'approved')}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Approve
                   </motion.button>
                   <motion.button
-                    onClick={() => handleDelete(selectedReview.id, selectedReview.reviewBy)}
+                    onClick={() => handleUpdateStatus(selectedReview.id, 'rejected')}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center"
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
+                    Reject
                   </motion.button>
                 </div>
               </div>
