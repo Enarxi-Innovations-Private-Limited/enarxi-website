@@ -5,50 +5,41 @@ const AdminPortal = () => {
   const [pendingTestimonials, setPendingTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // useEffect hook to fetch data when the component mounts
   useEffect(() => {
     fetchPendingTestimonials();
   }, []);
 
-  // Function to fetch all testimonials with a 'pending' status
   const fetchPendingTestimonials = async () => {
-    // Set loading to true while fetching data
     setLoading(true);
     const { data, error } = await supabase
-      .from('Testimonial Form') // Use the exact table name from your Supabase project
+      .from('Testimonial Form')
       .select('*')
-      .eq('status', 'pending'); // Filter for pending testimonials only
+      .eq('status', 'pending');
       
     if (error) {
       console.error('Error fetching testimonials:', error);
-      // You could set an error state here to display a message to the user
     } else {
       setPendingTestimonials(data);
     }
-    // Set loading to false after the data is fetched
     setLoading(false);
   };
 
-  // Function to handle the approval or rejection of a testimonial
   const handleApproval = async (id, newStatus) => {
-    // Show a confirmation dialog to the user
     if (window.confirm(`Are you sure you want to ${newStatus} this testimonial?`)) {
       const { error } = await supabase
         .from('Testimonial Form')
-        .update({ status: newStatus }) // Update the status column
-        .eq('id', id); // Identify the specific row by its ID
+        .update({ status: newStatus })
+        .eq('id', id);
 
       if (error) {
         console.error('Error updating status:', error);
         alert('Failed to update testimonial status.');
       } else {
-        // If successful, re-fetch the list to update the UI
         fetchPendingTestimonials();
       }
     }
   };
 
-  // Display a loading message while data is being fetched
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -57,7 +48,6 @@ const AdminPortal = () => {
     );
   }
 
-  // Display a message if there are no pending testimonials
   if (pendingTestimonials.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -66,7 +56,6 @@ const AdminPortal = () => {
     );
   }
 
-  // Main JSX for the admin portal
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
@@ -75,15 +64,22 @@ const AdminPortal = () => {
         <div className="space-y-6">
           {pendingTestimonials.map((testimonial) => (
             <div key={testimonial.id} className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-indigo-500">
-              {/* Display the testimonial content */}
-              <p className="font-semibold text-xl text-gray-900 mb-2">
-                {testimonial.customer_name || 'Anonymous'}
-              </p>
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-semibold text-xl text-gray-900">{testimonial.customer_name || 'Anonymous'}</p>
+                  <p className="text-sm text-gray-500">{testimonial.email}</p>
+                </div>
+                {testimonial.rating && (
+                  <div className="text-yellow-500 font-bold text-lg">
+                    {'★'.repeat(testimonial.rating)}
+                  </div>
+                )}
+              </div>
+              
               <p className="text-gray-700 leading-relaxed italic">
                 "{testimonial.feedback}"
               </p>
               
-              {/* Approval/Rejection buttons */}
               <div className="mt-6 flex space-x-4">
                 <button
                   onClick={() => handleApproval(testimonial.id, 'approved')}

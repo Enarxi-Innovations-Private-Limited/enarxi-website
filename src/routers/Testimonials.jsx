@@ -8,23 +8,20 @@ export default function Testimonials() {
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // UseEffect to fetch approved testimonials when the component mounts
   useEffect(() => {
     fetchApprovedTestimonials();
   }, []);
 
   const fetchApprovedTestimonials = async () => {
     setLoading(true);
-    // Fetch all testimonials that have been approved
     const { data, error } = await supabase
-      .from('Testimonial Form') // Use the exact table name from your Supabase project
+      .from('Testimonial Form')
       .select('*')
-      .eq('status', 'approved') // Filter for approved testimonials only
-      .order('created_at', { ascending: false }); // Sort by newest first
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
       
     if (error) {
       console.error('Error fetching approved testimonials:', error);
-      // In a production app, you might display an error message to the user
     } else {
       setApprovedTestimonials(data);
     }
@@ -43,7 +40,6 @@ export default function Testimonials() {
     }
   };
 
-  // Render a loading state while fetching data
   if (loading) {
     return (
       <section className="w-full bg-gray-50 py-16 px-2 text-center">
@@ -53,7 +49,6 @@ export default function Testimonials() {
     );
   }
 
-  // Render a message if there are no testimonials to display
   if (approvedTestimonials.length === 0) {
     return (
       <section className="w-full bg-gray-50 py-16 px-2 text-center">
@@ -63,17 +58,14 @@ export default function Testimonials() {
     );
   }
 
-  // Get the current testimonial from the dynamically fetched array
   const currentTestimonial = approvedTestimonials[current];
 
   return (
     <section className="w-full bg-gray-50 py-16 px-2">
-      {/* Title */}
       <h2 className="text-center text-2xl font-semibold mb-10">
         Their Experience With Us
       </h2>
 
-      {/* Testimonials Carousel */}
       <div className="flex items-center justify-center gap-6 mb-10">
         <button
           onClick={prev}
@@ -83,9 +75,12 @@ export default function Testimonials() {
         </button>
 
         <div className="max-w-md text-center flex flex-col items-center">
-          {/* Note: Image, role, and rating fields from the original code are not present in your database. */}
-          {/* The code has been updated to use the `customer_name` and `feedback` fields from your Supabase table. */}
           <h3 className="mt-4 font-bold">{currentTestimonial.customer_name || 'Anonymous'}</h3>
+          {currentTestimonial.rating && (
+            <div className="text-yellow-500 text-2xl mt-2">
+              {'★'.repeat(currentTestimonial.rating)}
+            </div>
+          )}
           <p className="mt-2 text-gray-700 italic">
             "{currentTestimonial.feedback}"
           </p>
@@ -99,11 +94,18 @@ export default function Testimonials() {
         </button>
       </div>
 
-      {/* Google Reviews Section */}
       <BentoReviews />
     </section>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

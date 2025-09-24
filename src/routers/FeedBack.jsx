@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { supabase } from './client/supabaseClient';
 
-const Feedback = () => {
+const FeedbackForm = () => {
   const [formData, setFormData] = useState({
-    customer_name: '', // Maps to customer_name in the DB
-    feedback: '',      // Maps to feedback in the DB
-    isTestimonial: false,
-    rating: '',
-    whatLiked: '',
-    whatToImprove: '',
-    additionalComments: ''
+    customer_name: '',
+    email: '',
+    rating: null, // Change to null to handle unselected rating
+    comments: ''
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -18,34 +15,35 @@ const Feedback = () => {
     const { name, value, type, checked } = e.target;
     setFormData(prevState => ({
       ...prevState,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: name === "rating" ? Number(value) : (type === 'checkbox' ? checked : value)
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Combine all feedback text fields into a single `feedback` string
-    const combinedFeedback = `${formData.rating ? 'Rating: ' + formData.rating + '\n\n' : ''}` +
-                             `${formData.whatLiked ? 'What I liked: ' + formData.whatLiked + '\n\n' : ''}` +
-                             `${formData.whatToImprove ? 'What to improve: ' + formData.whatToImprove + '\n\n' : ''}` +
-                             `${formData.additionalComments ? 'Additional Comments: ' + formData.additionalComments : ''}`;
-
     const feedbackData = {
       customer_name: formData.customer_name,
-      feedback: combinedFeedback.trim()
+      email: formData.email,
+      rating: parseInt(formData.rating, 10), // Convert rating to number
+      feedback: formData.comments, // Map `comments` to `feedback`
     };
 
     try {
       const { error } = await supabase
-        .from('Testimonial Form') // Use the exact table name from your screenshot
+        .from('Testimonial Form') // Ensure this matches your table name
         .insert([feedbackData]);
 
       if (error) throw error;
 
-      // alert('Feedback submitted successfully!');
+      alert('Feedback submitted successfully!');
       setSubmitted(true);
-      // Reset form data if needed
+      setFormData({ // Reset form data
+        customer_name: '',
+        email: '',
+        rating: null,
+        comments: ''
+      });
     } catch (error) {
       console.error('Submission failed:', error.message);
       alert('An error occurred. Please try again.');
@@ -54,7 +52,6 @@ const Feedback = () => {
 
   if (submitted) {
     return (
-      // Your success message JSX
       <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="max-w-xl w-full bg-white p-8 rounded-lg shadow-lg text-center">
           <h2 className="text-3xl font-bold text-green-600 mb-4">✅ Thank You!</h2>
@@ -71,15 +68,41 @@ const Feedback = () => {
       <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Customer Feedback Form</h1>
         <p className="text-gray-600 text-center mb-8">
-          Hello there, and thank you for being a valued customer! We'd love to hear your thoughts so we can continue to improve.
+          Hello there, and thank you for your feedback!
         </p>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Overall Experience */}
+          {/* Customer Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">1. Overall Experience</label>
+            <label className="block text-gray-700 font-semibold mb-2">Name</label>
+            <input
+              type="text"
+              name="customer_name"
+              value={formData.customer_name}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
+              required
+            />
+          </div>
+
+          {/* Rating */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">Rating</label>
             <div className="flex flex-wrap gap-4">
-              {['Excellent', 'Good', 'Fair', 'Poor'].map(rating => (
+              {[5, 4, 3, 2, 1].map(rating => (
                 <label key={rating} className="inline-flex items-center">
                   <input
                     type="radio"
@@ -96,12 +119,12 @@ const Feedback = () => {
             </div>
           </div>
 
-          {/* Combined Text Areas for `feedback` */}
+          {/* Comments */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">2. What did you like most?</label>
+            <label className="block text-gray-700 font-semibold mb-2">Comments</label>
             <textarea
-              name="whatLiked"
-              value={formData.whatLiked}
+              name="comments"
+              value={formData.comments}
               onChange={handleInputChange}
               rows="4"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
@@ -109,58 +132,6 @@ const Feedback = () => {
             ></textarea>
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">3. What can we do to improve?</label>
-            <textarea
-              name="whatToImprove"
-              value={formData.whatToImprove}
-              onChange={handleInputChange}
-              rows="4"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
-            ></textarea>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">4. Additional Comments</label>
-            <textarea
-              name="additionalComments"
-              value={formData.additionalComments}
-              onChange={handleInputChange}
-              rows="4"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
-            ></textarea>
-          </div>
-
-          <hr className="my-6 border-gray-300" />
-
-          {/* Testimonial Section */}
-          <div className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              name="isTestimonial"
-              checked={formData.isTestimonial}
-              onChange={handleInputChange}
-              className="form-checkbox text-indigo-600 h-5 w-5"
-            />
-            <label className="ml-2 text-gray-700 font-semibold">
-              5. Would you like us to use your feedback as a testimonial?
-            </label>
-          </div>
-
-          {formData.isTestimonial && (
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">Name</label>
-              <input
-                type="text"
-                name="customer_name"
-                value={formData.customer_name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
-                required
-              />
-            </div>
-          )}
-          
           <div className="flex justify-center">
             <button
               type="submit"
@@ -175,4 +146,4 @@ const Feedback = () => {
   );
 };
 
-export default Feedback;
+export default FeedbackForm;
