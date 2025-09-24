@@ -64,9 +64,6 @@ const AdminPortal = () => {
               </button>
               <h1 className="text-2xl font-bold text-[#0A1524] ml-2 lg:ml-0">
                 {activeSection === 'dashboard' && 'Dashboard'}
-                {activeSection === 'staff' && 'Staff Management'}
-                {activeSection === 'blogs' && 'Blog Review Section'}
-                {activeSection === 'reviews' && 'Customer Review Section'}
               </h1>
             </div>
             <div className="text-sm text-gray-500">

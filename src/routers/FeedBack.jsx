@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
-import { supabase } from './client/supabaseClient';
+import React, { useState } from "react";
+import { supabase } from "./client/supabaseClient";
+import { Star } from "lucide-react"; // For star rating icons
 
 const FeedbackForm = () => {
   const [formData, setFormData] = useState({
-    customer_name: '',
-    email: '',
-    rating: null, // Change to null to handle unselected rating
-    comments: ''
+    customer_name: "",
+    email: "",
+    rating: null,
+    comments: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prevState => ({
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: name === "rating" ? Number(value) : (type === 'checkbox' ? checked : value)
+      [name]: value,
+    }));
+  };
+
+  const handleStarClick = (rating) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      rating,
     }));
   };
 
@@ -25,38 +33,39 @@ const FeedbackForm = () => {
     const feedbackData = {
       customer_name: formData.customer_name,
       email: formData.email,
-      rating: parseInt(formData.rating, 10), // Convert rating to number
-      feedback: formData.comments, // Map `comments` to `feedback`
+      rating: parseInt(formData.rating, 10),
+      feedback: formData.comments,
     };
 
     try {
       const { error } = await supabase
-        .from('Testimonial Form') // Ensure this matches your table name
+        .from("Testimonial Form")
         .insert([feedbackData]);
 
       if (error) throw error;
 
-      alert('Feedback submitted successfully!');
       setSubmitted(true);
-      setFormData({ // Reset form data
-        customer_name: '',
-        email: '',
+      setFormData({
+        customer_name: "",
+        email: "",
         rating: null,
-        comments: ''
+        comments: "",
       });
     } catch (error) {
-      console.error('Submission failed:', error.message);
-      alert('An error occurred. Please try again.');
+      console.error("Submission failed:", error.message);
+      alert("An error occurred. Please try again.");
     }
   };
 
   if (submitted) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-        <div className="max-w-xl w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <h2 className="text-3xl font-bold text-green-600 mb-4">✅ Thank You!</h2>
-          <p className="text-gray-700">
-            We've received your feedback. Your input is valuable and will help us improve.
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 via-white to-indigo-50 p-4">
+        <div className="max-w-xl w-full bg-white/80 backdrop-blur-md p-10 rounded-2xl shadow-2xl text-center border border-indigo-100">
+          <h2 className="text-3xl font-extrabold text-green-600 mb-4">
+            🎉 Thank You!
+          </h2>
+          <p className="text-gray-700 text-lg">
+            We've received your feedback. Your input means a lot to us 💜
           </p>
         </div>
       </div>
@@ -64,78 +73,91 @@ const FeedbackForm = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="max-w-2xl w-full bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Customer Feedback Form</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 via-white to-indigo-50 p-6">
+      <div className="max-w-2xl w-full bg-white/80 backdrop-blur-md p-10 rounded-2xl shadow-2xl border border-indigo-100">
+        <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-4">
+          Share Your Feedback
+        </h1>
         <p className="text-gray-600 text-center mb-8">
-          Hello there, and thank you for your feedback!
+          Your feedback helps us grow and serve you better ✨
         </p>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Customer Name */}
+          {/* Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Name</label>
+            <label className="block text-gray-700 font-semibold mb-2">
+              Name
+            </label>
             <input
               type="text"
               name="customer_name"
               value={formData.customer_name}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
               required
             />
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Email</label>
+            <label className="block text-gray-700 font-semibold mb-2">
+              Email
+            </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
               required
             />
           </div>
 
-          {/* Rating */}
+          {/* Star Rating */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Rating</label>
-            <div className="flex flex-wrap gap-4">
-              {[5, 4, 3, 2, 1].map(rating => (
-                <label key={rating} className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="rating"
-                    value={rating}
-                    checked={formData.rating === rating}
-                    onChange={handleInputChange}
-                    className="form-radio text-indigo-600"
-                    required
+            <label className="block text-gray-700 font-semibold mb-2">
+              Rating
+            </label>
+            <div className="flex gap-3">
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <button
+                  type="button"
+                  key={rating}
+                  onClick={() => handleStarClick(rating)}
+                  className="focus:outline-none"
+                >
+                  <Star
+                    className={`h-8 w-8 transition-colors ${
+                      formData.rating >= rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-300"
+                    }`}
                   />
-                  <span className="ml-2 text-gray-600">{rating}</span>
-                </label>
+                </button>
               ))}
             </div>
           </div>
 
           {/* Comments */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Comments</label>
+            <label className="block text-gray-700 font-semibold mb-2">
+              Comments
+            </label>
             <textarea
               name="comments"
               value={formData.comments}
               onChange={handleInputChange}
               rows="4"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
               required
             ></textarea>
           </div>
 
+          {/* Submit */}
           <div className="flex justify-center">
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300"
+              className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition duration-300"
             >
               Submit Feedback
             </button>

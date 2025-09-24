@@ -51,7 +51,7 @@ function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/newHero" element={<HeroSectionNew />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/aboutus1" element={<AboutUs1 />} />
+          <Route path="/aboutus" element={<AboutUs1 />} />
           <Route path="/feedback" element={<FeedBack />} />
         </Route>
 

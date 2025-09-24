@@ -235,53 +235,6 @@ export default function AboutUs() {
       </section>
 
       {/* Our Values Section */}
-      <section className="py-20 px-8 max-w-7xl mx-auto">
-        <motion.h2 
-          className="text-4xl font-bold font-oswald text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          Our Values
-        </motion.h2>
-        
-        <motion.div 
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={staggerContainer}
-        >
-          {[1, 2, 3, 4].map((item, index) => (
-            <motion.div
-              key={index}
-              className="text-center"
-              initial={{ opacity: 0, y: 50, scale: 0.8 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ 
-                type: "spring", 
-                damping: 15, 
-                stiffness: 200,
-                delay: index * 0.1
-              }}
-            >
-              <div className="w-20 h-20 bg-secondary rounded-2xl mx-auto mb-6 flex items-center justify-center">
-                <img 
-                  src={aboutUsEye} 
-                  alt="Value icon" 
-                  className="w-12 h-12 rounded-lg"
-                />
-              </div>
-              <h3 className="text-xl font-bold font-oswald mb-4">Curiosity</h3>
-              <p className="text-muted-foreground">
-                Curiosity drives our innovation. We constantly explore new technologies and methods to bring better solutions for our clients.
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
 
       {/* Our Leadership Team Section */}
       <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
