@@ -11,7 +11,9 @@ import ScrolltoTop from "./scrolltoTop";
 import HeroSectionNew from "./components/farmui/HeroSectionNew";
 import HeroHeader from "./components/farmui/HeroHeader";
 import NewAboutUs from "@components/NewAboutus";
+import AboutUs1 from "@components/new/Aboutus";
 import FooterNew from "./components/farmui/FooterNew";
+import Aboutusb from "./routers/AboutUsPageB";
 
 function App() {
   return (
@@ -30,6 +32,9 @@ function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/newHero" element={<HeroSectionNew />} />
             <Route path="/newAbout" element={<NewAboutUs />} />
+            <Route path="/naboutus" element={<Aboutusb />} />
+            <Route path="/aboutuslvb" element={<AboutUs1 />} />
+            
           </Routes>
         </main>
         {/* <Footer /> */}
