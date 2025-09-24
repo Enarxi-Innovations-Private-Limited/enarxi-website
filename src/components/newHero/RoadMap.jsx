@@ -220,28 +220,28 @@ const Roadmap = () => {
             icon: '⚙️',
             title: 'Hardware',
             description: 'Hardware planning, Schematic Design, PCB Layout.',
-            style: { left: '25%', top: '36%' }, // Adjusted position
+            style: { left: '20%', top: '39%' }, // Adjusted position
             initialTransform: 'translate-y-full',
         },
         {
             icon: '🎯',
             title: 'Conceptualization',
             description: 'Structuring of Solution, Prototyping and Finalization.',
-            style: { left: '44%', top: '62%' }, // Adjusted position
+            style: { left: '44%', top: '65%' }, // Adjusted position
             initialTransform: '-translate-y-full',
         },
         {
             icon: '📊', // New "Software" step from your image
             title: 'Software',
             description: 'Firmware development, App and Cloud integrations.',
-            style: { left: '66%', top: '56%' }, // Adjusted position
+            style: { left: '66%', top: '60%' }, // Adjusted position
             initialTransform: 'translate-y-full',
         },
         {
             icon: '🌍',
             title: 'End Product',
             description: 'End Product Ready For Market.',
-            style: { left: '83%', top: '35%' }, // Adjusted position
+            style: { left: '85%', top: '41%' }, // Adjusted position
             initialTransform: '-translate-y-full',
         }
     ];
@@ -270,24 +270,3 @@ const Roadmap = () => {
 
 export default Roadmap;
 
-
-// return (
-//     <section ref={containerRef} className="relative bg-black" style={{ height: '300vh' }}>
-//         <div ref={contentRef} className="h-screen w-full sticky top-0 flex justify-center items-center overflow-hidden px-4">
-//         <h1 className="text-4xl font-geist text-center text-white">How Product Development Works</h1>
-//             <RoadmapSVG />
-//             {roadmapSteps.map((step, index) => (
-//                 <div
-//                     key={index}
-//                     ref={el => stepsRefs.current[index] = el}
-//                     style={step.style}
-//                       className={`absolute w-52 p-5 text-center rounded-xl border border-white/30 bg-white/20 backdrop-blur-md opacity-0 dark:bg-white/10  transform ${step.initialTransform}`}
-//                 >
-//                     <div className="text-4xl leading-none">{step.icon}</div>
-//                     <h3 className="text-2xl mt-2 text-slate-900 tracking-tighter font-geist">{step.title}</h3>
-//                     <p className="mt-1 text-sm text-white/80">{step.description}</p>
-//                 </div>
-//             ))}
-//         </div>
-//     </section>
-// );

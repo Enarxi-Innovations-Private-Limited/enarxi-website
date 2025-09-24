@@ -4,8 +4,98 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 @import "tailwindcss";
-
 @import "tw-animate-css";
+
+
+/* Set a dark background for better contrast */
+/* body {
+  background-color: #0a0a0a;
+} */
+
+/* Apply gradient animation to the SVG path */
+.hexagon-path {
+  animation: animate-gradient 5s ease-in-out infinite;
+}
+
+/* Apply glow and hue rotation to the container */
+.hexagon-container {
+  filter: drop-shadow(0 0 3px #ff00de) drop-shadow(0 0 6px #ff00de);
+  animation: rotate-hue 5s linear infinite;
+}
+
+/* Keyframes to animate the gradient colors, creating the "flow" effect */
+@keyframes animate-gradient {
+
+  0%,
+  100% {
+    .stop1 {
+      stop-color: #00f2ff;
+    }
+
+    /* Cyan */
+    .stop2 {
+      stop-color: #ff00de;
+    }
+
+    /* Magenta */
+    .stop3 {
+      stop-color: #ff9d00;
+    }
+
+    /* Orange */
+  }
+
+  33% {
+    .stop1 {
+      stop-color: #ff9d00;
+    }
+
+    /* Orange */
+    .stop2 {
+      stop-color: #00f2ff;
+    }
+
+    /* Cyan */
+    .stop3 {
+      stop-color: #ff00de;
+    }
+
+    /* Magenta */
+  }
+
+  66% {
+    .stop1 {
+      stop-color: #ff00de;
+    }
+
+    /* Magenta */
+    .stop2 {
+      stop-color: #ff9d00;
+    }
+
+    /* Orange */
+    .stop3 {
+      stop-color: #00f2ff;
+    }
+
+    /* Cyan */
+  }
+}
+
+/* Keyframes to rotate the hue of the glow, making its color cycle */
+@keyframes rotate-hue {
+  from {
+    filter: hue-rotate(0deg) drop-shadow(0 0 3px #ff00de) drop-shadow(0 0 6px #ff00de);
+  }
+
+  to {
+    filter: hue-rotate(360deg) drop-shadow(0 0 3px #ff00de) drop-shadow(0 0 6px #ff00de);
+  }
+}
+
+
+
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -207,6 +297,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

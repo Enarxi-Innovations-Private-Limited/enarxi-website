@@ -96,13 +96,19 @@ const StatsSection = () => {
           }
 
           /* --- STAT NUMBER UPDATED TO BLUE GRADIENT AND SHADOW --- */
-          .stat-number{
-            background: linear-gradient(180deg, var(--blue1), var(--blue2));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 10px 34px rgba(10,99,240,0.35), 0 2px 6px rgba(0,0,0,0.6);
-          }
+         /* --- STAT NUMBER WITH SHINY EFFECT --- */
+.stat-number {
+  /* New gradient with a glossy highlight */
+  background: linear-gradient(180deg, var(--blue1) 10%, #E0FFFF 50%, var(--blue2) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* New text-shadow with a crisp top edge highlight */
+  text-shadow: 
+    0 1px 1px rgba(255, 255, 255, 0.5), 
+    0 10px 34px rgba(10,99,240,0.35), 
+    0 2px 6px rgba(0,0,0,0.6);
+}
 
           .stat-number + span{ font-weight: 700; }
 

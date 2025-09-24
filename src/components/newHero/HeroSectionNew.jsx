@@ -1,12 +1,11 @@
  
 import React from "react";
 import FooterNew from "./FooterNew";
-import { YouTubePlayer } from "./YouTubePlayer";
 import Marquee from "./Marquee";
 import Roadmap from './RoadMap';
 import StatsSection from "./StatsSection";
-// import RetroGrid from "components/ui/Grid";
-// import { ChevronRight } from "react-icons/hi";
+import HeroVideoDialog from "./HeroVideo";
+import AnimatedHoneycomb from "./OurWorkingDomain";
 
 
 export default function HeroSectionNew() {
@@ -46,13 +45,20 @@ export default function HeroSectionNew() {
               </span>
             </div>
           </div>
-          <div className="mt-32 mx-10">
+          {/* <div className="mt-32 mx-10">
             <img
               src="https://farmui.vercel.app/dashboard.png"
               className="w-full shadow-lg rounded-lg border"
               alt=""
             />
-          </div>
+          </div> */}
+          <HeroVideoDialog
+        className="block dark:hidden mt-32"
+        animationStyle="top-in-bottom-out"
+        videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
+        thumbnailSrc="https://startup-template-sage.vercel.app/hero-light.png"
+        thumbnailAlt="Hero Video"
+      />
              {/* <div className="mt-32 mx-10">
               <YouTubePlayer  videoId="dQw4w9WgXcQ"
       title="Never Gonna Give You Up - Rick Astley"/>
@@ -62,6 +68,7 @@ export default function HeroSectionNew() {
       </div>
       <Roadmap />
       <StatsSection />
+      {/* <AnimatedHoneycomb rows={7} cols={9} /> */}
       <Marquee />
       <FooterNew />
     </div>

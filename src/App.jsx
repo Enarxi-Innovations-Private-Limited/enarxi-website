@@ -11,26 +11,30 @@ import ScrolltoTop from "./scrolltoTop";
 import HeroSectionNew from "./components/newHero/HeroSectionNew";
 import HeroHeader from "./components/newHero/HeroHeader";
 import FooterNew from "./components/newHero/FooterNew";
+import FeedBack from "./routers/FeedBack";
+import AdminPortal from "./routers/AdminPortal";
 
 function App() {
   return (
     <Router>
       <ScrolltoTop />
       <div className="flex flex-col min-h-screen">
-        {/* <Header /> */}
-        <HeroHeader />
+        <Header />
+        {/* <HeroHeader /> */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Hero />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/blogs" element={<Blog />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/newHero" element={<HeroSectionNew />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/feedback" element={<FeedBack />} />
+            <Route path="/admin" element={<AdminPortal />} />
           </Routes>
         </main>
-        {/* <Footer /> */}
+        <Footer />
       </div>
     </Router>
   );
