@@ -12,6 +12,7 @@ import HeroSectionNew from "./components/newHero/HeroSectionNew";
 import AboutUs1 from "@components/new/Aboutus";
 import AdminPortal from "./routers/AdminPortal";
 import FeedBack from "./routers/FeedBack";
+import TestSupa from "@components/new/TestSupa";
 
 // Main layout with header + footer
 function MainLayout() {
@@ -58,6 +59,7 @@ function App() {
         {/* Routes using the AdminLayout */}
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminPortal />} />
+          <Route path="/user" element={<TestSupa />} />
         </Route>
       </Routes>
     </Router>
