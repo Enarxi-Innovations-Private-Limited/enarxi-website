@@ -14,6 +14,10 @@ import AdminPortal from "./routers/AdminPortal";
 import FeedBack from "./routers/FeedBack";
 import TestSupa from "@components/new/TestSupa";
 
+import { AuthProvider } from "./AuthProvider";
+import ProtectedRoute from "./ProtectedRoute";
+import Login from "./Login";
+
 // Main layout with header + footer
 function MainLayout() {
   return (
@@ -57,10 +61,13 @@ function App() {
         </Route>
 
         {/* Routes using the AdminLayout */}
+        <AuthProvider>
         <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminPortal />} />
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
           <Route path="/user" element={<TestSupa />} />
+          <Route path="/login" element={<Login />} />
         </Route>
+        </AuthProvider>
       </Routes>
     </Router>
   );
