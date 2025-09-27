@@ -17,6 +17,7 @@ import TestSupa from "@components/new/TestSupa";
 import { AuthProvider } from "./AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
 import Login from "./Login";
+import AppLogger from "./AppLogger";
 
 // Main layout with header + footer
 function MainLayout() {
@@ -44,7 +45,9 @@ function AdminLayout() {
 
 function App() {
   return (
+<AuthProvider>
     <Router>
+      <AppLogger/>
       <ScrolltoTop />
       <Routes>
         {/* Routes using the MainLayout */}
@@ -61,15 +64,14 @@ function App() {
         </Route>
 
         {/* Routes using the AdminLayout */}
-        <AuthProvider>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
           <Route path="/user" element={<TestSupa />} />
           <Route path="/login" element={<Login />} />
         </Route>
-        </AuthProvider>
       </Routes>
     </Router>
+    </AuthProvider>
   );
 }
 
