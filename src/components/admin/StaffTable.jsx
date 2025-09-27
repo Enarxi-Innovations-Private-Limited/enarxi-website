@@ -3,18 +3,33 @@ import { motion } from 'framer-motion';
 import { Edit3, User, Loader2 } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
 import AddStaffModal from './AddStaffModal';
+import ModifyStaffModal from './ModifyStaffModal';
 
 const StaffTable = () => {
-  const { staff, loading, error, fetchStaff } = useStaff();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { staff, loading, error, fetchStaff, updateStaff } = useStaff();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
 
   useEffect(() => {
     fetchStaff();
   }, [fetchStaff]);
 
-  const handleModify = (staffId, staffName) => {
-    console.log(`Modify action for staff ID: ${staffId}, Name: ${staffName}`);
-    // Future implementation: Open an edit modal here
+  const handleModify = (staffMember) => {
+    setSelectedStaff(staffMember);
+    setIsModifyModalOpen(true);
+  };
+
+  const handleUpdateStaff = async (staffId, updatedData) => {
+    await updateStaff(staffId, updatedData);
+    setIsModifyModalOpen(false); // Close modal on successful update
+  };
+
+  const handleDeleteStaff = (staffId) => {
+    console.warn(
+      `Delete action for ${staffId} requires a backend implementation (e.g., Firebase Cloud Function) for security.`
+    );
+    // Here you would typically call a cloud function to delete the user from Auth and Firestore.
   };
 
   const containerVariants = {
@@ -38,7 +53,7 @@ const StaffTable = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsAddModalOpen(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center"
           >
             <User className="h-4 w-4 mr-2" />
@@ -69,7 +84,7 @@ const StaffTable = () => {
                 animate="visible"
               >
                 {loading ? (
-                  <tr>
+                <tr>
                     <td colSpan="5" className="text-center py-10">
                       <Loader2 className="w-8 h-8 animate-spin text-gray-500 mx-auto" />
                     </td>
@@ -123,7 +138,7 @@ const StaffTable = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <motion.button
-                          onClick={() => handleModify(staffMember.id, staffMember.name)}
+                          onClick={() => handleModify(staffMember)}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="text-blue-600 hover:text-blue-900 flex items-center transition-colors duration-200"
@@ -167,7 +182,16 @@ const StaffTable = () => {
           </div>
         </motion.div>
       </div>
-      <AddStaffModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <AddStaffModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      {selectedStaff && (
+        <ModifyStaffModal
+          isOpen={isModifyModalOpen}
+          onClose={() => setIsModifyModalOpen(false)}
+          staffMember={selectedStaff}
+          onUpdate={handleUpdateStaff}
+          onDelete={handleDeleteStaff}
+        />
+      )}
     </>
   );
 };

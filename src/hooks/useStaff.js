@@ -66,5 +66,24 @@ export const useStaff = () => {
     }
   };
 
-  return { staff, loading, error, fetchStaff, createStaff };
+    const updateStaff = async (staffId, updatedData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const staffRef = doc(db, 'users', staffId);
+      await updateDoc(staffRef, {
+        ...updatedData,
+        updatedAt: serverTimestamp(),
+      });
+      // Refresh the local state to show the update immediately
+      await fetchStaff();
+    } catch (err) {
+      console.error('Error updating staff:', err);
+      setError(`Failed to update staff: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { staff, loading, error, fetchStaff, createStaff, updateStaff };
 };
