@@ -18,6 +18,7 @@ import { AuthProvider } from "./AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
 import Login from "./Login";
 import AppLogger from "./AppLogger";
+import Logout from "./Logout";
 
 // Main layout with header + footer
 function MainLayout() {
@@ -68,6 +69,7 @@ function App() {
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
           <Route path="/user" element={<TestSupa />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/logout" element={<Logout/>} />
         </Route>
       </Routes>
     </Router>

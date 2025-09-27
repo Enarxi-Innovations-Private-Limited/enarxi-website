@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,7 +11,22 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize the primary app
+const primaryApp = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Initialize a secondary app for user creation to avoid session conflicts.
+// This checks if the app already exists to prevent re-initialization on hot reloads.
+const secondaryAppName = 'userCreation';
+let secondaryApp;
+if (getApps().find((app) => app.name === secondaryAppName)) {
+  secondaryApp = getApp(secondaryAppName);
+} else {
+  secondaryApp = initializeApp(firebaseConfig, secondaryAppName);
+}
+
+// Primary auth and db for the main application
+export const auth = getAuth(primaryApp);
+export const db = getFirestore(primaryApp);
+
+// Secondary auth specifically for creating new users in the background
+export const secondaryAuth = getAuth(secondaryApp);
