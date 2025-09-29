@@ -1,24 +1,27 @@
-import React, { useState     } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Sidebar from '../components/admin/Sidebar';
-import DashboardStats from '../components/admin/DashboardStats';
-import StaffTable from '../components/admin/StaffTable';
-import BlogsTable from '../components/admin/BlogsTable';
-import ReviewsTable from '../components/admin/ReviewsTable';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Sidebar from "../components/admin/Sidebar";
+import DashboardStats from "../components/admin/DashboardStats";
+import StaffTable from "../components/admin/StaffTable";
+import BlogsTable from "../components/admin/BlogsTable";
+import ReviewsTable from "../components/admin/ReviewsTable";
+import StaffBlogs from "@components/admin/StaffBlogs";
 
 const AdminPortal = () => {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const renderContent = () => { 
+  const renderContent = () => {
     switch (activeSection) {
-      case 'dashboard':
+      case "dashboard":
         return <DashboardStats />;
-      case 'staff':
+      case "staffBlogs":
+        return <StaffBlogs />;
+      case "staff":
         return <StaffTable />;
-      case 'blogs':
+      case "blogs":
         return <BlogsTable />;
-      case 'reviews':
+      case "reviews":
         return <ReviewsTable />;
       default:
         return <DashboardStats />;
@@ -58,20 +61,29 @@ const AdminPortal = () => {
                 onClick={() => setIsSidebarOpen(true)}
                 className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
               <h1 className="text-2xl font-bold text-[#0A1524] ml-2 lg:ml-0">
-                {activeSection === 'dashboard' && 'Dashboard'}
-                {activeSection === 'staff' && 'Staff Management'}
-                {activeSection === 'blogs' && 'Blog Review Section'}
-                {activeSection === 'reviews' && 'Customer Review Section'}
+                {activeSection === "dashboard" && "Dashboard"}
+                {activeSection === "staff" && "Staff Management"}
+                {activeSection === "blogs" && "Blog Review Section"}
+                {activeSection === "reviews" && "Customer Review Section"}
+                {activeSection === "staffBlogs" && "Staff Blog Submission"}
               </h1>
             </div>
-            <div className="text-sm text-gray-500">
-              Admin Portal
-            </div>
+            <div className="text-sm text-gray-500">Admin Portal</div>
           </div>
         </header>
 
