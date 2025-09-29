@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { auth } from '@/lib/firebase'; // your Firebase setup
 import { onAuthStateChanged } from 'firebase/auth';
+import {createContext, useContext } from 'react';
 
 export default function AppLogger() {
   useEffect(() => {
