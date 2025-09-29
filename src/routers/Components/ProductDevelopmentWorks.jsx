@@ -147,7 +147,7 @@ const ProductDevelopmentWorks = () => {
                 <h3 className="text-2xl font-semibold font-poppins">
                   {step.title}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                <p className="text-sm text-gray-600 mt-1 ">{step.description}</p>
               </div>
             </div>
           ))}
