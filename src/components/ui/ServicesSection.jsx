@@ -10,20 +10,17 @@ const SERVICES = [
   {
     icon: IconProduct,
     title: "Product Design & Prototyping",
-    text:
-      "Perfect balance of functionality, transformation, and innovation in electronics.",
+    text: "Perfect balance of functionality, transformation, and innovation in electronics.",
   },
   {
     icon: IconMCFirmware,
     title: "Micro Controller & Processor Coding Services",
-    text:
-      "Advanced firmware solutions for microcontroller and processor boards to complement your product.",
+    text: "Advanced firmware solutions for microcontroller and processor boards to complement your product.",
   },
   {
     icon: IconPCB,
     title: "PCB Design & Fabrication",
-    text:
-      "High-density PCB layouts to meet market demands for sophisticated designs driven by miniaturization and semiconductor technology.",
+    text: "High-density PCB layouts to meet market demands for sophisticated designs driven by miniaturization and semiconductor technology.",
   },
 ];
 
@@ -38,14 +35,14 @@ export default function ServicesSection({
           {/* Left column: heading + copy */}
           <div className="lg:col-span-5">
             <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
-              Services We Offer You
+              Services We Offer You hello
             </h2>
 
             <p className="mt-6 text-slate-600 leading-relaxed">
-              Our custom software design and development teams can design, build,
-              test, and deliver a product that fits both your vision and market
-              demand. With our support, you will find customers, build income and
-              attract new investors.
+              Our custom software design and development teams can design,
+              build, test, and deliver a product that fits both your vision and
+              market demand. With our support, you will find customers, build
+              income and attract new investors.
             </p>
 
             <a

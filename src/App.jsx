@@ -20,7 +20,6 @@ import Login from "./Login";
 import AppLogger from "./AppLogger";
 import Logout from "./Logout";
 
-// Main layout with header + footer
 function MainLayout() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -33,7 +32,6 @@ function MainLayout() {
   );
 }
 
-// Admin layout without header/footer
 function AdminLayout() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -51,7 +49,6 @@ function App() {
       <AppLogger/>
       <ScrolltoTop />
       <Routes>
-        {/* Routes using the MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Hero />} />
           <Route path="/services" element={<Services />} />
@@ -63,8 +60,7 @@ function App() {
           <Route path="/aboutus" element={<AboutUs1 />} />
           <Route path="/feedback" element={<FeedBack />} />
         </Route>
-
-        {/* Routes using the AdminLayout */}
+    
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
           <Route path="/user" element={<TestSupa />} />

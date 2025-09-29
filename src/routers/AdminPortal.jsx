@@ -9,6 +9,7 @@ import ReviewsTable from "../components/admin/ReviewsTable";
 
 import { useAuth } from "@/AuthProvider";
 import Logout from "@/Logout";
+import StaffBlogs from "@components/admin/StaffBlogs";
 
 const AdminPortal = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -20,6 +21,8 @@ const AdminPortal = () => {
     switch (activeSection) {
       case "dashboard":
         return <DashboardStats />;
+      case "staffBlogs":
+        return <StaffBlogs />;
       case "staff":
         return <StaffTable />;
       case "blogs":
