@@ -2,7 +2,12 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Hero from "./routers/Hero";
 import Services from "./routers/Services";
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Outlet,
+} from "react-router-dom";
 import Testimonials from "./routers/Testimonials";
 import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
@@ -41,7 +46,7 @@ function App() {
       <ScrolltoTop />
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Hero />} />
+          <Route path="/" element={<Hero />} /> {/* //total hero component  */}
           <Route path="/services" element={<Services />} />
           <Route path="/blogs" element={<Blog />} />
           <Route path="/gallery" element={<Gallery />} />
@@ -51,7 +56,7 @@ function App() {
           <Route path="/aboutus1" element={<AboutUs1 />} />
           <Route path="/feedback" element={<FeedBack />} />
         </Route>
-    
+
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminPortal />} />
         </Route>
