@@ -1,5 +1,5 @@
-import Footer from "./components/Footer";
-import Header from "./components/Header";
+import Footer from "./routers/Components/Footer";
+import Header from "./routers/Components/Header";
 import Hero from "./routers/Hero";
 import Services from "./routers/Services";
 import {

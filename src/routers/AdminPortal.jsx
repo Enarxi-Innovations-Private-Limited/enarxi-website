@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "../components/admin/Sidebar";
-import DashboardStats from "../components/admin/DashboardStats";
-import StaffTable from "../components/admin/StaffTable";
-import BlogsTable from "../components/admin/BlogsTable";
-import ReviewsTable from "../components/admin/ReviewsTable";
-import StaffBlogs from "@components/admin/StaffBlogs";
+import Sidebar from "./admin/Sidebar";
+import DashboardStats from "./admin/DashboardStats";
+import StaffTable from "./admin/StaffTable";
+import BlogsTable from "./admin/BlogsTable";
+import ReviewsTable from "./admin/ReviewsTable";
+import StaffBlogs from "@/routers/admin/StaffBlogs";
 
 const AdminPortal = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
