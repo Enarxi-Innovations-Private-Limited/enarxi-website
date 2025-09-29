@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -166,42 +168,53 @@ const StaffBlogs = () => {
   }, []);
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       if (!editor) return;
-
+  
       setLoading(true);
       setMessage("");
       const finalHtmlContent = editor.getHTML();
-
+  
       if (finalHtmlContent === "<p></p>") {
         setMessage("Blog content cannot be empty.");
         setLoading(false);
         return;
       }
-
-      console.log("Form Submitted:", {
-        ...formData,
-        content: finalHtmlContent,
-      });
-      console.log(
-        "Image Files:",
-        imageFiles.map((f) => f.name).join(", ") || "No files selected"
-      );
-
-      setTimeout(() => {
-        setLoading(false);
-        setMessage("Form submitted successfully!");
+  
+      try {
+        // save to Firestore
+        await addDoc(collection(db, "blogs"), {
+          authorName: formData.authorName,
+          authorRole: formData.authorRole,
+          content: finalHtmlContent,
+          images: imageFiles.map((file) => file.name), // later replace with Storage URLs
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+  
+        // ✅ Success message
+        setMessage("✅ Blog saved in Firestore successfully!");
+  
+        // Reset form after success
         setFormData({ authorName: "", authorRole: "" });
         setImageFiles([]);
         editor.commands.clearContent(true);
         setBlogContent("");
+  
+        // Clear file input
         const fileInput = e.target.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = "";
-      }, 1500);
+      } catch (error) {
+        console.error("Error saving blog:", error);
+        setMessage("❌ Failed to save blog. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     },
     [editor, formData, imageFiles]
   );
+  
 
   if (!editor) return null;
 
