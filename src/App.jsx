@@ -13,8 +13,6 @@ import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
 import AboutUs from "./routers/AboutUs";
 import ScrolltoTop from "./scrolltoTop";
-import HeroSectionNew from "./components/newHero/HeroSectionNew";
-import AboutUs1 from "@components/new/Aboutus";
 import AdminPortal from "./routers/AdminPortal";
 import FeedBack from "./routers/FeedBack";
 
@@ -51,9 +49,7 @@ function App() {
           <Route path="/blogs" element={<Blog />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/newHero" element={<HeroSectionNew />} />
           <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/aboutus1" element={<AboutUs1 />} />
           <Route path="/feedback" element={<FeedBack />} />
         </Route>
 
