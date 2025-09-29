@@ -1,16 +1,18 @@
  
 import React from "react";
 import FooterNew from "./FooterNew";
-import { YouTubePlayer } from "./YouTubePlayer";
 import Marquee from "./Marquee";
-// import RetroGrid from "components/ui/Grid";
-// import { ChevronRight } from "react-icons/hi";
+import Roadmap from './RoadMap';
+import StatsSection from "./StatsSection";
+import HeroVideoDialog from "./HeroVideo";
+import AnimatedHoneycomb from "./OurWorkingDomain";
 
 
 export default function HeroSectionNew() {
   return (
     <div className="relative overflow-x-hidden">
-      <div className="absolute top-0 z-[0] h-screen w-screen bg-black bg- [radial-gradient(ellipse_20%_80%_at_50%_-20%,rgba(10,99,240,0.5),rgba(255,255,255,0))]"></div>
+      <div className="bg-black">
+      <div className="absolute top-0 z-[0] h-screen w-screen bg-black bg-[radial-gradient(ellipse_20%_80%_at_50%_-20%,rgba(10,99,240,0.5),rgba(255,255,255,0))]"></div>
       <section className="relative max-w-full mx-auto z-1">
         {/* <RetroGrid /> */}
         <div className="max-w-screen-xl z-10 mx-auto px-4 py-36 gap-12 text-gray-600 md:px-8">
@@ -20,7 +22,7 @@ export default function HeroSectionNew() {
             </h1>
 
 
-            <h2 className="text-4xl tracking-tighter font-geist  bg-clip-text bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)] text-transparent   mx-auto md:text-6xl">
+            <h2 className="text-4xl tracking-tighter font-geist bg-clip-text bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)] text-transparent mx-auto md:text-6xl">
              Engineering the Future of Smart{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-orange-100 to-white ">
                 and Sustainable Electronics.
@@ -43,19 +45,30 @@ export default function HeroSectionNew() {
               </span>
             </div>
           </div>
-          <div className="mt-32 mx-10">
+          {/* <div className="mt-32 mx-10">
             <img
               src="https://farmui.vercel.app/dashboard.png"
               className="w-full shadow-lg rounded-lg border"
               alt=""
             />
-          </div>
+          </div> */}
+          <HeroVideoDialog
+        className="block dark:hidden mt-32"
+        animationStyle="top-in-bottom-out"
+        videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
+        thumbnailSrc="https://startup-template-sage.vercel.app/hero-light.png"
+        thumbnailAlt="Hero Video"
+      />
              {/* <div className="mt-32 mx-10">
               <YouTubePlayer  videoId="dQw4w9WgXcQ"
       title="Never Gonna Give You Up - Rick Astley"/>
           </div> */}
         </div>
       </section>
+      </div>
+      <Roadmap />
+      <StatsSection />
+      {/* <AnimatedHoneycomb rows={7} cols={9} /> */}
       <Marquee />
       <FooterNew />
     </div>

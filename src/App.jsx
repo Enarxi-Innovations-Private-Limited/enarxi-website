@@ -1,47 +1,79 @@
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Hero from "./routers/Hero";
-import Services from "./routers/Services"; // Import services page
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Services from "./routers/Services";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import Testimonials from "./routers/Testimonials";
 import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
 import AboutUs from "./routers/AboutUs";
 import ScrolltoTop from "./scrolltoTop";
-import HeroSectionNew from "./components/farmui/HeroSectionNew";
-import HeroHeader from "./components/farmui/HeroHeader";
-import NewAboutUs from "@components/NewAboutus";
+import HeroSectionNew from "./components/newHero/HeroSectionNew";
 import AboutUs1 from "@components/new/Aboutus";
-import FooterNew from "./components/farmui/FooterNew";
-import Aboutusb from "./routers/AboutUsPageB";
 import AdminPortal from "./routers/AdminPortal";
+import FeedBack from "./routers/FeedBack";
+import TestSupa from "@components/new/TestSupa";
+
+import { AuthProvider } from "./AuthProvider";
+import ProtectedRoute from "./ProtectedRoute";
+import Login from "./Login";
+import AppLogger from "./AppLogger";
+import Logout from "./Logout";
+
+// Main layout with header + footer
+function MainLayout() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+// Admin layout without header/footer
+function AdminLayout() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
 
 function App() {
   return (
+<AuthProvider>
     <Router>
+      <AppLogger/>
       <ScrolltoTop />
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        {/* <HeroHeader /> */}
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Hero />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-            <Route path="/blogs" element={<Blog />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/newHero" element={<HeroSectionNew />} />
-            <Route path="/newAbout" element={<NewAboutUs />} />
-            <Route path="/naboutus" element={<Aboutusb />} />
-            <Route path="/aboutuslvb" element={<AboutUs1 />} />
-            <Route path="/admin" element={<AdminPortal />} />
-            
-          </Routes>
-        </main>
-        {/* <Footer /> */}
-      </div>
+      <Routes>
+        {/* Routes using the MainLayout */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Hero />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/blogs" element={<Blog />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/newHero" element={<HeroSectionNew />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/aboutus" element={<AboutUs1 />} />
+          <Route path="/feedback" element={<FeedBack />} />
+        </Route>
+
+        {/* Routes using the AdminLayout */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
+          <Route path="/user" element={<TestSupa />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/logout" element={<Logout/>} />
+        </Route>
+      </Routes>
     </Router>
+    </AuthProvider>
   );
 }
 

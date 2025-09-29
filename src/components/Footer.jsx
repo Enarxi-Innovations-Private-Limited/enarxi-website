@@ -10,7 +10,7 @@ import enarxiLogoWhite from "../assets/images/logo-white.svg";
 
 const Footer = () => {
   return (
-      <footer className="flex flex-col container mx-auto px-6 py-2 bg-footer-background text-footer-foreground">
+      <footer className="flex flex-col w-full mx-auto px-6 py-2 bg-footer-background text-footer-foreground">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-6 mb-12 md:justify-items-center items-start">
           {/* image Section */}
