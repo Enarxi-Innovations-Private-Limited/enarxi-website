@@ -182,14 +182,13 @@ import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Import your assets
 import RoadPng from "../../assets/images/RoadPng.png";
-import IdeationIcon from "../../assets/images/ideation.svg"; // Replace with your actual icon path
-import ConceptualizationIcon from "../../assets/images/conceptualization.svg"; // Replace with your actual icon path
-import HardwareIcon from "../../assets/images/hardware.svg"; // Replace with your actual icon path
-import SoftwareIcon from "../../assets/images/software.svg"; // Replace with your actual icon path
-import EndProductIcon from "../../assets/images/endProduct.svg"; // Replace with your actual icon path
-// Register the GSAP plugin
+import IdeationIcon from "../../assets/images/ideation.svg";
+import ConceptualizationIcon from "../../assets/images/conceptualization.svg";
+import HardwareIcon from "../../assets/images/hardware.svg";
+import SoftwareIcon from "../../assets/images/software.svg";
+import EndProductIcon from "../../assets/images/endProduct.svg";
+
 gsap.registerPlugin(ScrollTrigger);
 
 const ProductDevelopmentWorks = () => {
