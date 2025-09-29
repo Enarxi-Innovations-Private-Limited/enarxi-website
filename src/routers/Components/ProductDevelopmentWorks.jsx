@@ -183,7 +183,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import RoadPng from "../../assets/images/RoadPng.png";
-import IdeationIcon from "../../assets/images/ideation.svg";
+import IdeationIcon from "../../assets/images/Working-Domain/ideation.svg";
 import ConceptualizationIcon from "../../assets/images/conceptualization.svg";
 import HardwareIcon from "../../assets/images/hardware.svg";
 import SoftwareIcon from "../../assets/images/software.svg";
