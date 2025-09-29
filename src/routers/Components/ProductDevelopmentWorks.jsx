@@ -65,8 +65,8 @@ const ProductDevelopmentWorks = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // --- Desktop logic (unchanged) ---
       if (window.innerWidth >= 768) {
-        // Desktop pinned roadmap
         gsap
           .timeline({
             scrollTrigger: {
@@ -84,27 +84,25 @@ const ProductDevelopmentWorks = () => {
             stagger: 0.5,
           });
       } else {
-        // Mobile horizontal scroll
+        // --- Mobile horizontal scroll (CORRECTED) ---
         if (!horizontalRef.current || !horizontalScrollWrapper.current) return;
-        const horizontalSections = gsap.utils.toArray(".h-step");
+
+        // Calculate the total distance the horizontal section needs to move
         const scrollDistance =
           horizontalRef.current.scrollWidth - window.innerWidth;
-        horizontalScrollWrapper.current.style.height = `${
-          scrollDistance / 3
-        }px`;
 
         gsap.to(horizontalRef.current, {
-          x: () => -scrollDistance,
-          ease: "none",
+          x: -scrollDistance, // Animate the x position to the negative scroll distance
+          ease: "none", // Linear animation
           scrollTrigger: {
-            trigger: horizontalScrollWrapper.current,
+            trigger: horizontalScrollWrapper.current, // The element that triggers the animation
+            pin: true, // Pin the trigger element during the animation
+            scrub: 1, // Smoothly scrub the animation on scroll
             start: "top top",
-            end: "bottom bottom",
-            scrub: 1,
-            pin: true,
+            // End the animation after scrolling a distance equal to the scrollDistance
+            end: () => `+=${scrollDistance}`,
           },
         });
-        gsap.set(horizontalSections, { position: "relative", x: 0 });
       }
     }, containerRef);
 
@@ -162,16 +160,15 @@ const ProductDevelopmentWorks = () => {
       {/* Mobile Horizontal Scroll */}
       <div
         ref={horizontalScrollWrapper}
-        className="md:hidden overflow-x-hidden relative"
+        className="block md:hidden overflow-x-hidden relative"
       >
-        <div
-          ref={horizontalRef}
-          className="sticky top-0 flex flex-row w-full min-h-[70vh]"
-        >
+        {/* The "sticky top-0" classes have been removed from the div below */}
+        <div ref={horizontalRef} className="flex flex-row w-full h-screen">
           {roadmapSteps.map((step) => (
             <div
               key={step.id}
               className="h-step w-screen flex-shrink-0 flex flex-col items-center justify-center text-center px-6"
+              style={{ margin: 0, padding: 0 }}
             >
               <img
                 src={step.icon}
