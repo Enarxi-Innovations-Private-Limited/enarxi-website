@@ -92,9 +92,10 @@ const AuthorDetails = memo(({ formData, onChange }) => {
           name="authorName"
           value={formData.authorName}
           onChange={onChange}
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100 cursor-not-allowed"
           placeholder="e.g., Jane Doe"
           required
+          readOnly
         />
       </div>
       <div>
@@ -106,9 +107,10 @@ const AuthorDetails = memo(({ formData, onChange }) => {
           name="authorRole"
           value={formData.authorRole}
           onChange={onChange}
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100 cursor-not-allowed"
           placeholder="e.g., Software Engineer"
           required
+          readOnly
         />
       </div>
     </div>
@@ -120,7 +122,7 @@ const AuthorDetails = memo(({ formData, onChange }) => {
 //======================================================================
 const StaffBlogs = () => {
   const { user, role } = useAuth(); // Get authenticated user and role
-    const [formData, setFormData] = useState({ authorName: "", authorRole: "" });
+  const [formData, setFormData] = useState({ authorName: "", authorRole: "" });
 
   useEffect(() => {
     // Pre-fill author details from the authenticated user context
@@ -131,6 +133,7 @@ const StaffBlogs = () => {
       });
     }
   }, [user, role]);
+
   const [blogContent, setBlogContent] = useState("");
   const [imageFiles, setImageFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -182,7 +185,7 @@ const StaffBlogs = () => {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      if (!editor) return;
+      if (!editor || !user) return;
   
       setLoading(true);
       setMessage("");
@@ -196,13 +199,13 @@ const StaffBlogs = () => {
   
       try {
         // save to Firestore
-                await addDoc(collection(db, "blogs"), {
+        await addDoc(collection(db, "blogs"), {
           userId: user.uid, // Add the user's ID
           isAdminAccepted: false, // Default to not accepted
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: finalHtmlContent,
-                    images: imageFiles.map((file) => file.name), // later replace with Storage URLs
+          images: imageFiles.map((file) => file.name), // later replace with Storage URLs
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
@@ -211,7 +214,6 @@ const StaffBlogs = () => {
         setMessage("✅ Blog saved in Firestore successfully!");
   
         // Reset form after success
-        setFormData({ authorName: "", authorRole: "" });
         setImageFiles([]);
         editor.commands.clearContent(true);
         setBlogContent("");
@@ -226,7 +228,7 @@ const StaffBlogs = () => {
         setLoading(false);
       }
     },
-    [editor, formData, imageFiles]
+    [editor, user, formData, imageFiles]
   );
   
 

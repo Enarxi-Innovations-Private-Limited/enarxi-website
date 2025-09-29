@@ -1,0 +1,30 @@
+import { Navigate } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
+
+export default function StaffProtectedRoute({ children }) {
+  const { user, role, loading } = useAuth();
+
+  if (loading) {
+    // You might want a more sophisticated loading spinner here
+    return <div className="flex justify-center items-center h-screen"><p>Loading...</p></div>;
+  }
+
+  if (!user) {
+    // User not logged in, redirect to staff login page
+    return <Navigate to="/stafflogin" replace />;
+  }
+
+  if (role !== 'employee' && role !== 'intern') {
+    // User is logged in but does not have a staff role
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-center">
+        <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
+        <p className="mt-2 text-gray-600">You do not have permission to view this page.</p>
+        <p className="mt-1 text-sm text-gray-500">Please log in with a staff account.</p>
+      </div>
+    );
+  }
+
+  // User is authenticated and has a valid staff role
+  return children;
+}

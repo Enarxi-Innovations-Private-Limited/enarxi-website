@@ -29,11 +29,6 @@ const Sidebar = ({
       label: "Customer Review Section",
       icon: Star,
     },
-    {
-      id: "staffBlogs",
-      label: "Staff Blog Submission",
-      icon: LayoutDashboard,
-    },
   ];
 
   const handleMenuClick = (sectionId) => {
