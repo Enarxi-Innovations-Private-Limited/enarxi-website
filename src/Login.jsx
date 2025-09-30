@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -6,11 +6,19 @@ import { motion } from "framer-motion";
 import { useAuth } from "./AuthProvider";
 
 export default function Login() {
-    const {loading}=useAuth();
+  const {role,loading}=useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!loading && role === "admin") {
+      navigate("/admin");
+    }
+  }, [ role,loading]);
+  if (loading || role === "admin") {
+    return <div className="text-black text-center">Loading...</div>;
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();

@@ -9,7 +9,7 @@ const Logout = () => {
     try {
       await signOut(auth);
       console.log("Admin logged out successfully.");
-      window.location.href = "/login";
+      // window.location.href = "/login";
     } catch (error) {
       console.error("Error logging out:", error);
     }

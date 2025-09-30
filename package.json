@@ -12,6 +12,8 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/supabase-js": "^2.57.4",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.11",
     "@tiptap/extension-bullet-list": "^3.6.1",
     "@tiptap/extension-heading": "^3.6.1",

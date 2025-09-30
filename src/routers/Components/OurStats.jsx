@@ -60,7 +60,7 @@ export default function OurStats() {
     { icon: idea, value: 500, label: "Projects" },
     { icon: people, value: 30, label: "Events & Workshops" },
     { icon: packageHands, value: 2000, label: "Participants" },
-    { icon: computer, value: 500, label: "Projects" },
+    { icon: computer, value: 500, label: "Projects2" },
   ];
 
   return (
