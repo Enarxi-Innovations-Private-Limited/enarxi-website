@@ -120,13 +120,13 @@ const AuthorDetails = memo(({ formData, onChange }) => {
 //======================================================================
 const StaffBlogs = () => {
   const { user, role } = useAuth(); // Get authenticated user and role
-    const [formData, setFormData] = useState({ authorName: "", authorRole: "" });
+  const [formData, setFormData] = useState({ authorName: "", authorRole: "" });
 
   useEffect(() => {
     // Pre-fill author details from the authenticated user context
     if (user && role) {
       setFormData({
-        authorName: user.displayName || user.email || '',
+        authorName: user.displayName || user.email || "",
         authorRole: role,
       });
     }
@@ -183,39 +183,39 @@ const StaffBlogs = () => {
     async (e) => {
       e.preventDefault();
       if (!editor) return;
-  
+
       setLoading(true);
       setMessage("");
       const finalHtmlContent = editor.getHTML();
-  
+
       if (finalHtmlContent === "<p></p>") {
         setMessage("Blog content cannot be empty.");
         setLoading(false);
         return;
       }
-  
+
       try {
         // save to Firestore
-                await addDoc(collection(db, "blogs"), {
+        await addDoc(collection(db, "blogs"), {
           userId: user.uid, // Add the user's ID
           isAdminAccepted: false, // Default to not accepted
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: finalHtmlContent,
-                    images: imageFiles.map((file) => file.name), // later replace with Storage URLs
+          images: imageFiles.map((file) => file.name), // later replace with Storage URLs
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
-  
+
         // ✅ Success message
         setMessage("✅ Blog saved in Firestore successfully!");
-  
+
         // Reset form after success
         setFormData({ authorName: "", authorRole: "" });
         setImageFiles([]);
         editor.commands.clearContent(true);
         setBlogContent("");
-  
+
         // Clear file input
         const fileInput = e.target.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = "";
@@ -228,7 +228,6 @@ const StaffBlogs = () => {
     },
     [editor, formData, imageFiles]
   );
-  
 
   if (!editor) return null;
 
