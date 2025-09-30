@@ -122,7 +122,7 @@ const AuthorDetails = memo(({ formData, onChange }) => {
 //======================================================================
 const StaffBlogs = () => {
   const { user, role } = useAuth(); // Get authenticated user and role
-  const [formData, setFormData] = useState({ authorName: "", authorRole: "" });
+  const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "" });
 
   useEffect(() => {
     // Pre-fill author details from the authenticated user context
@@ -130,6 +130,7 @@ const StaffBlogs = () => {
       setFormData({
         authorName: user.displayName || user.email || '',
         authorRole: role,
+        title: '',
       });
     }
   }, [user, role]);
@@ -200,6 +201,7 @@ const StaffBlogs = () => {
         await addDoc(collection(db, "blogs"), {
           userId: user.uid, // Add the user's ID
           isAdminAccepted: false, // Default to not accepted
+          title: formData.title,
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: finalHtmlContent,
@@ -244,6 +246,26 @@ const StaffBlogs = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <AuthorDetails formData={formData} onChange={handleInputChange} />
+
+          {/* Title Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Blog Title
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              maxLength={100}
+              required
+              placeholder="Enter your blog title (max 100 characters)"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              {formData.title.length}/100 characters
+            </p>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
