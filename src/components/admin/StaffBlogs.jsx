@@ -126,7 +126,7 @@ const StaffBlogs = () => {
     // Pre-fill author details from the authenticated user context
     if (user && role) {
       setFormData({
-        authorName: user.displayName || user.email || "",
+        authorName: user.name || user.email || "",
         authorRole: role,
       });
     }
