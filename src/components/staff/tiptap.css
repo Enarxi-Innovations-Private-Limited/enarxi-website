@@ -81,6 +81,9 @@
   border-top-left-radius: 0.5rem; /* rounded-lg */
   border-top-right-radius: 0.5rem;
   background-color: #f9fafb; /* gray-50 */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .menu-bar button {
@@ -121,7 +124,9 @@
   border-top-right-radius: 0;
   border-bottom-left-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
-  min-height: 250px;
+  height: 400px; /* Fixed height */
+  max-height: 400px; /* Prevent expansion */
+  overflow-y: auto; /* Enable vertical scrolling */
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -200,3 +205,30 @@
   list-style-type: decimal; /* Adds numbers for ordered lists */
 }
 /* --- END OF FIX --- */
+
+/* Editor container wrapper */
+.editor-container {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: white;
+}
+
+/* Custom scrollbar for better UX */
+.ProseMirror::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ProseMirror::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0 0 0.5rem 0;
+}
+
+.ProseMirror::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.ProseMirror::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

@@ -135,7 +135,7 @@ const StaffBlogs = () => {
   }, [user, role]);
 
   const [blogContent, setBlogContent] = useState("");
-  const [imageFiles, setImageFiles] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -171,15 +171,13 @@ const StaffBlogs = () => {
 
   const handleFileChange = useCallback((e) => {
     if (e.target.files?.length) {
-      setImageFiles((prevFiles) => [
-        ...prevFiles,
-        ...Array.from(e.target.files),
-      ]);
+      // Only take the first file
+      setImageFile(e.target.files[0]);
     }
   }, []);
 
-  const handleRemoveImage = useCallback((index) => {
-    setImageFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  const handleRemoveImage = useCallback(() => {
+    setImageFile(null);
   }, []);
 
   const handleSubmit = useCallback(
@@ -205,7 +203,7 @@ const StaffBlogs = () => {
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: finalHtmlContent,
-          images: imageFiles.map((file) => file.name), // later replace with Storage URLs
+          images: imageFile ? [imageFile.name] : [], // Single image or empty array
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
@@ -214,7 +212,7 @@ const StaffBlogs = () => {
         setMessage("✅ Blog saved in Firestore successfully!");
   
         // Reset form after success
-        setImageFiles([]);
+        setImageFile(null);
         editor.commands.clearContent(true);
         setBlogContent("");
   
@@ -228,7 +226,7 @@ const StaffBlogs = () => {
         setLoading(false);
       }
     },
-    [editor, user, formData, imageFiles]
+    [editor, user, formData, imageFile]
   );
   
 
@@ -259,39 +257,35 @@ const StaffBlogs = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Featured Images
+              Featured Image (Single)
             </label>
             <input
               type="file"
-              name="imageFiles"
+              name="imageFile"
               onChange={handleFileChange}
               accept="image/*"
-              multiple
               className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
             />
+            <p className="mt-1 text-xs text-gray-500">Only one image can be uploaded per blog post.</p>
 
-            {/* Preview selected images */}
-            {imageFiles.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {imageFiles.map((file, index) => {
-                  const url = URL.createObjectURL(file);
-                  return (
-                    <div key={index} className="relative">
-                      <img
-                        src={url}
-                        alt={file.name}
-                        className="w-20 h-20 object-cover rounded-lg border border-gray-300"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                })}
+            {/* Preview selected image */}
+            {imageFile && (
+              <div className="mt-3">
+                <div className="relative inline-block">
+                  <img
+                    src={URL.createObjectURL(imageFile)}
+                    alt={imageFile.name}
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-indigo-300 shadow-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold hover:bg-red-600 transition-colors shadow-lg"
+                  >
+                    ×
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-gray-600">{imageFile.name}</p>
               </div>
             )}
           </div>
