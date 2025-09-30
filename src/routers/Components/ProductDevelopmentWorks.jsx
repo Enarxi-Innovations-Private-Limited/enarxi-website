@@ -105,27 +105,23 @@
 
 
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Import your assets
 import RoadPng from "../../assets/images/RoadPng.png";
-import IdeationIcon from "../../assets/images/ideation.svg"; // Replace with your actual icon path
-import ConceptualizationIcon from "../../assets/images/conceptualization.svg"; // Replace with your actual icon path
-import HardwareIcon from "../../assets/images/hardware.svg"; // Replace with your actual icon path
-import SoftwareIcon from "../../assets/images/software.svg"; // Replace with your actual icon path
-import EndProductIcon from "../../assets/images/endProduct.svg"; // Replace with your actual icon path
+import IdeationIcon from "../../assets/images/ideation.svg";
+import ConceptualizationIcon from "../../assets/images/conceptualization.svg";
+import HardwareIcon from "../../assets/images/hardware.svg";
+import SoftwareIcon from "../../assets/images/software.svg";
+import EndProductIcon from "../../assets/images/endProduct.svg";
+
 // Register the GSAP plugin
 gsap.registerPlugin(ScrollTrigger);
 
-const ProductDevelopmentWorks = () => {
-    const containerRef = useRef(null);
-    const contentRef = useRef(null);
-    const stepsRefs = useRef([]);
-
-    // Re-added the 'layout' property to control text direction
-    const roadmapSteps = [
+// Roadmap steps data (shared between mobile and desktop)
+const roadmapSteps = [
         {
             id: 'ideation',
             title: 'Ideation',
@@ -164,9 +160,61 @@ const ProductDevelopmentWorks = () => {
             description: 'End Product Ready For Market',
             icon: EndProductIcon,
             style: { top: '60%', left: '70%' },
-            layout: 'text-left', // Text appears to the left of the icon
+            layout: 'text-left',
         },
-    ];
+];
+
+// Mobile/Tablet Component
+const MobileView = () => {
+    return (
+        <section className="w-full bg-white py-12 px-4">
+            <h1 className="text-2xl md:text-3xl font-bold font-oswald text-center mb-12">
+                How Product Development Works?
+            </h1>
+            
+            <div className="max-w-3xl mx-auto">
+                {roadmapSteps.map((step, index) => (
+                    <div key={step.id} className="relative flex items-start mb-12 last:mb-0">
+                        {/* Vertical line connector */}
+                        {index < roadmapSteps.length - 1 && (
+                            <div className="absolute left-12 md:left-16 top-24 md:top-28 w-0.5 h-full bg-gray-300 -z-10" />
+                        )}
+                        
+                        {/* Icon circle */}
+                        <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32 bg-white rounded-full border-4 border-blue-500 flex items-center justify-center shadow-lg z-10">
+                            <img 
+                                src={step.icon} 
+                                alt={`${step.title} icon`} 
+                                className="w-14 h-14 md:w-20 md:h-20 object-contain" 
+                            />
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="ml-6 md:ml-8 flex-1 bg-gray-50 rounded-lg p-4 md:p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="flex items-center mb-2">
+                                <span className="flex w-8 h-8 bg-blue-500 text-white rounded-full items-center justify-center font-bold text-sm mr-3">
+                                    {index + 1}
+                                </span>
+                                <h3 className="text-xl md:text-2xl font-semibold font-poppins text-gray-800">
+                                    {step.title}
+                                </h3>
+                            </div>
+                            <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                                {step.description}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+};
+
+// Desktop Component
+const DesktopView = () => {
+    const containerRef = useRef(null);
+    const contentRef = useRef(null);
+    const stepsRefs = useRef([]);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -186,6 +234,7 @@ const ProductDevelopmentWorks = () => {
                 stagger: 0.5,
             });
         }, containerRef);
+        
         return () => ctx.revert();
     }, []);
 
@@ -204,7 +253,6 @@ const ProductDevelopmentWorks = () => {
                         <div
                             key={step.id}
                             ref={el => stepsRefs.current[index] = el}
-                            
                             className={`absolute w-80 transform opacity-0 flex items-center gap-x-2 ${
                                 step.layout === 'text-left' ? 'flex-row-reverse' : ''
                             }`}
@@ -224,6 +272,23 @@ const ProductDevelopmentWorks = () => {
             </div>
         </section>
     );
+};
+
+// Main Component
+const ProductDevelopmentWorks = () => {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    return isMobile ? <MobileView /> : <DesktopView />;
 }
 
 export default ProductDevelopmentWorks;

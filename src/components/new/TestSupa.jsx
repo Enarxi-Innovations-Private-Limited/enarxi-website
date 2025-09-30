@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createTestStaff } from '@/utils/createTestUser';
-import { supabase } from '@/lib/superbaseClientByCk';
+import { supabaseCk as supabase } from '@/lib/supabaseClient';
 
 export default function TestSupa() {
   const [isLoading, setIsLoading] = useState(false);

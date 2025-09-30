@@ -22,6 +22,7 @@ import StaffLogin from "./StaffLogin"; // Import the new login page
 import StaffPortal from "./routers/StaffPortal"; // Import the new portal
 import AppLogger from "./AppLogger";
 import Logout from "./Logout";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function MainLayout() {
   return (
@@ -47,34 +48,36 @@ function AdminLayout() {
 
 function App() {
   return (
-<AuthProvider>
-    <Router>
-      <AppLogger/>
-      <ScrolltoTop />
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Hero />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/blogs" element={<Blog />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/newHero" element={<HeroSectionNew />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/aboutus" element={<AboutUs1 />} />
-          <Route path="/feedback" element={<FeedBack />} />
-        </Route>
-    
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
-          <Route path="/user" element={<TestSupa />} />
-                    <Route path="/login" element={<Login />} />
-          <Route path="/stafflogin" element={<StaffLogin />} />
-          <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
-          <Route path="/logout" element={<Logout/>} />
-        </Route>
-      </Routes>
-    </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <AppLogger/>
+          <ScrolltoTop />
+          <Routes>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Hero />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/blogs" element={<Blog />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/newHero" element={<HeroSectionNew />} />
+              <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/aboutus" element={<AboutUs1 />} />
+              <Route path="/feedback" element={<FeedBack />} />
+            </Route>
+        
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
+              <Route path="/user" element={<TestSupa />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/stafflogin" element={<StaffLogin />} />
+              <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
+              <Route path="/logout" element={<Logout/>} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/superbaseClientByCk";
+import { supabaseCk as supabase } from "@/lib/supabaseClient";
 
 export const createTestStaff = async () => {
   // Generate a unique email with timestamp for testing
