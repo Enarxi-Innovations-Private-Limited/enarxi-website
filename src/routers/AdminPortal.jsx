@@ -83,8 +83,13 @@ const AdminPortal = () => {
               </h1>
             </div>
             <div className="flex items-center space-x-3">
+              {user && (
+                <span className="text-sm font-medium text-gray-700">
+                  {user.displayName || user.email?.split('@')[0] || 'Admin'}
+                </span>
+              )}
               <div className="text-sm text-gray-500">Admin Portal</div> 
-                {user && <Logout/>}
+              {user && <Logout/>}
             </div>
           </div>
         </header>

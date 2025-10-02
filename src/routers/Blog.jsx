@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import styles from "./Blog.module.css";
 export default function Blog() {
@@ -10,7 +10,11 @@ export default function Blog() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
+        const q = query(
+          collection(db, "blogs"),
+          where("isAdminAccepted", "==", true),
+          orderBy("createdAt", "desc")
+        );
         const snapshot = await getDocs(q);
         const blogData = snapshot.docs.map((doc) => {
           const data = doc.data();
@@ -28,6 +32,15 @@ export default function Blog() {
         setBlogs(blogData);
       } catch (error) {
         console.error("Error fetching blogs:", error);
+        
+        // Check if it's an index error
+        if (error.code === 'failed-precondition' || error.message?.includes('index')) {
+          console.error('Firestore index required. Check console for index creation URL.');
+          console.error('Index URL:', error.message);
+        }
+        
+        // Set empty array so UI doesn't break
+        setBlogs([]);
       }
     };
 
