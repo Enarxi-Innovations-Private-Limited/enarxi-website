@@ -1,207 +1,46 @@
+/* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
 
+/* Tailwind and Animate CSS */
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
-/* Set a dark background for better contrast */
-/* body {
-  background-color: #0a0a0a;
-} */
-
-/* Apply gradient animation to the SVG path */
-.hexagon-path {
-  animation: animate-gradient 5s ease-in-out infinite;
-}
-
-/* Apply glow and hue rotation to the container */
-.hexagon-container {
-  filter: drop-shadow(0 0 3px #ff00de) drop-shadow(0 0 6px #ff00de);
-  animation: rotate-hue 5s linear infinite;
-}
-
-/* Keyframes to animate the gradient colors, creating the "flow" effect */
-@keyframes animate-gradient {
-
-  0%,
-  100% {
-    .stop1 {
-      stop-color: #00f2ff;
-    }
-
-    /* Cyan */
-    .stop2 {
-      stop-color: #ff00de;
-    }
-
-    /* Magenta */
-    .stop3 {
-      stop-color: #ff9d00;
-    }
-
-    /* Orange */
-  }
-
-  33% {
-    .stop1 {
-      stop-color: #ff9d00;
-    }
-
-    /* Orange */
-    .stop2 {
-      stop-color: #00f2ff;
-    }
-
-    /* Cyan */
-    .stop3 {
-      stop-color: #ff00de;
-    }
-
-    /* Magenta */
-  }
-
-  66% {
-    .stop1 {
-      stop-color: #ff00de;
-    }
-
-    /* Magenta */
-    .stop2 {
-      stop-color: #ff9d00;
-    }
-
-    /* Orange */
-    .stop3 {
-      stop-color: #00f2ff;
-    }
-
-    /* Cyan */
-  }
-}
-
-/* Keyframes to rotate the hue of the glow, making its color cycle */
-@keyframes rotate-hue {
-  from {
-    filter: hue-rotate(0deg) drop-shadow(0 0 3px #ff00de) drop-shadow(0 0 6px #ff00de);
-  }
-
-  to {
-    filter: hue-rotate(360deg) drop-shadow(0 0 3px #ff00de) drop-shadow(0 0 6px #ff00de);
-  }
-}
-
-
-
-
-
-@custom-variant dark (&:is(.dark *));
-
+/* Theme Variables */
 @theme {
+  /* Colors */
   --color-project_text_color_primary: rgb(10 21 36);
+  --color-footer-background: rgb(20, 22, 26);
+  --color-footer-foreground: rgb(217, 217, 217);
+  --color-footer-muted: rgb(153, 153, 153);
+  --color-footer-brand: rgb(255, 255, 255);
+  --color-footer-border: rgb(44, 49, 58);
+  --color-blacky: rgb(30 32 36);
+  
+  /* Primary/Background */
+  --color-primary: #3b82f6;           
+  --color-primary-dark: #1e40af;      
+  --color-bg: #111827;                
+  --color-bg-alt: #1f2937;            
+  --color-text: #d1d5db;              
+
+  /* Fonts */
   --font-poppins: "Poppins", sans-serif;
   --font-noto: "Noto Sans JP", sans-serif;
   --font-oswald: "Oswald", sans-serif;
-  --color-footer-background: rgb(20, 22, 26);
-  --color-blacky: rgb(30 32 36);
-  --color-footer-foreground: rgb(217 217 217);
-  --color-footer-muted: rgb(153 153 153);
-  --color-footer-brand: rgb(255 255 255);
-  --color-footer-border: rgb(44 49 58);
-  --font-oswald: "Oswald", sans-serif;
   --font-weight-700: 200;
-
-  /* After 22092025 */
-  --color-primary: #3b82f6;           /* blue-500 */
-  --color-primary-dark: #1e40af;      /* blue-900/darker */
-  --color-bg: #111827;                /* gray-900 */
-  --color-bg-alt: #1f2937;            /* gray-800 */
-  --color-text: #d1d5db;              /* gray-300 */
-
-  /* Fonts */
   --font-heading: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
 }
 
-@layer components {
-  .footer {
-    background-color: hsl(var(--color-footer-background));
-    color: hsl(var(--color-footer-foreground));
-    border-top: 1px solid hsl(var(--color-footer-border));
-    padding: 2rem;
-  }
-
-  .footer-muted {
-    color: hsl(var(--color-footer-muted));
-
-  }
-
-  .footer-brand {
-    color: hsl(var(--color-footer-brand));
-    font-weight: bold;
-  }
-
-  .allComponent-text-color {
-    color: hsl(var(--color-hero-black));
-  }
-}
-
-@layer utilities {
-  .font-oswald {
-    font-family: var(--font-oswald), sans-serif;
-    font-weight: 700;
-    font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem);
-  }
-
-  .text-poppins {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    font-size: clamp(0.75rem, 0.214rem + 1.429vw, 1.5rem);
-    color: #676767;
-  }
-
-  .text-poppins-md {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
-    font-size: clamp(1.2rem, 3.5vw + 0.5rem, 9rem);
-  }
-
-  .text-oswald {
-    font-family: "Oswald", sans-serif;
-    font-weight: 700;
-    font-size: clamp(1.50rem, 0.625rem + 1.667vw, 2.125rem);
-  }
-
-  .text-oswald-md {
-    font-family: "Oswald", sans-serif;
-    font-weight: 700;
-    font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem)
-  }
-
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.scroll {
-  animation: scroll 5s linear infinite;
-  width: max-content;
-}
-
+/* Inline Theme (Tailwind) */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -235,6 +74,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Root Variables */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -270,6 +110,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Dark Mode */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -304,33 +145,90 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+/* Components */
+@layer components {
+  .footer {
+    background-color: hsl(var(--color-footer-background));
+    color: hsl(var(--color-footer-foreground));
+    border-top: 1px solid hsl(var(--color-footer-border));
+    padding: 2rem;
   }
 
-  body {
-    @apply bg-background text-foreground;
-    background-color: var(--color-bg);
-    color: white;
-    font-family: var(--font-body);
-    .gradient-text {
-      background: linear-gradient(
-        90deg,
-        var(--color-primary) 0%,
-        var(--color-primary-dark) 100%
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-  
-    .value-card:hover,
-    .team-card:hover {
-      transform: translateY(-5px);
-      box-shadow:
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
+  .footer-muted {
+    color: hsl(var(--color-footer-muted));
   }
+
+  .footer-brand {
+    color: hsl(var(--color-footer-brand));
+    font-weight: bold;
+  }
+
+  .allComponent-text-color {
+    color: hsl(var(--color-hero-black));
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  .font-oswald {
+    font-family: var(--font-oswald), sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem);
+  }
+
+  .text-poppins {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.75rem, 0.214rem + 1.429vw, 1.5rem);
+    color: #676767;
+  }
+
+  .text-poppins-md {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.2rem, 3.5vw + 0.5rem, 9rem);
+  }
+
+  .text-oswald {
+    font-family: "Oswald", sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.25rem, 0.625rem + 1.667vw, 2.125rem);
+  }
+
+  .text-oswald-md {
+    font-family: "Oswald", sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem);
+  }
+}
+
+/* Scroll Animation */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.scroll {
+  animation: scroll 5s linear infinite;
+  width: max-content;
+}
+
+/* SVG Icon Hover Animations */
+.icon, .icon path {
+  transition: all 0.3s ease-in-out;
+}
+
+.feature-card:hover .icon {
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9));
+  animation: icon-bounce 0.5s forwards;
+}
+
+.feature-card:hover .icon path {
+  fill: #FFD700; /* Yellow glow */
+}
+
+@keyframes icon-bounce {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px) scale(1.1); }
+  100% { transform: translateY(0); }
 }
