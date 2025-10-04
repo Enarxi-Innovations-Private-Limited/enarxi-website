@@ -12,11 +12,11 @@ import EndProductIcon from "../../assets/images/endProduct.svg";
 gsap.registerPlugin(ScrollTrigger);
 
 const ProductDevelopmentWorks = () => {
-  const containerRef = useRef(null);
-  const contentRef = useRef(null);
-  const horizontalRef = useRef(null);
-  const horizontalScrollWrapper = useRef(null);
-  const stepsRefs = useRef([]);
+  const desktopContainerRef = useRef(null);
+  const desktopContentRef = useRef(null);
+  const desktopStepsRefs = useRef([]);
+  const mobileTimelineRef = useRef(null);
+  const mobileStepRefs = useRef([]);
 
   const roadmapSteps = [
     {
@@ -63,127 +63,205 @@ const ProductDevelopmentWorks = () => {
     },
   ];
 
+  const steps = [
+    {
+      id: "ideation",
+      title: "Ideation",
+      description:
+        "Understanding the customer need challenging it to a requirement chart",
+      icon: IdeationIcon,
+    },
+    {
+      id: "conceptualization",
+      title: "Conceptualization",
+      description: "Structuring of Solution, Prototyping and Finalization",
+      icon: ConceptualizationIcon,
+    },
+    {
+      id: "hardware",
+      title: "Hardware",
+      description:
+        "Hardware planning, Schematic Design, PCB Layout Routing, Components Assembly and Testing",
+      icon: HardwareIcon,
+    },
+    {
+      id: "software",
+      title: "Software",
+      description: "Firmware development, App and Cloud integrations.",
+      icon: SoftwareIcon,
+    },
+    {
+      id: "end-product",
+      title: "End Product",
+      description: "End Product Ready For Market",
+      icon: EndProductIcon,
+    },
+  ];
+
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // --- Desktop logic (unchanged) ---
       if (window.innerWidth >= 768) {
+        // Desktop: Reduced scroll distance for more compact experience
         gsap
           .timeline({
             scrollTrigger: {
-              trigger: containerRef.current,
+              trigger: desktopContainerRef.current,
               start: "top top",
-              end: "bottom bottom",
+              end: "+=150vh", // Reduced from implicit 300vh to 150vh
               scrub: 1,
-              pin: contentRef.current,
+              pin: desktopContentRef.current,
             },
           })
-          .to(stepsRefs.current, {
+          .to(desktopStepsRefs.current, {
             opacity: 1,
             y: 0,
             ease: "power1.inOut",
-            stagger: 0.5,
+            stagger: 0.3, // Faster stagger for quicker animation
           });
       } else {
-        // --- Mobile horizontal scroll (CORRECTED) ---
-        if (!horizontalRef.current || !horizontalScrollWrapper.current) return;
+        // Mobile: Vertical timeline animations
+        mobileStepRefs.current.forEach((stepEl, index) => {
+          gsap.fromTo(
+            stepEl,
+            {
+              scale: 0.8,
+              rotationX: -90,
+              opacity: 0,
+              y: 50,
+            },
+            {
+              scale: 1,
+              rotationX: 0,
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: "back.out(1.7)",
+              scrollTrigger: {
+                trigger: stepEl,
+                start: "top 80%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        });
 
-        // Calculate the total distance the horizontal section needs to move
-        const scrollDistance =
-          horizontalRef.current.scrollWidth - window.innerWidth;
-
-        gsap.to(horizontalRef.current, {
-          x: -scrollDistance, // Animate the x position to the negative scroll distance
-          ease: "none", // Linear animation
+        // Animate timeline line
+        gsap.to(".timeline-line", {
+          height: "100%",
+          duration: 1,
+          ease: "power2.out",
           scrollTrigger: {
-            trigger: horizontalScrollWrapper.current, // The element that triggers the animation
-            pin: true, // Pin the trigger element during the animation
-            scrub: 1, // Smoothly scrub the animation on scroll
-            start: "top top",
-            // End the animation after scrolling a distance equal to the scrollDistance
-            end: () => `+=${scrollDistance}`,
+            trigger: mobileTimelineRef.current,
+            start: "top 20%",
+            end: "bottom 20%",
+            scrub: true,
           },
         });
       }
-    }, containerRef);
+    });
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={containerRef} className="w-full relative bg-white py-12">
-      <h1 className="text-3xl md:text-4xl font-bold font-oswald text-center">
-        How Product Development Works?
-      </h1>
-
-      {/* Desktop Roadmap */}
-      <div
-        ref={contentRef}
-        className="hidden md:block h-screen w-full sticky flex flex-col items-center"
+    <>
+      {/* Desktop Section */}
+      <section
+        ref={desktopContainerRef}
+        className="hidden md:block w-full relative bg-white"
       >
-        <div className="relative w-full h-full mx-auto">
-          <img
-            src={RoadPng}
-            alt="Product development roadmap"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain"
-          />
+        <h1 className="text-3xl md:text-4xl font-bold font-oswald text-center py-12">
+          How Product Development Works?
+        </h1>
 
-          {roadmapSteps.map((step, index) => (
+        <div ref={desktopContentRef} className="h-screen w-full">
+          <div className="relative w-full h-full mx-auto">
+            <img
+              src={RoadPng}
+              alt="Product development roadmap"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
+            />
+
+            {roadmapSteps.map((step, index) => (
+              <div
+                key={step.id}
+                ref={(el) => (desktopStepsRefs.current[index] = el)}
+                className={`absolute w-72 md:w-80 transform opacity-0 flex items-center gap-x-2 ${
+                  step.layout === "text-left" ? "flex-row-reverse" : ""
+                }`}
+                style={{ ...step.style, transform: "translateY(50px)" }}
+              >
+                <img
+                  src={step.icon}
+                  alt={`${step.title} icon`}
+                  className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0"
+                />
+
+                <div
+                  className={`flex flex-col ${
+                    step.layout === "text-left" ? "text-right" : "text-left"
+                  }`}
+                >
+                  <h3 className="text-xl md:text-2xl font-semibold font-poppins">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile Section */}
+      <section className="block md:hidden w-full bg-gradient-to-b from-white to-gray-50 py-8 px-4">
+        <h1 className="text-2xl font-bold font-oswald text-center mb-12 text-gray-800">
+          How Product Development Works?
+        </h1>
+
+        <div ref={mobileTimelineRef} className="relative max-w-md mx-auto">
+          {/* Vertical Timeline Line */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 bg-blue-500 h-0 timeline-line z-0"></div>
+
+          {steps.map((step, index) => (
             <div
               key={step.id}
-              ref={(el) => (stepsRefs.current[index] = el)}
-              className={`absolute w-80 transform opacity-0 flex items-center gap-x-2 ${
-                step.layout === "text-left" ? "flex-row-reverse" : ""
+              ref={(el) => (mobileStepRefs.current[index] = el)}
+              className={`relative z-10 mb-8 flex flex-col items-center ${
+                index % 2 === 0 ? "text-left" : "text-right"
               }`}
-              style={{ ...step.style, transform: "translateY(50px)" }}
             >
-              <img
-                src={step.icon}
-                alt={`${step.title} icon`}
-                className="w-32 h-32 flex-shrink-0"
-              />
+              {/* Timeline Node */}
+              <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-blue-600 border-4 border-white shadow-lg"></div>
 
-              <div
-                className={`flex flex-col ${
-                  step.layout === "text-left" ? "text-right" : "text-left"
-                }`}
-              >
-                <h3 className="text-2xl font-semibold font-poppins">
+              {/* Step Card */}
+              <div className="w-full bg-white rounded-xl shadow-md p-6 transform perspective-1000">
+                <div className="flex items-center justify-center mb-4">
+                  <img
+                    src={step.icon}
+                    alt={step.title}
+                    className="w-16 h-16 flex-shrink-0"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold font-poppins text-gray-800 mb-2 text-center">
                   {step.title}
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                <p className="text-sm text-gray-600 leading-relaxed text-center">
+                  {step.description}
+                </p>
+              </div>
+
+              {/* Step Number */}
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                {index + 1}
               </div>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Mobile Horizontal Scroll */}
-      <div
-        ref={horizontalScrollWrapper}
-        className="block md:hidden overflow-x-hidden relative"
-      >
-        {/* The "sticky top-0" classes have been removed from the div below */}
-        <div ref={horizontalRef} className="flex flex-row w-full h-screen">
-          {roadmapSteps.map((step) => (
-            <div
-              key={step.id}
-              className="h-step w-screen flex-shrink-0 flex flex-col items-center justify-center text-center px-6"
-              style={{ margin: 0, padding: 0 }}
-            >
-              <img
-                src={step.icon}
-                alt={step.title}
-                className="w-20 h-20 mb-4"
-              />
-              <h3 className="text-xl font-semibold">{step.title}</h3>
-              <p className="text-sm text-gray-600 mt-2 max-w-xs">
-                {step.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
@@ -206,33 +284,32 @@ export default ProductDevelopmentWorks;
 //   const containerRef = useRef(null);
 //   const contentRef = useRef(null);
 //   const stepsRefs = useRef([]);
+//   const horizontalRef = useRef(null);
+//   const horizontalScrollWrapper = useRef(null);
 
-//   // Re-added the 'layout' property to control text direction
 //   const roadmapSteps = [
 //     {
 //       id: "ideation",
 //       title: "Ideation",
-//       description:
-//         "Understanding the customer need challenging it to a requirement chart",
+//       description: "Understanding the customer need challenging it to a requirement chart",
 //       icon: IdeationIcon,
-//       style: { top: "-14%", left: "4%" },
-//       layout: "text-right", // Text appears to the right of the icon
+//       style: { top: "-1%", left: "4%" },
+//       layout: "text-right",
 //     },
 //     {
 //       id: "conceptualization",
 //       title: "Conceptualization",
 //       description: "Structuring of Solution, Prototyping and Finalization",
 //       icon: ConceptualizationIcon,
-//       style: { top: "13%", left: "55%" },
+//       style: { top: "20%", left: "55%" },
 //       layout: "text-right",
 //     },
 //     {
 //       id: "hardware",
 //       title: "Hardware",
-//       description:
-//         "Hardware planning, Schematic Design, PCB Layout Routing, Components Assembly and Testing",
+//       description: "Hardware planning, Schematic Design, PCB Layout Routing, Components Assembly and Testing",
 //       icon: HardwareIcon,
-//       style: { top: "35%", left: "8%" },
+//       style: { top: "38%", left: "8%" },
 //       layout: "text-left",
 //     },
 //     {
@@ -240,7 +317,7 @@ export default ProductDevelopmentWorks;
 //       title: "Software",
 //       description: "Firmware development, App and Cloud integrations.",
 //       icon: SoftwareIcon,
-//       style: { top: "62%", left: "40%" },
+//       style: { top: "60%", left: "40%" },
 //       layout: "text-right",
 //     },
 //     {
@@ -248,83 +325,145 @@ export default ProductDevelopmentWorks;
 //       title: "End Product",
 //       description: "End Product Ready For Market",
 //       icon: EndProductIcon,
-//       style: { top: "60%", left: "70%" },
-//       layout: "text-left", // Text appears to the left of the icon
+//       style: { top: "58%", left: "70%" },
+//       layout: "text-left",
 //     },
 //   ];
 
 //   useEffect(() => {
 //     const ctx = gsap.context(() => {
-//       gsap
-//         .timeline({
+//       if (window.innerWidth >= 768) {
+//         // Desktop: Reduced scroll distance for more compact experience
+//         gsap.timeline({
 //           scrollTrigger: {
 //             trigger: containerRef.current,
 //             start: "top top",
-//             end: "bottom bottom",
+//             end: "+=150vh", // Reduced from implicit 300vh to 150vh
 //             scrub: 1,
 //             pin: contentRef.current,
 //           },
-//         })
-//         .to(stepsRefs.current, {
+//         }).to(stepsRefs.current, {
 //           opacity: 1,
 //           y: 0,
 //           ease: "power1.inOut",
-//           stagger: 0.5,
+//           stagger: 0.3, // Faster stagger for quicker animation
 //         });
+//       } else {
+//         // Mobile: Horizontal scroll with reduced height
+//         if (!horizontalRef.current || !horizontalScrollWrapper.current) return;
+
+//         const scrollDistance = horizontalRef.current.scrollWidth - window.innerWidth;
+
+//         gsap.to(horizontalRef.current, {
+//           x: -scrollDistance,
+//           ease: "none",
+//           scrollTrigger: {
+//             trigger: horizontalScrollWrapper.current,
+//             pin: true,
+//             scrub: 1,
+//             start: "top top",
+//             end: () => `+=${scrollDistance * 0.8}`, // Reduced scroll distance by 20%
+//           },
+//         });
+//       }
 //     }, containerRef);
+
 //     return () => ctx.revert();
 //   }, []);
 
 //   return (
-//     <section
-//       ref={containerRef}
-//       className="w-full relative bg-white py-12"
-//       style={{ height: "300vh" }}
-//     >
-//       <div
-//         ref={contentRef}
-//         className="h-screen w-full sticky top-0 flex flex-col items-center"
-//       >
-//         <h1 className="text-4xl font-bold font-oswald my-14">
-//           How Product Development Works ?
+//     <>
+//       {/* Desktop Section */}
+//       <section ref={containerRef} className="hidden md:block w-full relative bg-white">
+//         <h1 className="text-3xl md:text-4xl font-bold font-oswald text-center py-12">
+//           How Product Development Works?
 //         </h1>
-//         <div className="relative w-full h-full mx-auto">
-//           <img
-//             src={RoadPng}
-//             alt="Product development roadmap"
-//             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain"
-//           />
 
-//           {roadmapSteps.map((step, index) => (
-//             <div
-//               key={step.id}
-//               ref={(el) => (stepsRefs.current[index] = el)}
-//               className={`absolute w-80 transform opacity-0 flex items-center gap-x-2 ${
-//                 step.layout === "text-left" ? "flex-row-reverse" : ""
-//               }`}
-//               style={{ ...step.style, transform: "translateY(50px)" }}
-//             >
-//               <img
-//                 src={step.icon}
-//                 alt={`${step.title} icon`}
-//                 className="w-32 h-32 flex-shrink-0"
-//               />
+//         <div ref={contentRef} className="h-screen w-full">
+//           <div className="relative w-full h-full mx-auto">
+//             <img
+//               src={RoadPng}
+//               alt="Product development roadmap"
+//               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
+//             />
 
+//             {roadmapSteps.map((step, index) => (
 //               <div
-//                 className={`flex flex-col ${
-//                   step.layout === "text-left" ? "text-right" : "text-left"
+//                 key={step.id}
+//                 ref={(el) => (stepsRefs.current[index] = el)}
+//                 className={`absolute w-72 md:w-80 transform opacity-0 flex items-center gap-x-2 ${
+//                   step.layout === "text-left" ? "flex-row-reverse" : ""
 //                 }`}
+//                 style={{ ...step.style, transform: "translateY(50px)" }}
 //               >
-//                 <h3 className="text-2xl font-semibold font-poppins">
-//                   {step.title}
-//                 </h3>
-//                 <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+//                 <img
+//                   src={step.icon}
+//                   alt={`${step.title} icon`}
+//                   className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0"
+//                 />
+
+//                 <div
+//                   className={`flex flex-col ${
+//                     step.layout === "text-left" ? "text-right" : "text-left"
+//                   }`}
+//                 >
+//                   <h3 className="text-xl md:text-2xl font-semibold font-poppins">
+//                     {step.title}
+//                   </h3>
+//                   <p className="text-xs md:text-sm text-gray-600 mt-1">
+//                     {step.description}
+//                   </p>
+//                 </div>
 //               </div>
-//             </div>
-//           ))}
+//             ))}
+//           </div>
 //         </div>
-//       </div>
-//     </section>
+//       </section>
+
+//       {/* Mobile Section */}
+//       <section className="block md:hidden w-full relative bg-white">
+//         {/* Fixed Heading - Outside the scroll container */}
+//         <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-4 px-4">
+//           <h1 className="text-2xl font-bold font-oswald text-center">
+//             How Product Development Works?
+//           </h1>
+//         </div>
+
+//         {/* Horizontal Scroll Container */}
+//         <div
+//           ref={horizontalScrollWrapper}
+//           className="overflow-x-hidden relative h-[calc(100vh-4rem)]"
+//         >
+//           <div ref={horizontalRef} className="flex flex-row w-full h-full">
+//             {roadmapSteps.map((step, index) => (
+//               <div
+//                 key={step.id}
+//                 className="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center px-8"
+//               >
+//                 <div className="flex flex-col items-center max-w-sm">
+//                   <div className="mb-3">
+//                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold mb-3">
+//                       {index + 1}
+//                     </span>
+//                   </div>
+//                   <img
+//                     src={step.icon}
+//                     alt={step.title}
+//                     className="w-20 h-20 mb-3"
+//                   />
+//                   <h3 className="text-lg font-semibold font-poppins mb-2">
+//                     {step.title}
+//                   </h3>
+//                   <p className="text-sm text-gray-600 leading-relaxed">
+//                     {step.description}
+//                   </p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//     </>
 //   );
 // };
 

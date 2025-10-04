@@ -17,13 +17,13 @@
   --color-footer-brand: rgb(255, 255, 255);
   --color-footer-border: rgb(44, 49, 58);
   --color-blacky: rgb(30 32 36);
-  
+
   /* Primary/Background */
-  --color-primary: #3b82f6;           
-  --color-primary-dark: #1e40af;      
-  --color-bg: #111827;                
-  --color-bg-alt: #1f2937;            
-  --color-text: #d1d5db;              
+  --color-primary: #3b82f6;
+  --color-primary-dark: #1e40af;
+  --color-bg: #111827;
+  --color-bg-alt: #1f2937;
+  --color-text: #d1d5db;
 
   /* Fonts */
   --font-poppins: "Poppins", sans-serif;
@@ -40,7 +40,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -178,8 +178,6 @@
 
   .text-poppins {
     font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    font-size: clamp(0.75rem, 0.214rem + 1.429vw, 1.5rem);
     color: #676767;
   }
 
@@ -191,21 +189,24 @@
 
   .text-oswald {
     font-family: "Oswald", sans-serif;
-    font-weight: 700;
     font-size: clamp(1.25rem, 0.625rem + 1.667vw, 2.125rem);
   }
 
   .text-oswald-md {
     font-family: "Oswald", sans-serif;
-    font-weight: 700;
     font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem);
   }
 }
 
 /* Scroll Animation */
 @keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .scroll {
@@ -214,7 +215,8 @@
 }
 
 /* SVG Icon Hover Animations */
-.icon, .icon path {
+.icon,
+.icon path {
   transition: all 0.3s ease-in-out;
 }
 
@@ -224,11 +226,20 @@
 }
 
 .feature-card:hover .icon path {
-  fill: #FFD700; /* Yellow glow */
+  fill: #FFD700;
+  /* Yellow glow */
 }
 
 @keyframes icon-bounce {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-6px) scale(1.1); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px) scale(1.1);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
