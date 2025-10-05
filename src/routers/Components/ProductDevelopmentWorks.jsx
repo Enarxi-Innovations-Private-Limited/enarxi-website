@@ -111,7 +111,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Import your assets
 import RoadPng from "../../assets/images/RoadPng.png";
-import IdeationIcon from "../../assets/images/ideation.svg";
+import IdeationIcon from "../../assets/images/Ideation.svg";
 import ConceptualizationIcon from "../../assets/images/conceptualization.svg";
 import HardwareIcon from "../../assets/images/hardware.svg";
 import SoftwareIcon from "../../assets/images/software.svg";
