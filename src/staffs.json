@@ -1,0 +1,44 @@
+{
+    "staffs":[
+        {
+            "name":"santhosh",
+            "designation":"Team lead"
+        },
+        {
+            "name":"ponmudi",
+            "designation":"Team lead"
+        },
+        {
+            "name":"kailash",
+            "designation":"Team lead"
+        },
+        {
+            "name":"krishnan",
+            "designation":"Embeded Engineer"
+        },
+        {
+            "name":"ziad",
+            "designation":"Software Engineer"
+        },
+        {
+            "name":"syed abdul rahman",
+            "designation":"Software Engineer"
+        },
+        {
+            "name":"chellakumar",
+            "designation":"Software Engineer"
+        },
+        {
+            "name":"suman",
+            "designation":"intern"
+        },
+        {
+            "name":"mohan",
+            "designation":"intern"
+        },
+        {
+            "name":"aravind",
+            "designation":"intern"
+        }
+    ]
+}

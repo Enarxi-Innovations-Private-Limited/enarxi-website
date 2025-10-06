@@ -8,7 +8,18 @@ import vision from '@assets/aboutus/vision.png';
 import innovation from '@assets/aboutus/innovation.png';
 import excellence from '@assets/aboutus/excellence.png';
 import collabration from '@assets/aboutus/collabration.png';
-import curiosity from '@assets/aboutus/curiosity.png'
+import curiosity from '@assets/aboutus/curiosity.png';
+import staffsData from '../../staffs.json';
+import proMen1 from '@assets/aboutus/pro-men.jpg';
+import proMen2 from '@assets/aboutus/pro-men2.jpg';
+import proMen3 from '@assets/aboutus/pro-men3.jpg';
+import proMen4 from '@assets/aboutus/pro-men4.jpg';
+import proMen5 from '@assets/aboutus/pro-men5.jpg';
+import proMen6 from '@assets/aboutus/pro-men6jpg.jpg';
+import proMen7 from '@assets/aboutus/pro-men-7.jpg';
+import proMen8 from '@assets/aboutus/pro-men8.jpg';
+import proMen9 from '@assets/aboutus/pro-men9.jpg';
+import proMen10 from '@assets/aboutus/pro-men10.jpg';
 
 
 export default function AboutUs() {
@@ -63,6 +74,9 @@ export default function AboutUs() {
       scale: 1
     }
   };
+
+  // Team member images array
+  const teamImages = [proMen1, proMen2, proMen3, proMen4, proMen5, proMen6, proMen7, proMen8, proMen9, proMen10];
 
   const values = [
     { title: "Innovation",icon: innovation, description: "We constantly push boundaries and explore new technologies to deliver cutting-edge solutions." },
@@ -337,6 +351,70 @@ export default function AboutUs() {
         </motion.div>
       </section>
 
+      {/* Our Team Section */}
+      <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto bg-gradient-to-br from-secondary/30 to-primary/5">
+        <motion.h2 
+          className="text-3xl md:text-4xl lg:text-5xl font-bold font-oswald text-center mb-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          Our Team
+        </motion.h2>
+        
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerContainer}
+        >
+          {staffsData.staffs.map((staff, index) => (
+            <motion.div
+              key={index}
+              className="text-center group"
+              initial={{ opacity: 0, y: 50, rotateY: -15 }}
+              whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
+              viewport={{ once: true }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 100, 
+                damping: 12,
+                delay: index * 0.1 
+              }}
+              whileHover={{ scale: 1.05, y: -10 }}
+            >
+              <motion.div 
+                className="relative mb-6 mx-auto w-fit"
+                whileHover={{ rotate: index % 2 === 0 ? 5 : -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                <img 
+                  src={teamImages[index % teamImages.length]} 
+                  alt={`${staff.name} - ${staff.designation}`} 
+                  className="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl shadow-xl border-4 border-background transition-all duration-300 group-hover:border-primary/50"
+                />
+              </motion.div>
+              <motion.h3 
+                className="text-lg md:text-xl font-bold font-oswald mb-2 text-primary capitalize"
+                whileHover={{ scale: 1.08 }}
+              >
+                {staff.name}
+              </motion.h3>
+              <motion.p 
+                className="text-muted-foreground text-sm md:text-base font-medium capitalize"
+                whileHover={{ color: "hsl(var(--primary))" }}
+              >
+                {staff.designation}
+              </motion.p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
       {/* Our Values Section */}
       <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto">
         <motion.h2 
@@ -360,42 +438,82 @@ export default function AboutUs() {
           {values.map((value, index) => (
             <motion.div
               key={index}
-              className="text-center group bg-card/50 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-border/50 hover:shadow-2xl transition-all duration-300"
-              initial={{ opacity: 0, y: 60, scale: 0.8 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              className="relative text-center group bg-card/50 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-border/50 hover:shadow-2xl transition-all duration-300 overflow-hidden"
+              initial={{ opacity: 0, y: 60, scale: 0.8, rotateX: -15 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
               viewport={{ once: true }}
               transition={{ 
                 type: "spring", 
                 stiffness: 150, 
                 damping: 20,
-                delay: index * 0.1
+                delay: index * 0.15
               }}
-              whileHover={{ scale: 1.05, y: -10 }}
+              whileHover={{ 
+                scale: 1.08, 
+                y: -15,
+                rotateY: 5,
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+              }}
             >
-              <motion.div 
-                className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:from-primary/30 group-hover:to-secondary/30 transition-all duration-300"
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <img 
-                  src={`${value.icon}`} 
-                  alt={`${value.title} icon`} 
-                  className="w-12 h-12 rounded-2xl"
-                />
-              </motion.div>
-              <motion.h3 
-                className="text-xl md:text-2xl font-bold font-oswald mb-4 text-primary group-hover:text-secondary-foreground transition-colors duration-300"
-                whileHover={{ scale: 1.05 }}
-              >
-                {value.title}
-              </motion.h3>
-              <motion.p 
-                className="text-muted-foreground text-sm md:text-base leading-relaxed"
-                initial={{ opacity: 0.8 }}
-                whileHover={{ opacity: 1 }}
-              >
-                {value.description}
-              </motion.p>
+              {/* Animated background gradient on hover */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                initial={{ scale: 0, rotate: 0 }}
+                whileHover={{ scale: 1.5, rotate: 180 }}
+                transition={{ duration: 0.8 }}
+              />
+              
+              <div className="relative z-10">
+                <motion.div 
+                  className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:from-primary/40 group-hover:to-secondary/40 transition-all duration-300"
+                  animate={{
+                    rotate: [0, 5, -5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    delay: index * 0.2
+                  }}
+                  whileHover={{ 
+                    rotate: 360, 
+                    scale: 1.15,
+                    boxShadow: "0 0 30px rgba(var(--primary), 0.5)"
+                  }}
+                >
+                  <motion.img 
+                    src={`${value.icon}`} 
+                    alt={`${value.title} icon`} 
+                    className="w-12 h-12 rounded-2xl"
+                    whileHover={{ scale: 1.1 }}
+                  />
+                </motion.div>
+                
+                <motion.h3 
+                  className="text-xl md:text-2xl font-bold font-oswald mb-4 text-primary group-hover:text-secondary-foreground transition-colors duration-300"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  {value.title}
+                </motion.h3>
+                
+                <motion.p 
+                  className="text-muted-foreground text-sm md:text-base leading-relaxed"
+                  initial={{ opacity: 0.8 }}
+                  whileHover={{ opacity: 1, scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {value.description}
+                </motion.p>
+              </div>
+              
+              {/* Animated border effect */}
+              <motion.div
+                className="absolute inset-0 rounded-3xl border-2 border-primary/0 group-hover:border-primary/50"
+                initial={{ scale: 0.95, opacity: 0 }}
+                whileHover={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4 }}
+              />
             </motion.div>
           ))}
         </motion.div>
