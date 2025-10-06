@@ -5,6 +5,11 @@ import ayazCEO from '../../assets/ayazCEO.jpg';
 import syedCTO from '../../assets/syedCTO.jpg';
 import mission from '@assets/aboutus/mission.png';
 import vision from '@assets/aboutus/vision.png';
+import innovation from '@assets/aboutus/innovation.png';
+import excellence from '@assets/aboutus/excellence.png';
+import collabration from '@assets/aboutus/collabration.png';
+import curiosity from '@assets/aboutus/curiosity.png'
+
 
 export default function AboutUs() {
   // Enhanced animation variants with more interactivity
@@ -60,10 +65,10 @@ export default function AboutUs() {
   };
 
   const values = [
-    { title: "Innovation", description: "We constantly push boundaries and explore new technologies to deliver cutting-edge solutions." },
-    { title: "Excellence", description: "Quality is at the heart of everything we do, ensuring exceptional results for our clients." },
-    { title: "Collaboration", description: "We believe in the power of teamwork and fostering strong partnerships." },
-    { title: "Curiosity", description: "Curiosity drives our innovation. We constantly explore new technologies and methods to bring better solutions for our clients." }
+    { title: "Innovation",icon: innovation, description: "We constantly push boundaries and explore new technologies to deliver cutting-edge solutions." },
+    { title: "Excellence",icon: excellence, description: "Quality is at the heart of everything we do, ensuring exceptional results for our clients." },
+    { title: "Collaboration",icon: collabration, description: "We believe in the power of teamwork and fostering strong partnerships." },
+    { title: "Curiosity",icon: curiosity, description: "Curiosity drives our innovation. We constantly explore new technologies and methods to bring better solutions for our clients." }
   ];
 
   return (
@@ -373,7 +378,7 @@ export default function AboutUs() {
                 transition={{ duration: 0.6 }}
               >
                 <img 
-                  src={aboutUsEye} 
+                  src={`${value.icon}`} 
                   alt={`${value.title} icon`} 
                   className="w-12 h-12 rounded-2xl"
                 />
