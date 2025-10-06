@@ -3,6 +3,8 @@ import aboutUs1 from '../../assets/aboutus1.png';
 import aboutUsEye from '../../assets/aboutusEye.png';
 import ayazCEO from '../../assets/ayazCEO.jpg';
 import syedCTO from '../../assets/syedCTO.jpg';
+import mission from '@assets/aboutus/mission.png';
+import vision from '@assets/aboutus/vision.png';
 
 export default function AboutUs() {
   // Enhanced animation variants with more interactivity
@@ -181,7 +183,9 @@ export default function AboutUs() {
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
               >
-                <div className="w-8 h-8 bg-primary rounded-lg"></div>
+                <div className="w-8 h-8 bg-white rounded-lg">
+                <img src={mission} alt='mission' className='w-8 h-8'/>
+                </div>
               </motion.div>
               <motion.h3 
                 className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-primary"
@@ -213,7 +217,9 @@ export default function AboutUs() {
                 whileHover={{ rotate: -360 }}
                 transition={{ duration: 0.6 }}
               >
-                <div className="w-8 h-8 bg-secondary rounded-lg"></div>
+                <div className="w-8 h-8 bg-secondary rounded-lg">
+                  <img src={vision} alt='vision' className='w-8 h-8'/>
+                </div>
               </motion.div>
               <motion.h3 
                 className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-secondary-foreground"
