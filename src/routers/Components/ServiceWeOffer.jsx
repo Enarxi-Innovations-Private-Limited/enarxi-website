@@ -101,9 +101,10 @@
 
 // export default ServicesSection;
 
+
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -111,7 +112,7 @@ import IconProduct from "../../assets/images/product-design.svg";
 import IconMCFirmware from "../../assets/images/mc-firmware.svg";
 import IconPCB from "../../assets/images/pcb-design.svg";
 
-// Service data
+// --- Service Data ---
 const services = [
   {
     icon: IconProduct,
@@ -130,14 +131,12 @@ const services = [
   },
 ];
 
+// --- Utility Hook ---
 const useIsMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < breakpoint);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [breakpoint]);
@@ -146,37 +145,55 @@ const useIsMobile = (breakpoint = 768) => {
 };
 
 let interval;
+
+// --- CardStack Component ---
 const CardStack = ({ items, offset = 12, scaleFactor = 0.07 }) => {
   const [cards, setCards] = useState(items);
   const isMobile = useIsMobile();
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    // Clear any existing interval when the view changes
     if (interval) clearInterval(interval);
-
-    // Only start the flipping interval on desktop
     if (!isMobile) {
       interval = setInterval(() => {
         setCards((prev) => {
           const newArray = [...prev];
-          newArray.unshift(newArray.pop()); // move last to front
+          newArray.unshift(newArray.pop());
           return newArray;
         });
       }, 2500);
     }
-
-    // Cleanup interval on component unmount or view change
     return () => clearInterval(interval);
-  }, [isMobile]); // Rerun this effect when isMobile changes
+  }, [isMobile]);
 
-  // --- Mobile View: Horizontal Swipeable Slider ---
+  // --- Enable vertical → horizontal scroll for mobile ---
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [isMobile]);
+
+  // --- Mobile View ---
   if (isMobile) {
     return (
-      <div className="flex w-full space-x-4 overflow-x-auto p-1 pb-4 scroll-snap-x-mandatory">
-        {items.map((card) => (
+      <div
+        ref={scrollContainerRef}
+        className="flex w-full space-x-4 overflow-x-auto p-1 pb-4 scrollbar-hide"
+      >
+        {cards.map((card) => (
           <div
             key={card.id}
-            className="w-[85%] sm:w-4/5 flex-shrink-0 rounded-3xl bg-gray-200 p-4 shadow-xl border border-slate-300 scroll-snap-center flex flex-col justify-center h-72"
+            className="w-[85%] flex-shrink-0 rounded-3xl bg-gray-200 p-4 shadow-xl border border-slate-300 snap-center flex flex-col justify-center h-72"
           >
             {card.content}
           </div>
@@ -185,7 +202,7 @@ const CardStack = ({ items, offset = 12, scaleFactor = 0.07 }) => {
     );
   }
 
-  // --- Desktop View: Animated Card Stack ---
+  // --- Desktop View ---
   return (
     <div className="relative h-72 w-full md:h-80">
       {cards.map((card, index) => (
@@ -207,7 +224,7 @@ const CardStack = ({ items, offset = 12, scaleFactor = 0.07 }) => {
   );
 };
 
-// Main Section
+// --- Main Section ---
 const ServicesSection = () => {
   return (
     <section>

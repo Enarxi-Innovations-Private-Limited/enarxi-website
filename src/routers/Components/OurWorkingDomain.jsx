@@ -164,11 +164,11 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
           cardRef(node);
         }
       }}
-      className="relative w-48 h-52 mx-2 flex-shrink-0 cursor-pointer"
+      className="relative w-48 h-48 mx-2 flex-shrink-0 cursor-pointer"
       onClick={onClick}
     >
       <div
-        className={`hexagon-bg absolute w-full h-full bg-gradient-to-br ${service.gradient} flex flex-col items-center justify-center text-center p-4 shadow-md transition-all duration-300`}
+        className={`hexagon-bg absolute w-full h-full bg-gradient-to-br ${service.gradient} flex flex-col items-center justify-center text-center p-2 shadow-md transition-all duration-300`}
         style={{
           clipPath:
             "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
@@ -180,7 +180,7 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
         <img
           src={service.icon}
           alt={service.title}
-          className="w-28 h-28 object-contain"
+          className="w-24 h-24 object-fill"
         />
       </div>
     </div>
@@ -322,20 +322,46 @@ export default function WorkingDomain({ mobileImage = mobileFallback }) {
       </main>
 
       {selectedService && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg max-w-md w-full m-4 relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            >
-              ×
-            </button>
-            <h3 className="text-2xl font-bold mb-4">{selectedService.title}</h3>
-            <p className="text-gray-600">
-              Detailed information about {selectedService.title} would go here.
-            </p>
-          </div>
-        </div>
+       <div role="dialog"
+       aria-modal="true"
+       aria-labelledby="modal-title"
+       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+     >
+       <div className="relative m-4 w-auto max-w-md rounded-lg bg-white p-6 shadow-2xl md:p-8">
+         <div className="flex items-start justify-between">
+           <h3 id="modal-title" className="text-xl font-oswald text-gray-900">
+             {selectedService.title}
+           </h3>
+           <button
+             onClick={closeModal}
+             // aria-label makes the button's purpose clear to assistive technologies
+             aria-label="Close modal"
+             className="rounded-full p-1 text-gray-500 transition-colors bg-gray-200 hover:bg-gray-300 hover:text-gray-800"
+           >
+             {/* Using an SVG icon is more scalable and accessible than a text '×' */}
+             <svg
+               xmlns="http://www.w3.org/2000/svg"
+               fill="none"
+               viewBox="0 0 24 24"
+               strokeWidth={1.5}
+               stroke="currentColor"
+               className="h-6 w-6 cursor-pointer"
+             >
+               <path
+                 strokeLinecap="round"
+                 strokeLinejoin="round"
+                 d="M6 18L18 6M6 6l12 12"
+               />
+             </svg>
+           </button>
+         </div>
+         <div className="mt-4 text-gray-600">
+           <p>
+             Detailed information about {selectedService.title} would go here.
+           </p>
+         </div>
+       </div>
+     </div>
       )}
     </div>
   );

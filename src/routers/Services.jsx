@@ -1,4 +1,10 @@
-import React, { memo, useState, useCallback, useMemo } from "react";
+import React, { memo, useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+// ASSET IMPORTS
+// Make sure the paths to your assets are correct
 import service_1 from "../assets/images/service_1.svg";
 import service_2 from "../assets/images/service_2.svg";
 import service_3 from "../assets/images/service_3.svg";
@@ -6,8 +12,7 @@ import service_4 from "../assets/images/service_4.svg";
 import service_5 from "../assets/images/service_5.svg";
 import service_bottom_girl from "../assets/images/service-bottom-girl.svg";
 
-// 1. Static Data & Constants
-//    Moved outside the component for performance.
+// --- DATA CONSTANTS ---
 
 const SERVICES_DATA = [
   {
@@ -52,11 +57,105 @@ const FORM_OPTIONS = {
   types: ["Business", "Personal", "Partnership"],
 };
 
-// 2. Memoized Sub-Components
-//    Keep components pure and avoid unnecessary re-renders.
+// --- REUSABLE & ACCESSIBLE FORM COMPONENTS ---
+
+const InputField = ({ register, name, label, error, ...props }) => (
+  <div>
+    <label htmlFor={name} className="sr-only">
+      {label}
+    </label>
+    <input
+      id={name}
+      aria-invalid={!!error}
+      aria-describedby={error ? `${name}-error` : undefined}
+      className={`w-full border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400 ${
+        error ? "border-red-500" : "border-[#BCBCBC]"
+      }`}
+      {...register(name)}
+      {...props}
+    />
+    {error && (
+      <p id={`${name}-error`} role="alert" className="text-red-600 text-sm mt-1">
+        {error.message}
+      </p>
+    )}
+  </div>
+);
+
+const SelectField = ({ register, name, label, error, children, ...props }) => (
+  <div>
+    <label htmlFor={name} className="sr-only">
+      {label}
+    </label>
+    <select
+      id={name}
+      aria-invalid={!!error}
+      aria-describedby={error ? `${name}-error` : undefined}
+      className={`w-full border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400 ${
+        error ? "border-red-500" : "border-[#BCBCBC]"
+      }`}
+      {...register(name)}
+      {...props}
+    >
+      {children}
+    </select>
+    {error && (
+      <p id={`${name}-error`} role="alert" className="text-red-600 text-sm mt-1">
+        {error.message}
+      </p>
+    )}
+  </div>
+);
+
+const TextareaField = ({ register, name, label, error, ...props }) => (
+  <div>
+    <label htmlFor={name} className="sr-only">
+      {label}
+    </label>
+    <textarea
+      id={name}
+      aria-invalid={!!error}
+      aria-describedby={error ? `${name}-error` : undefined}
+      className={`w-full border rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400 ${
+        error ? "border-red-500" : "border-[#BCBCBC]"
+      }`}
+      {...register(name)}
+      {...props}
+    />
+    {error && (
+      <p id={`${name}-error`} role="alert" className="text-red-600 text-sm mt-1">
+        {error.message}
+      </p>
+    )}
+  </div>
+);
+
+// --- FORM VALIDATION SCHEMA (ZOD) ---
+
+// --- FORM VALIDATION SCHEMA (ZOD) ---
+
+const contactSchema = z.object({
+  firstName: z.string()
+    // This rule was added
+    .regex(/^[a-zA-Z -]*$/, "Name can only contain letters, spaces, and hyphens")
+    .optional(),
+  lastName: z.string()
+    .min(1, "Last name is required")
+    // This rule was added
+    .regex(/^[a-zA-Z -]+$/, "Name can only contain letters, spaces, and hyphens"),
+  mobile: z
+    .string()
+    .min(10, "Please enter a valid 10-digit mobile number")
+    .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
+  email: z.string().email("Please enter a valid email address"),
+  service: z.string().min(1, "Please select a service"),
+  type: z.string().min(1, "Please select a type"),
+  message: z.string().min(10, "Message must be at least 10 characters long"),
+});
+
+// --- UI COMPONENTS ---
 
 const ServiceCard = memo(({ service, reverse }) => {
-  // Use useMemo for computed values to prevent recalculation on every render
   const flexDirection = useMemo(
     () => (reverse ? "md:flex-row-reverse" : "md:flex-row"),
     [reverse]
@@ -105,233 +204,149 @@ const ServiceCard = memo(({ service, reverse }) => {
 });
 
 const ContactForm = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    mobile: "",
-    email: "",
-    service: "",
-    type: "",
-    message: "",
-  });
+  const [serverStatus, setServerStatus] = useState({ message: "", type: "" });
 
-  const [formStatus, setFormStatus] = useState({
-    submitting: false,
-    success: null,
-    error: null,
-  });
-
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  }, []);
-
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      setFormStatus({ submitting: true, success: null, error: null });
-
-      // Client-side validation
-      if (
-        !formData.lastName ||
-        !formData.mobile ||
-        !formData.email ||
-        !formData.service ||
-        !formData.type ||
-        !formData.message
-      ) {
-        setFormStatus({
-          submitting: false,
-          success: false,
-          error: "Please fill out all required fields.",
-        });
-        return;
-      }
-
-      // Basic email regex for front-end feedback
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setFormStatus({
-          submitting: false,
-          success: false,
-          error: "Please enter a valid email address.",
-        });
-        return;
-      }
-      setTimeout(() => {
-        setFormStatus({ submitting: false, success: true, error: null });
-        setFormData({
-          firstName: "",
-          lastName: "",
-          mobile: "",
-          email: "",
-          service: "",
-          type: "",
-          message: "",
-        });
-      }, 1500);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      mobile: "",
+      email: "",
+      service: "",
+      type: "",
+      message: "",
     },
-    [formData]
-  );
+  });
+
+  const onSubmit = async (data) => {
+    setServerStatus({ message: "", type: "" });
+    try {
+      console.log("Submitting data:", data);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // throw new Error("Simulated server failure!"); // Uncomment to test an error
+
+      setServerStatus({
+        message: "Your message has been sent successfully!",
+        type: "success",
+      });
+      reset();
+    } catch (error) {
+      setServerStatus({
+        message: "Failed to send message. Please try again later.",
+        type: "error",
+      });
+    }
+  };
 
   return (
     <form
       className="bg-white shadow-2xl rounded-xl p-8 space-y-5"
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       aria-label="Contact form"
-      noValidate // Disable default browser validation to control it with React state
+      noValidate
     >
-      {formStatus.success && (
+      {serverStatus.message && (
         <div
           role="alert"
-          className="p-4 bg-green-100 text-green-700 rounded-md"
+          className={`p-4 rounded-md ${
+            serverStatus.type === "success"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
         >
-          Your message has been sent successfully!
-        </div>
-      )}
-      {formStatus.error && (
-        <div role="alert" className="p-4 bg-red-100 text-red-700 rounded-md">
-          {formStatus.error}
+          {serverStatus.message}
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="firstName" className="sr-only">
-            First Name
-          </label>
-          <input
-            id="firstName"
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            placeholder="First Name"
-            className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          />
-        </div>
-        <div>
-          <label htmlFor="lastName" className="sr-only">
-            Last Name
-          </label>
-          <input
-            id="lastName"
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            placeholder="Last Name *"
-            className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-            required
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="mobile" className="sr-only">
-          Mobile No
-        </label>
-        <input
-          id="mobile"
-          type="tel"
-          name="mobile"
-          value={formData.mobile}
-          onChange={handleChange}
-          placeholder="Mobile No *"
-          className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          required
+        <InputField
+          register={register}
+          name="firstName"
+          label="First Name"
+          placeholder="First Name"
+          error={errors.firstName}
+        />
+        <InputField
+          register={register}
+          name="lastName"
+          label="Last Name"
+          placeholder="Last Name *"
+          error={errors.lastName}
         />
       </div>
 
-      <div>
-        <label htmlFor="email" className="sr-only">
-          Email ID
-        </label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email ID *"
-          className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          required
-        />
-      </div>
+      <InputField
+        register={register}
+        name="mobile"
+        label="Mobile No"
+        type="tel"
+        placeholder="Mobile No *"
+        error={errors.mobile}
+      />
+      <InputField
+        register={register}
+        name="email"
+        label="Email ID"
+        type="email"
+        placeholder="Email ID *"
+        error={errors.email}
+      />
 
-      <div>
-        <label htmlFor="service" className="sr-only">
-          Select Service
-        </label>
-        <select id="service"
-  name="service"
-  value={formData.service}
-  onChange={handleChange}
-  className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400 overflow-x-hidden"
-  required
->
-          <option value="">Select Service *</option>
-          {FORM_OPTIONS.services.map((service, index) => (
-            <option key={index} value={service} className="truncate overflow-x-hidden">
-              {service}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SelectField
+        register={register}
+        name="service"
+        label="Select Service"
+        error={errors.service}
+      >
+        <option value="">Select Service *</option>
+        {FORM_OPTIONS.services.map((service) => (
+          <option key={service} value={service}>
+            {service}
+          </option>
+        ))}
+      </SelectField>
 
-      <div>
-        <label htmlFor="type" className="sr-only">
-          Select Type
-        </label>
-        <select
-          id="type"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          required
-        >
-          <option value="">Select Type *</option>
-          {FORM_OPTIONS.types.map((type, index) => (
-            <option key={index} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SelectField
+        register={register}
+        name="type"
+        label="Select Type"
+        error={errors.type}
+      >
+        <option value="">Select Type *</option>
+        {FORM_OPTIONS.types.map((type) => (
+          <option key={type} value={type}>
+            {type}
+          </option>
+        ))}
+      </SelectField>
 
-      <div>
-        <label htmlFor="message" className="sr-only">
-          Message
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          value={formData.message}
-          onChange={handleChange}
-          placeholder="Message *"
-          rows="2"
-          className="w-full border border-[#BCBCBC] rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          required
-        ></textarea>
-      </div>
+      <TextareaField
+        register={register}
+        name="message"
+        label="Message"
+        placeholder="Message *"
+        rows="2"
+        error={errors.message}
+      />
 
       <button
         type="submit"
         className="w-full bg-[#09B8DC] text-white py-3 rounded-md font-medium hover:bg-sky-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={formStatus.submitting}
+        disabled={isSubmitting}
       >
-        {formStatus.submitting ? "Submitting..." : "Enquiry"}
+        {isSubmitting ? "Submitting..." : "Enquiry"}
       </button>
     </form>
   );
 };
 
-// 4. Main Services Component
-//    Composed of smaller, manageable pieces.
+// --- MAIN PAGE COMPONENT ---
 
 export default function Services() {
   return (
@@ -398,8 +413,3 @@ export default function Services() {
     </section>
   );
 }
-
-
-
-
-////////////////////////////

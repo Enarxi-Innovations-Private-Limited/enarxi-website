@@ -28,8 +28,8 @@
   --font-poppins: "Poppins", sans-serif;
   --font-noto: "Noto Sans JP", sans-serif;
   --font-oswald: "Oswald", sans-serif;
-  --font-weight-700: 200;
 }
+
 /* Components */
 @layer components {
   .footer {
@@ -127,4 +127,31 @@
   100% {
     transform: translateY(0);
   }
+}
+
+
+.horizontal-scroll-section {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.horizontal-scroll-content {
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100%;
+}
+
+
+/* global.css or styles.css */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
 }
