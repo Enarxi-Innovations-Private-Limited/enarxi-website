@@ -4,8 +4,8 @@ import { LayoutDashboard, PenSquare, LogOut, User, Menu, X } from "lucide-react"
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/AuthProvider";
-import StaffDashboard from "@/components/staff/StaffDashboard";
-import StaffBlogs from "@/components/staff/StaffBlogs";
+import StaffDashboard from "./staff/StaffDashboard";
+import StaffBlogs from "./staff/StaffBlogs";
 
 const StaffPortal = () => {
   const [activeTab, setActiveTab] = useState("dashboard");

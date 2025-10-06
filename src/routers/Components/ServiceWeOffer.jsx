@@ -130,28 +130,68 @@ const services = [
   },
 ];
 
-// CardStack Component
+const useIsMobile = (breakpoint = 768) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
 let interval;
 const CardStack = ({ items, offset = 12, scaleFactor = 0.07 }) => {
   const [cards, setCards] = useState(items);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    interval = setInterval(() => {
-      setCards((prev) => {
-        const arr = [...prev];
-        arr.unshift(arr.pop()); // move last to front
-        return arr;
-      });
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
+    // Clear any existing interval when the view changes
+    if (interval) clearInterval(interval);
 
+    // Only start the flipping interval on desktop
+    if (!isMobile) {
+      interval = setInterval(() => {
+        setCards((prev) => {
+          const newArray = [...prev];
+          newArray.unshift(newArray.pop()); // move last to front
+          return newArray;
+        });
+      }, 2500);
+    }
+
+    // Cleanup interval on component unmount or view change
+    return () => clearInterval(interval);
+  }, [isMobile]); // Rerun this effect when isMobile changes
+
+  // --- Mobile View: Horizontal Swipeable Slider ---
+  if (isMobile) {
+    return (
+      <div className="flex w-full space-x-4 overflow-x-auto p-1 pb-4 scroll-snap-x-mandatory">
+        {items.map((card) => (
+          <div
+            key={card.id}
+            className="w-[85%] sm:w-4/5 flex-shrink-0 rounded-3xl bg-gray-200 p-4 shadow-xl border border-slate-300 scroll-snap-center flex flex-col justify-center h-72"
+          >
+            {card.content}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // --- Desktop View: Animated Card Stack ---
   return (
-    <div className="relative h-72 w-full md:h-80 md:w-full">
+    <div className="relative h-72 w-full md:h-80">
       {cards.map((card, index) => (
         <motion.div
           key={card.id}
-          className="absolute bg-gray-200 h-72 md:h-60 w-full rounded-3xl p-6 shadow-xl border border-slate-300  shadow-black/[0.05] dark:shadow-white/[0.05] flex flex-col justify-center"
+          className="absolute bg-gray-200 h-72 md:h-60 w-full rounded-3xl p-4 md:p-6 shadow-xl border border-slate-300 shadow-black/[0.05] dark:shadow-white/[0.05] flex flex-col justify-center"
           style={{ transformOrigin: "top center" }}
           animate={{
             top: index * -offset,
@@ -175,7 +215,7 @@ const ServicesSection = () => {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           {/* Left column */}
           <div className="lg:col-span-5">
-            <h2 className="text-oswald tracking-tight text-slate-900">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
               Services We Offer You
             </h2>
 
@@ -201,13 +241,13 @@ const ServicesSection = () => {
               items={services.map((s, i) => ({
                 id: i,
                 content: (
-                  <div className="flex items-center gap-6">
+                  <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left">
                     <div className="shrink-0 rounded-2xl bg-slate-100 p-4 ring-1 ring-slate-200">
                       <img
                         src={s.icon}
                         alt={s.title}
                         loading="lazy"
-                        className="h-24 w-24 object-contain"
+                        className="h-16 w-16 object-contain md:h-24 md:w-24"
                       />
                     </div>
                     <div>

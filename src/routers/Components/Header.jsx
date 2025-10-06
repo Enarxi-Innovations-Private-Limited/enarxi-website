@@ -1,5 +1,5 @@
 import { useState } from "react";
-import enarxiLogo from "../assets/images/image.png";
+import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
