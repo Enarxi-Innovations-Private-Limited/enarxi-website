@@ -58,7 +58,7 @@
   .font-oswald {
     font-family: var(--font-oswald), sans-serif;
     font-weight: 700;
-    font-size: clamp(1.5rem, 2vw + 1rem, 2.5rem);
+    font-size: clamp(2rem, 2vw + 1rem, 2.5rem);
   }
 
   .text-poppins {

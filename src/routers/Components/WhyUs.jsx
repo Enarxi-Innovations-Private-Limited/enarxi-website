@@ -19,7 +19,7 @@ const WhyUs = () => {
     <div className="py-16 flex flex-col items-center w-[90vw]">
       {/* Why Us */}
       <div className="flex flex-col items-center mb-16">
-        <h1 className="text-oswald mb-4 md:text-2xl">Why us?</h1>
+        <h1 className="font-oswald mb-4  md:text-2xl">Why us?</h1>
         <p className="text-poppins mx-auto text-center text-sm md:text-xl">
           We do it differently! We at ENARXI educate our customers on the
           complete technology to create insight into their dream products. We
