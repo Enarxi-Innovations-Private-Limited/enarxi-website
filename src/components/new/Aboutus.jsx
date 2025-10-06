@@ -351,68 +351,61 @@ export default function AboutUs() {
         </motion.div>
       </section>
 
-      {/* Our Team Section */}
+      {/* Our Team Section - Optimized */}
       <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto bg-gradient-to-br from-secondary/30 to-primary/5">
         <motion.h2 
           className="text-3xl md:text-4xl lg:text-5xl font-bold font-oswald text-center mb-16"
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-          whileHover={{ scale: 1.02 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           Our Team
         </motion.h2>
         
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={staggerContainer}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {staffsData.staffs.map((staff, index) => (
             <motion.div
               key={index}
               className="text-center group"
-              initial={{ opacity: 0, y: 50, rotateY: -15 }}
-              whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
               transition={{ 
-                type: "spring", 
-                stiffness: 100, 
-                damping: 12,
-                delay: index * 0.1 
+                duration: 0.25,
+                delay: index * 0.05,
+                ease: "easeOut"
               }}
-              whileHover={{ scale: 1.05, y: -10 }}
             >
-              <motion.div 
-                className="relative mb-6 mx-auto w-fit"
-                whileHover={{ rotate: index % 2 === 0 ? 5 : -5 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <img 
+              <div className="relative mb-6 mx-auto w-fit will-change-transform">
+                {/* Static gradient background - no blur animation for performance */}
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
+                
+                <motion.img 
                   src={teamImages[index % teamImages.length]} 
-                  alt={`${staff.name} - ${staff.designation}`} 
-                  className="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl shadow-xl border-4 border-background transition-all duration-300 group-hover:border-primary/50"
+                  alt={`${staff.name} - ${staff.designation}`}
+                  loading="lazy"
+                  decoding="async"
+                  className="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl shadow-lg border-4 border-background"
+                  style={{ willChange: "transform" }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    rotate: index % 2 === 0 ? 3 : -3
+                  }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 />
-              </motion.div>
-              <motion.h3 
-                className="text-lg md:text-xl font-bold font-oswald mb-2 text-primary capitalize"
-                whileHover={{ scale: 1.08 }}
-              >
+              </div>
+              
+              <h3 className="text-lg md:text-xl font-bold font-oswald mb-2 text-primary capitalize transition-transform duration-200 hover:scale-105">
                 {staff.name}
-              </motion.h3>
-              <motion.p 
-                className="text-muted-foreground text-sm md:text-base font-medium capitalize"
-                whileHover={{ color: "hsl(var(--primary))" }}
-              >
+              </h3>
+              
+              <p className="text-muted-foreground text-sm md:text-base font-medium capitalize transition-colors duration-200 hover:text-primary">
                 {staff.designation}
-              </motion.p>
+              </p>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </section>
 
       {/* Our Values Section */}
