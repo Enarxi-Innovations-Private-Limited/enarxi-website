@@ -43,7 +43,7 @@ const WhyUs = () => {
                   <img
                     src={feat.Icon}
                     alt={feat.title}
-                    className={`w-12 h-12 mb-4 text-blue-500 transition-transform duration-300 hover:scale-110 ${feat.title === "Faster build time" ? "animate-bounce" : ""}`}
+                    className="w-12 h-12 mb-4 text-blue-500 transition-transform duration-300 hover:scale-110"
                   />
                   {feat.title === "Faster build time" && (
                     <div className="absolute -top-2 -right-8 w-16 h-4 bg-blue-200 opacity-0 hover:opacity-100 transition-opacity duration-300">
