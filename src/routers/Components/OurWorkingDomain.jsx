@@ -14,6 +14,24 @@ import numberTen from "../../assets/images/10.svg";
 // Replace with your real mobile fallback image
 import mobileFallback from "../../assets/images/ourDomainHexagonGrid.svg";
 
+
+const description = {
+  iot: "Industrial IoT (IIoT) at Enarxi Innovations Private Limited focuses on connecting machines, sensors, and software to create intelligent, data-driven industrial ecosystems. By integrating advanced electronics, embedded firmware, PCB design, and AI-powered analytics, Enarxi enables factories and industries to monitor operations in real time, predict equipment failures, and optimize performance. The company’s expertise in product design, prototyping, and automation allows it to deliver complete end-to-end IIoT solutions—from sensor integration and edge computing to secure cloud connectivity. Through this, Enarxi helps businesses reduce downtime, cut operational costs, and transition toward smart, efficient, and scalable industrial systems.",
+  drone: "Drone and UAV solutions at Enarxi Innovations Private Limited focus on designing and developing advanced aerial systems that combine precision engineering, embedded intelligence, and real-time data processing. Enarxi specializes in creating custom drones for industrial, agricultural, defense, and surveillance applications, integrating high-performance sensors, navigation systems, and autonomous flight controls. With expertise in electronics design, PCB development, firmware engineering, and AI-based analytics, the company delivers end-to-end UAV solutions from prototype to deployment. These systems enable clients to capture critical data, perform automated inspections, and enhance operational efficiency across industries, driving innovation in next-generation unmanned aerial technology.",
+  wearable: "Wearable technology at Enarxi Innovations Private Limited focuses on developing smart, connected devices that integrate seamlessly with human activity to monitor, analyze, and enhance performance and wellbeing. Leveraging expertise in compact electronics, embedded firmware, PCB design, and low-power wireless communication, Enarxi builds wearables for healthcare, fitness, safety, and industrial applications. The company’s end-to-end development approach—from concept and sensor integration to mobile app connectivity and data analytics—enables the creation of reliable, ergonomic, and intelligent products. Through innovation in miniaturization, energy efficiency, and real-time tracking, Enarxi empowers businesses and users with next-generation wearable solutions that blend technology and comfort.",
+  rapidPrototyping: "Rapid prototyping at Enarxi Innovations Private Limited enables fast, precise, and cost-effective product development from concept to functional model. Using advanced 3D printing, CNC machining, and quick-turn PCB fabrication, Enarxi transforms design ideas into tangible prototypes within short timelines. The company’s expertise in electronics, mechanical design, and embedded systems allows seamless integration of hardware and software during the prototyping phase. This approach helps clients validate designs, test usability, and accelerate time-to-market with minimal risk. By combining innovation, accuracy, and speed, Enarxi delivers high-quality prototypes that drive efficient product innovation and industrial advancement.",
+  securityDevices: "Security devices at Enarxi Innovations Private Limited are engineered to deliver advanced protection and intelligent monitoring solutions for people, assets, and infrastructure. Combining embedded systems, IoT connectivity, and smart sensors, Enarxi designs custom surveillance, access control, and alarm systems that ensure safety, reliability, and real-time situational awareness across multiple environments.",
+  mlAi: "Machine Learning and Artificial Intelligence (ML & AI) at Enarxi Innovations Private Limited drive innovation across all technology verticals. By embedding intelligent algorithms into hardware and software systems, Enarxi enables predictive analytics, process automation, and real-time decision-making. These AI-driven solutions enhance performance, optimize industrial operations, and unlock data-driven insights for smarter business outcomes.",
+  homeAutomation: "Home automation solutions at Enarxi Innovations Private Limited bring intelligence, comfort, and energy efficiency to modern living spaces. Through smart sensors, IoT hubs, and mobile connectivity, Enarxi enables users to automate and control lighting, security, and appliances effortlessly. The company focuses on creating seamless, secure, and user-friendly systems that redefine convenience and home experience.",
+  biometricDevices: "Biometric devices developed by Enarxi Innovations Private Limited provide secure, accurate, and efficient identity verification. Utilizing advanced fingerprint, facial, and iris recognition technologies, Enarxi designs reliable access control systems and authentication devices. These solutions enhance safety, prevent unauthorized access, and serve diverse applications across government, corporate, and industrial sectors.",
+  electricVehicles: "Enarxi Innovations Private Limited contributes to the electric vehicle revolution by developing intelligent electronic modules, battery management systems, and motor controllers. The company’s expertise in embedded systems and power electronics supports reliable, efficient, and scalable EV technology, driving sustainable mobility and innovation in the automotive ecosystem.",
+  healthcareDevices: "Healthcare device innovation at Enarxi Innovations Private Limited focuses on building connected medical systems that improve diagnostics, monitoring, and patient care. By integrating IoT connectivity, smart sensors, and data analytics, Enarxi delivers precise, reliable, and user-centric healthcare solutions that advance modern medical technology.",
+  arVr: "Augmented Reality (AR) and Virtual Reality (VR) solutions at Enarxi Innovations Private Limited create immersive experiences for industrial training, design visualization, and education. Through a combination of advanced hardware engineering and interactive software systems, Enarxi enables realistic simulations that enhance productivity, learning, and innovation across industries.",
+  biomedicalEquipment: "Biomedical equipment developed by Enarxi Innovations Private Limited merges engineering precision with medical innovation. Focusing on diagnostic and monitoring systems, Enarxi designs reliable, high-performance biomedical devices that comply with medical standards and improve patient outcomes through accurate sensing and data-driven insights.",
+  industrialAutomation: "Industrial automation at Enarxi Innovations Private Limited integrates IoT, control systems, and intelligent software to optimize manufacturing processes. Enarxi designs and develops custom automation hardware and embedded systems that enhance productivity, reduce manual intervention, and ensure operational safety, empowering industries to achieve smarter, more efficient production."
+};
+
+
 function useBreakpoint() {
   const MOBILE_MAX = 760;
   const TABLET_MAX = 1020;
@@ -58,74 +76,86 @@ function useBreakpoint() {
 
   return bp;
 }
-
 const services = [
-  {
-    title: "Industrial IoT",
-    gradient: "from-yellow-200 via-orange-200 to-pink-200",
-    icon: numberOne,
-  },
-  {
-    title: "Drone & UAV",
-    gradient: "from-blue-200 via-cyan-200 to-blue-300",
-    icon: numberTwo,
-  },
-  {
-    title: "Wearables",
-    gradient: "from-green-200 via-emerald-200 to-green-300",
-    icon: numberThree,
-  },
-  {
-    title: "Rapid Prototyping",
-    gradient: "from-purple-200 via-indigo-200 to-blue-200",
-    icon: numberFour,
-  },
-  {
-    title: "Security Devices",
-    gradient: "from-blue-200 via-indigo-200 to-purple-200",
-    icon: numberFive,
-  },
-  {
-    title: "ML & AI",
-    gradient: "from-green-200 via-lime-200 to-green-300",
-    icon: numberSix,
-  },
-  {
-    title: "Home Automation",
-    gradient: "from-pink-200 via-purple-200 to-indigo-200",
-    icon: numberSeven,
-  },
-  {
-    title: "Biometric Devices",
-    gradient: "from-lime-200 via-green-200 to-emerald-200",
-    icon: numberEight,
-  },
-  {
-    title: "Electric Vehicles",
-    gradient: "from-green-200 via-teal-200 to-cyan-200",
-    icon: numberNine,
-  },
-  {
-    title: "Health Care Devices",
-    gradient: "from-green-200 via-emerald-200 to-teal-200",
-    icon: numberTen,
-  },
-  {
-    title: "AR & VR",
-    gradient: "from-blue-200 via-indigo-200 to-purple-200",
-    icon: numberTen,
-  },
-  {
-    title: "BioMedical Equipments",
-    gradient: "from-gray-200 via-blue-200 to-indigo-200",
-    icon: numberTen,
-  },
-  {
-    title: "Industrial Automation",
-    gradient: "from-green-200 via-lime-200 to-yellow-200",
-    icon: numberTen,
-  },
-];
+    {
+      title: "Industrial IoT",
+      key: "iot",
+      gradient: "from-yellow-200 via-orange-200 to-pink-200",
+      icon: numberOne,
+    },
+    {
+      title: "Drone & UAV",
+      key: "drone",
+      gradient: "from-blue-200 via-cyan-200 to-blue-300",
+      icon: numberTwo,
+    },
+    {
+      title: "Wearables",
+      key: "wearable",
+      gradient: "from-green-200 via-emerald-200 to-green-300",
+      icon: numberThree,
+    },
+    {
+      title: "Rapid Prototyping",
+      key: "rapidPrototyping",
+      gradient: "from-purple-200 via-indigo-200 to-blue-200",
+      icon: numberFour,
+    },
+    {
+      title: "Security Devices",
+      key: "securityDevices",
+      gradient: "from-blue-200 via-indigo-200 to-purple-200",
+      icon: numberFive,
+    },
+    {
+      title: "ML & AI",
+      key: "mlAi",
+      gradient: "from-green-200 via-lime-200 to-green-300",
+      icon: numberSix,
+    },
+    {
+      title: "Home Automation",
+      key: "homeAutomation",
+      gradient: "from-pink-200 via-purple-200 to-indigo-200",
+      icon: numberSeven,
+    },
+    {
+      title: "Biometric Devices",
+      key: "biometricDevices",
+      gradient: "from-lime-200 via-green-200 to-emerald-200",
+      icon: numberEight,
+    },
+    {
+      title: "Electric Vehicles",
+      key: "electricVehicles",
+      gradient: "from-green-200 via-teal-200 to-cyan-200",
+      icon: numberNine,
+    },
+    {
+      title: "Health Care Devices",
+      key: "healthcareDevices",
+      gradient: "from-green-200 via-emerald-200 to-teal-200",
+      icon: numberTen,
+    },
+    {
+      title: "AR & VR",
+      key: "arVr",
+      gradient: "from-blue-200 via-indigo-200 to-purple-200",
+      icon: numberTen,
+    },
+    {
+      title: "BioMedical Equipments",
+      key: "biomedicalEquipment",
+      gradient: "from-gray-200 via-blue-200 to-indigo-200",
+      icon: numberTen,
+    },
+    {
+      title: "Industrial Automation",
+      key: "industrialAutomation",
+      gradient: "from-green-200 via-lime-200 to-yellow-200",
+      icon: numberTen,
+    },
+  ];
 
 const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
   const elRef = useRef(null);
@@ -327,7 +357,7 @@ export default function WorkingDomain({ mobileImage = mobileFallback }) {
        aria-labelledby="modal-title"
        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
      >
-       <div className="relative m-4 w-auto max-w-md rounded-lg bg-white p-6 shadow-2xl md:p-8">
+       <div className="relative m-4 w-auto max-w-xl rounded-lg bg-white p-6 shadow-2xl md:p-8">
          <div className="flex items-start justify-between">
            <h3 id="modal-title" className="text-xl font-oswald text-gray-900">
              {selectedService.title}
@@ -357,7 +387,7 @@ export default function WorkingDomain({ mobileImage = mobileFallback }) {
          </div>
          <div className="mt-4 text-gray-600">
            <p>
-             Detailed information about {selectedService.title} would go here.
+        {description[selectedService.key]}
            </p>
          </div>
        </div>

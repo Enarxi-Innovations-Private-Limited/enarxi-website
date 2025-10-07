@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import styles from "./Blog.module.css";
+
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -18,7 +20,6 @@ export default function Blog() {
         const snapshot = await getDocs(q);
         const blogData = snapshot.docs.map((doc) => {
           const data = doc.data();
-          console.log(data);
           return {
             id: doc.id,
             title: data.title || "Untitled Blog",
@@ -32,15 +33,9 @@ export default function Blog() {
         setBlogs(blogData);
       } catch (error) {
         console.error("Error fetching blogs:", error);
-        
-        // Check if it's an index error
-        if (error.code === 'failed-precondition' || error.message?.includes('index')) {
-          console.error('Firestore index required. Check console for index creation URL.');
-          console.error('Index URL:', error.message);
-        }
-        
-        // Set empty array so UI doesn't break
         setBlogs([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -48,14 +43,28 @@ export default function Blog() {
   }, []);
 
   useEffect(() => {
-    console.log("This is the: ", selected?.desc);
-    if (selected) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = selected ? "hidden" : "auto";
     return () => (document.body.style.overflow = "auto");
   }, [selected]);
+
+  // 🔹 Loading fallback UI
+  if (loading) {
+    return (
+      <section className="w-full flex flex-col items-center justify-center py-20">
+        <Loader2 className="animate-spin text-sky-500 w-10 h-10 mb-4" />
+        <p className="text-gray-600 font-medium">Loading blogs...</p>
+      </section>
+    );
+  }
+
+  // 🔹 Empty state (no blogs)
+  if (!loading && blogs.length === 0) {
+    return (
+      <section className="w-full flex flex-col items-center justify-center py-20">
+        <p className="text-gray-500 text-center">No blogs found.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="w-[90%] mx-auto py-12">
@@ -77,6 +86,7 @@ export default function Blog() {
                 src={blog.img}
                 alt={blog.title}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
             <div className="p-4">
@@ -117,7 +127,7 @@ export default function Blog() {
               <X size={20} />
             </button>
 
-            {/* Image (fixed height) */}
+            {/* Image */}
             <div className="w-full flex justify-center items-center bg-gray-100 p-4 flex-shrink-0">
               <img
                 src={selected.img}
