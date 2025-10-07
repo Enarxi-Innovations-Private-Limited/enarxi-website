@@ -19,14 +19,34 @@ export default function Blog() {
         const blogData = snapshot.docs.map((doc) => {
           const data = doc.data();
           console.log(data);
+          
+          // Handle both old format (string) and new format (object with url)
+          let imageUrl = "/blogs/default.jpg";
+          if (data.images && data.images.length > 0) {
+            const firstImage = data.images[0];
+            // Check if it's the new format (object with url property)
+            if (typeof firstImage === 'object' && firstImage.url) {
+              imageUrl = firstImage.url;
+            } 
+            // Check if it's a Cloudinary URL (string)
+            else if (typeof firstImage === 'string' && firstImage.includes('cloudinary')) {
+              imageUrl = firstImage;
+            }
+            // Fallback to old format (local path)
+            else if (typeof firstImage === 'string') {
+              imageUrl = `/blogs/${firstImage}`;
+            }
+          }
+          
           return {
             id: doc.id,
             title: data.title || "Untitled Blog",
             desc: data.content || "",
             date: data.createdAt?.toDate().toLocaleDateString() || "",
-            img: data.images?.length
-              ? `/blogs/${data.images[0]}`
-              : "/blogs/default.jpg",
+            img: imageUrl,
+            images: data.images || [], // Store all images for modal
+            authorName: data.authorName || "Anonymous",
+            authorRole: data.authorRole || "Staff",
           };
         });
         setBlogs(blogData);
@@ -123,13 +143,44 @@ export default function Blog() {
                 src={selected.img}
                 alt={selected.title}
                 className="w-full max-h-[35vh] object-contain rounded-lg"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.src = '/blogs/default.jpg';
+                }}
               />
             </div>
+            
+            {/* Additional images if available */}
+            {selected.images && selected.images.length > 1 && (
+              <div className="px-4 pb-4 flex gap-2 overflow-x-auto">
+                {selected.images.slice(1).map((imgData, idx) => {
+                  const imgUrl = typeof imgData === 'object' ? imgData.url : imgData;
+                  return (
+                    <img
+                      key={idx}
+                      src={imgUrl}
+                      alt={`${selected.title} - ${idx + 2}`}
+                      className="h-20 w-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
 
             {/* Scrollable content */}
             <div className="p-4 overflow-y-auto flex-1">
               <h2 className={styles.title}>{selected.title}</h2>
-              <p className={styles.date}>{selected.date}</p>
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                <span>By {selected.authorName}</span>
+                <span>•</span>
+                <span>{selected.authorRole}</span>
+                <span>•</span>
+                <p className={styles.date}>{selected.date}</p>
+              </div>
               <div
                 className={styles.content}
                 dangerouslySetInnerHTML={{ __html: selected.desc }}

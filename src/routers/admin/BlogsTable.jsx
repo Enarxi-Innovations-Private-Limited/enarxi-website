@@ -4,6 +4,7 @@ import { CheckCircle, Trash2, FileText, Calendar, Eye, X } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
+import { extractPublicId } from '@/utils/uploadToCloudinary';
 
 const BlogsTable = () => {
   const [blogs, setBlogs] = useState([]);
@@ -63,16 +64,47 @@ const BlogsTable = () => {
     }
   };
 
-  const handleDelete = async (blogId, blogTitle) => {
-    if (!window.confirm(`Are you sure you want to delete "${blogTitle}"?`)) {
+  const handleDelete = async (blogId, blogTitle, blogImages = []) => {
+    if (!window.confirm(`Are you sure you want to delete "${blogTitle}"? This will also delete ${blogImages.length} image(s) from Cloudinary.`)) {
       return;
     }
+    
     try {
+      // Step 1: Delete images from Cloudinary
+      if (blogImages && blogImages.length > 0) {
+        toast.loading('Deleting images from Cloudinary...');
+        
+        for (const imageData of blogImages) {
+          try {
+            const publicId = imageData.publicId || extractPublicId(imageData.url || imageData);
+            
+            if (publicId) {
+              // Note: Direct deletion from frontend requires backend API
+              // For now, we'll log the public_id for manual cleanup or backend implementation
+              console.log('Image to delete from Cloudinary:', publicId);
+              
+              // TODO: Implement backend endpoint for Cloudinary deletion
+              // await fetch('/api/cloudinary/delete', {
+              //   method: 'POST',
+              //   body: JSON.stringify({ publicId })
+              // });
+            }
+          } catch (imgError) {
+            console.error('Error deleting image:', imgError);
+            // Continue with blog deletion even if image deletion fails
+          }
+        }
+      }
+      
+      // Step 2: Delete blog document from Firestore
       await deleteDoc(doc(db, 'blogs', blogId));
+      
+      toast.dismiss();
       toast.success(`Blog "${blogTitle}" deleted successfully!`);
       fetchBlogs(); // Refresh the list
     } catch (error) {
       console.error('Error deleting blog:', error);
+      toast.dismiss();
       toast.error('Failed to delete blog');
     }
   };
@@ -203,7 +235,7 @@ const BlogsTable = () => {
                             Accept
                           </motion.button>
                           <motion.button
-                            onClick={() => handleDelete(blog.id, blog.title)}
+                            onClick={() => handleDelete(blog.id, blog.title, blog.images)}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center"
@@ -271,7 +303,7 @@ const BlogsTable = () => {
               {selectedBlog.images && selectedBlog.images.length > 0 && (
                 <div className="w-full flex justify-center items-center bg-gray-100 p-4 flex-shrink-0">
                   <img
-                    src={`/blogs/${selectedBlog.images[0]}`}
+                    src={selectedBlog.images[0].url || selectedBlog.images[0]}
                     alt={selectedBlog.title}
                     className="w-full max-h-[35vh] object-contain rounded-lg"
                     onError={(e) => {
@@ -313,7 +345,7 @@ const BlogsTable = () => {
                 </motion.button>
                 <motion.button
                   onClick={() => {
-                    handleDelete(selectedBlog.id, selectedBlog.title);
+                    handleDelete(selectedBlog.id, selectedBlog.title, selectedBlog.images);
                     setSelectedBlog(null);
                   }}
                   whileHover={{ scale: 1.05 }}

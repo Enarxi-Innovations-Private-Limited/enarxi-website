@@ -4,6 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { db, auth } from "@/lib/firebase";
 import { useAuth } from "@/AuthProvider";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -197,33 +198,70 @@ const StaffBlogs = () => {
       }
   
       try {
-        // save to Firestore
+        // Step 1: Upload image to Cloudinary if present
+        let uploadedImages = [];
+        
+        if (imageFile) {
+          // Validate file size (max 5MB)
+          if (imageFile.size > 5 * 1024 * 1024) {
+            setMessage(`❌ Image "${imageFile.name}" is too large. Max size is 5MB.`);
+            setLoading(false);
+            return;
+          }
+          
+          setMessage("📤 Uploading image to Cloudinary...");
+          
+          try {
+            const uploadResult = await uploadToCloudinary(imageFile);
+            uploadedImages.push({
+              url: uploadResult.url,
+              publicId: uploadResult.publicId,
+              format: uploadResult.format,
+              width: uploadResult.width,
+              height: uploadResult.height,
+            });
+          } catch (uploadError) {
+            console.error(`Error uploading ${imageFile.name}:`, uploadError);
+            setMessage(`❌ Failed to upload image "${imageFile.name}". ${uploadError.message}`);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Step 2: Save blog to Firestore with Cloudinary URL
+        setMessage("💾 Saving blog to database...");
+        
         await addDoc(collection(db, "blogs"), {
-          userId: user.uid, // Add the user's ID
-          isAdminAccepted: false, // Default to not accepted
+          userId: user.uid,
+          isAdminAccepted: false,
           title: formData.title,
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: finalHtmlContent,
-          images: imageFile ? [imageFile.name] : [], // Single image or empty array
+          images: uploadedImages, // Store Cloudinary URL and metadata
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
   
         // ✅ Success message
-        setMessage("✅ Blog saved in Firestore successfully!");
+        const imageMsg = uploadedImages.length > 0 ? ` Image uploaded to Cloudinary.` : '';
+        setMessage(`✅ Blog saved successfully!${imageMsg}`);
   
         // Reset form after success
-        setImageFile(null);
-        editor.commands.clearContent(true);
-        setBlogContent("");
+        setTimeout(() => {
+          setImageFile(null);
+          editor.commands.clearContent(true);
+          setBlogContent("");
+          setFormData(prev => ({ ...prev, title: '' }));
+          setMessage("");
   
-        // Clear file input
-        const fileInput = e.target.querySelector('input[type="file"]');
-        if (fileInput) fileInput.value = "";
+          // Clear file input
+          const fileInput = e.target.querySelector('input[type="file"]');
+          if (fileInput) fileInput.value = "";
+        }, 2000);
       } catch (error) {
         console.error("Error saving blog:", error);
-        setMessage("❌ Failed to save blog. Please try again.");
+        setMessage(`❌ Failed to save blog: ${error.message}`);
       } finally {
         setLoading(false);
       }
