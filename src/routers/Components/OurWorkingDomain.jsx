@@ -154,7 +154,7 @@ const services = [
   },
 ];
 
-const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
+const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef, scale = 1 }) {
   const elRef = useRef(null);
   const bp = useBreakpoint();
 
@@ -164,16 +164,15 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
 
     const hoverTl = gsap.timeline({ paused: true });
     hoverTl.to(el, {
-      scale: bp === "mobile" ? 1.03 : 1.05,
-      rotation: bp === "mobile" ? 0 : 5,
+      z: bp === "mobile" ? -6 : -10, 
+      scale: bp === "mobile" ? 1.03 * scale : 1.05 * scale,
+      // rotation: bp === "mobile" ? 0 : 5,
       duration: bp === "mobile" ? 0.2 : 0.3,
       ease: "power2.out",
     });
-    hoverTl.to(
-      el.querySelector(".hexagon-bg"),
-      { boxShadow: "0 4px 8px rgba(0,0,0,0.1)" },
-      0
-    );
+    hoverTl.to(el.querySelector(".hexagon-bg"), {
+      boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    }, 0);
 
     const handleInteractionStart = () => hoverTl.play();
     const handleInteractionEnd = () => hoverTl.reverse();
@@ -189,17 +188,24 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
       el.removeEventListener("touchstart", handleInteractionStart);
       el.removeEventListener("touchend", handleInteractionEnd);
     };
-  }, [bp]);
+  }, [bp, scale]);
+
+  const baseSize = bp === "mobile" ? 80 : 190;
+  const adjustedSize = baseSize * scale;
+
+  // dynamically calculate font size
+  const fontSize = bp === "mobile"
+    ? `${10 * scale}px`   // 👈 smaller on mobile + scaled
+    : `${18 * scale}px`;  // 👈 normal size scaled
 
   return (
     <div
       ref={(node) => {
         elRef.current = node;
-        if (typeof cardRef === "function") {
-          cardRef(node);
-        }
+        if (typeof cardRef === "function") cardRef(node);
       }}
-      className={`relative ${bp === "mobile" ? "w-24 h-24 mx-0.5" : "w-48 h-48 mx-2"} flex-shrink-0 cursor-pointer`}
+      className="relative flex-shrink-0 cursor-pointer"
+      style={{ width: adjustedSize, height: adjustedSize }}
       onClick={onClick}
     >
       <div
@@ -209,18 +215,26 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef }) {
             "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
         }}
       >
-        <h3 className={`font-poppins font-semibold text-[#444444] leading-tight ${bp === "mobile" ? "text-xs" : "text-lg"}`}>
+        <h3
+          className="font-poppins font-semibold text-[#444444] leading-tight"
+          style={{ fontSize }}
+        >
           {service.title}
         </h3>
         <img
           src={service.icon}
           alt={service.title}
-          className={`${bp === "mobile" ? "w-10 h-10" : "w-24 h-24"} object-fill`}
+          className={`${bp === "mobile" ? "object-fill" : ""}`}
+          style={{
+            width: bp === "mobile" ? 32 * scale : 96 * scale,
+            height: bp === "mobile" ? 32 * scale : 96 * scale,
+          }}
         />
       </div>
     </div>
   );
 });
+
 
 export default function WorkingDomain() {
   const bp = useBreakpoint();
@@ -272,45 +286,51 @@ export default function WorkingDomain() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+    <div className="h-1/2 w-full bg-gray-50 font-sans">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Our Working Domain
         </h2>
         {bp === "mobile" ? (
           // Mobile: Custom 4-5-4 grid layout
-          <>
-          <div className="grid grid-cols-4 gap-1 mb-2">
+          <div className="flex flex-col items-center overflow-hidden">
+          {/* Row 1 */}
+          <div className="flex justify-center gap-1 mb-2">
             {services.slice(0, 4).map((service, index) => (
               <HexagonCard
-                key={index}
+                key={`mobile-row1-${index}`}
                 service={service}
                 onClick={() => handleCardClick(service)}
                 cardRef={(el) => (cardRefs.current[index] = el)}
               />
             ))}
           </div>
-          <div className="grid grid-cols-5 gap-1 -mt-6 mb-2">
+      
+          {/* Row 2 (slightly offset for honeycomb effect) */}
+          <div className="flex justify-center gap-1 mb-0.5">
             {services.slice(4, 9).map((service, index) => (
               <HexagonCard
-                key={index + 4}
+                key={`mobile-row2-${index}`}
                 service={service}
+                scale={0.80}
                 onClick={() => handleCardClick(service)}
                 cardRef={(el) => (cardRefs.current[index + 4] = el)}
               />
             ))}
           </div>
-          <div className="grid grid-cols-4 gap-1 -mt-6">
+      
+          {/* Row 3 */}
+          <div className="flex justify-center gap-1 mb-2">
             {services.slice(9, 13).map((service, index) => (
               <HexagonCard
-                key={index + 9}
+                key={`mobile-row3-${index}`}
                 service={service}
                 onClick={() => handleCardClick(service)}
                 cardRef={(el) => (cardRefs.current[index + 9] = el)}
               />
             ))}
           </div>
-          </>
+        </div>
         ) : (
           // Tablet/Desktop: Existing grid layout
           <div className="flex flex-col items-center">
@@ -353,7 +373,7 @@ export default function WorkingDomain() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-60 backdrop-blur-sm"
         >
           <div className={`relative m-4 w-full ${bp === "mobile" ? "max-w-sm" : "max-w-xl"} rounded-lg bg-white p-4 sm:p-6 md:p-8 shadow-2xl max-h-[80vh] overflow-y-auto`}>
             <div className="flex items-start justify-between">
@@ -390,7 +410,6 @@ export default function WorkingDomain() {
     </div>
   );
 }
-
 
 
 
