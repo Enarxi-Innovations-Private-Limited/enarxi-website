@@ -47,15 +47,31 @@ export async function uploadToCloudinary(file) {
 }
 
 /**
- * Delete image from Cloudinary
+ * Generate SHA-1 hash for Cloudinary signature
+ * Cloudinary requires SHA-1, not SHA-256!
+ * @param {string} message - String to hash
+ * @returns {Promise<string>} - Hex string of hash
+ */
+async function generateSHA1(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
+/**
+ * Delete image from Cloudinary using signed request
  * @param {string} publicId - Cloudinary public_id of the image
  * @returns {Promise<Object>} - Deletion result
  */
 export async function deleteFromCloudinary(publicId) {
   const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY;
+  const API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET;
   
-  if (!CLOUD_NAME) {
-    throw new Error('Cloudinary cloud name missing');
+  if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
+    throw new Error('Cloudinary credentials missing. Please set VITE_CLOUDINARY_CLOUD_NAME, VITE_CLOUDINARY_API_KEY, and VITE_CLOUDINARY_API_SECRET');
   }
 
   if (!publicId) {
@@ -63,29 +79,55 @@ export async function deleteFromCloudinary(publicId) {
   }
 
   try {
-    // Note: Unsigned deletion requires backend API or signed request
-    // For production, implement a backend endpoint that uses Cloudinary Admin API
-    // For now, we'll use the destroy endpoint with unsigned preset (limited functionality)
+    // Generate timestamp (in seconds)
+    const timestamp = Math.round(Date.now() / 1000);
     
+    // Create signature string: public_id=<public_id>&timestamp=<timestamp><api_secret>
+    // IMPORTANT: No '&' before API_SECRET!
+    const signatureString = `public_id=${publicId}&timestamp=${timestamp}${API_SECRET}`;
+    
+    console.log('🔍 Deleting image:', publicId);
+    console.log('🔍 Timestamp:', timestamp);
+    console.log('🔍 String to sign:', `public_id=${publicId}&timestamp=${timestamp}`);
+    
+    // Generate SHA-1 signature (Cloudinary requires SHA-1, not SHA-256!)
+    const signature = await generateSHA1(signatureString);
+    console.log('🔍 Generated signature:', signature);
+    
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('public_id', publicId);
+    formData.append('timestamp', timestamp.toString());
+    formData.append('api_key', API_KEY);
+    formData.append('signature', signature);
+    
+    // Make delete request
     const res = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/destroy`,
       {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          public_id: publicId,
-        }),
+        method: 'POST',
+        body: formData,
       }
     );
 
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error?.message || `Failed to delete image: ${res.statusText}`);
+    }
+
     const data = await res.json();
-    return data;
+    
+    // Check if deletion was successful
+    if (data.result === 'ok') {
+      return { success: true, result: data.result, message: 'Image deleted successfully' };
+    } else if (data.result === 'not found') {
+      return { success: true, result: data.result, message: 'Image not found (may have been already deleted)' };
+    } else {
+      throw new Error(`Unexpected result: ${data.result}`);
+    }
   } catch (error) {
     console.error('Cloudinary deletion error:', error);
-    // Don't throw - log and continue (deletion might need backend implementation)
-    return { result: 'error', error: error.message };
+    throw error;
   }
 }
 

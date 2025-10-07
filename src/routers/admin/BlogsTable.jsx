@@ -4,7 +4,7 @@ import { CheckCircle, Trash2, FileText, Calendar, Eye, X } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
-import { extractPublicId } from '@/utils/uploadToCloudinary';
+import { extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinary';
 
 const BlogsTable = () => {
   const [blogs, setBlogs] = useState([]);
@@ -65,47 +65,120 @@ const BlogsTable = () => {
   };
 
   const handleDelete = async (blogId, blogTitle, blogImages = []) => {
-    if (!window.confirm(`Are you sure you want to delete "${blogTitle}"? This will also delete ${blogImages.length} image(s) from Cloudinary.`)) {
+    const imageCount = blogImages?.length || 0;
+    const confirmMessage = imageCount > 0 
+      ? `Are you sure you want to delete "${blogTitle}"? This will permanently delete ${imageCount} image(s) from Cloudinary and the blog from the database.`
+      : `Are you sure you want to delete "${blogTitle}"?`;
+    
+    if (!window.confirm(confirmMessage)) {
       return;
     }
     
+    const toastId = toast.loading('Starting deletion process...');
+    
     try {
-      // Step 1: Delete images from Cloudinary
+      let deletedImagesCount = 0;
+      let failedImagesCount = 0;
+      const failedImages = [];
+      
+      // Step 1: Delete images from Cloudinary FIRST
       if (blogImages && blogImages.length > 0) {
-        toast.loading('Deleting images from Cloudinary...');
+        toast.loading(`Deleting ${blogImages.length} image(s) from Cloudinary...`, { id: toastId });
         
-        for (const imageData of blogImages) {
+        for (let i = 0; i < blogImages.length; i++) {
+          const imageData = blogImages[i];
+          
           try {
+            // Get public_id from stored data or extract from URL
             const publicId = imageData.publicId || extractPublicId(imageData.url || imageData);
             
-            if (publicId) {
-              // Note: Direct deletion from frontend requires backend API
-              // For now, we'll log the public_id for manual cleanup or backend implementation
-              console.log('Image to delete from Cloudinary:', publicId);
-              
-              // TODO: Implement backend endpoint for Cloudinary deletion
-              // await fetch('/api/cloudinary/delete', {
-              //   method: 'POST',
-              //   body: JSON.stringify({ publicId })
-              // });
+            if (!publicId) {
+              failedImagesCount++;
+              failedImages.push({ imageData, reason: 'Could not extract public_id' });
+              console.warn('⚠️ Could not extract public_id from:', imageData);
+              continue;
+            }
+            
+            toast.loading(`Deleting image ${i + 1}/${blogImages.length} from Cloudinary...`, { id: toastId });
+            
+            // Delete from Cloudinary using signed request
+            const result = await deleteFromCloudinary(publicId);
+            
+            if (result.success) {
+              deletedImagesCount++;
+              console.log(`✅ Deleted image from Cloudinary: ${publicId}`);
+            } else {
+              failedImagesCount++;
+              failedImages.push({ publicId, reason: result.message || 'Unknown error' });
+              console.warn(`⚠️ Failed to delete image: ${publicId}`, result);
             }
           } catch (imgError) {
-            console.error('Error deleting image:', imgError);
-            // Continue with blog deletion even if image deletion fails
+            failedImagesCount++;
+            failedImages.push({ imageData, reason: imgError.message });
+            console.error('❌ Error deleting image from Cloudinary:', imgError);
           }
+        }
+        
+        // Check if all images were deleted successfully
+        if (failedImagesCount > 0 && deletedImagesCount === 0) {
+          // All images failed to delete - abort Firestore deletion
+          toast.dismiss(toastId);
+          toast.error(
+            `❌ Failed to delete ${failedImagesCount} image(s) from Cloudinary. Blog was NOT deleted from database to maintain data integrity.`,
+            { duration: 6000 }
+          );
+          console.error('Failed images:', failedImages);
+          return; // Exit without deleting from Firestore
+        }
+        
+        if (failedImagesCount > 0) {
+          // Some images failed - warn but continue
+          console.warn(`⚠️ ${failedImagesCount} image(s) failed to delete from Cloudinary:`, failedImages);
         }
       }
       
-      // Step 2: Delete blog document from Firestore
+      // Step 2: Delete blog document from Firestore (only if Cloudinary deletion succeeded or no images)
+      toast.loading('Deleting blog from database...', { id: toastId });
       await deleteDoc(doc(db, 'blogs', blogId));
+      console.log(`✅ Deleted blog from Firestore: ${blogId}`);
       
-      toast.dismiss();
-      toast.success(`Blog "${blogTitle}" deleted successfully!`);
-      fetchBlogs(); // Refresh the list
+      // Step 3: Show success message based on results
+      toast.dismiss(toastId);
+      
+      if (imageCount > 0) {
+        if (failedImagesCount === 0) {
+          // Perfect success - all images and blog deleted
+          toast.success(
+            `✅ Blog "${blogTitle}" and ${deletedImagesCount} image(s) deleted successfully from Cloudinary and database!`,
+            { duration: 4000 }
+          );
+        } else if (deletedImagesCount > 0) {
+          // Partial success - some images deleted
+          toast.success(
+            `✅ Blog deleted! ${deletedImagesCount} image(s) deleted from Cloudinary, ${failedImagesCount} failed. Check console for details.`,
+            { duration: 5000 }
+          );
+        } else {
+          // This shouldn't happen due to early return, but just in case
+          toast.warning(
+            `⚠️ Blog deleted from database, but ${failedImagesCount} image(s) could not be deleted from Cloudinary. Manual cleanup may be required.`,
+            { duration: 6000 }
+          );
+        }
+      } else {
+        // No images to delete
+        toast.success(`✅ Blog "${blogTitle}" deleted successfully!`, { duration: 3000 });
+      }
+      
+      // Refresh the blog list
+      fetchBlogs();
     } catch (error) {
-      console.error('Error deleting blog:', error);
-      toast.dismiss();
-      toast.error('Failed to delete blog');
+      console.error('Error during blog deletion:', error);
+      toast.dismiss(toastId);
+      toast.error(
+        `❌ Failed to delete blog: ${error.message}. Please try again or contact support.`,
+        { duration: 5000 }
+      );
     }
   };
 
