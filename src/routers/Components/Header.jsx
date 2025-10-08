@@ -60,17 +60,17 @@ export default function Header() {
           transition-all duration-300 ease-in-out text-center md:text-left`}
           aria-label="Primary"
         >
-          <ul className="flex flex-col items-center space-y-4 text-black uppercase tracking-wide text-sm md:flex-row md:justify-center md:space-y-0 md:space-x-10 lg:text-base xl:text-lg">
+          <ul className="flex flex-col items-center space-y-4 text-[#4f4f4f] uppercase tracking-wide text-sm md:flex-row md:justify-center md:space-y-0 md:space-x-10 lg:text-base xl:text-lg">
             {navItems.map((item) => (
               <li key={item.label}>
                 <NavLink
                   onClick={() => setIsMenuOpen(false)}
                   to={item.href}
                   className={({ isActive }) =>
-                    `transition font-poppins cursor-pointer ${
+                    `transition text-poppins-md cursor-pointer ${
                       isActive
-                        ? "text-[#09B8DC] underline underline-offset-4 decoration-2"
-                        : "hover:text-[#09B8DC]"
+                        ? "text-[#09B8DC] decoration-2"
+                        : "transition-all duration-300 ease-in-out hover:text-[#09B8DC] hover:text-xl"
                     }`
                   }
                 >
@@ -82,7 +82,7 @@ export default function Header() {
             <li className="md:hidden">
               <button
                 type="button"
-                className="w-full text-white bg-[#09B8DC] rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition duration-300"
+                className="w-full text-white bg-[#09B8DC] text-lets-connect rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition duration-300"
               >
                 Let’s Connect
               </button>
@@ -91,13 +91,13 @@ export default function Header() {
         </nav>
 
         {/* Desktop CTA button */}
-        <button
+        <div
           type="button"
-          className="hidden w-auto rounded-full bg-[#09B8DC] px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] md:block "
+          className="hidden w-auto rounded-full bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] md:block "
           aria-label="Lets connect button"
         >
           Let’s Connect
-        </button>
+        </div>
       </div>
     </header>
   );

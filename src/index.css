@@ -1,5 +1,5 @@
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
 
@@ -67,9 +67,9 @@
   }
 
   .text-poppins-md {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
-    font-size: clamp(1.2rem, 3.5vw + 0.5rem, 9rem);
+    font-family: var(--font-poppins), sans-serif;
+    font-weight: 600;
+    /* font-size: clamp(1.2rem, 3.5vw + 0.5rem, 9rem); */
   }
 
   .text-oswald {
@@ -81,6 +81,11 @@
     font-family: "Oswald", sans-serif;
     font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem);
   }
+}
+.text-lets-connect {
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 /* Scroll Animation */
