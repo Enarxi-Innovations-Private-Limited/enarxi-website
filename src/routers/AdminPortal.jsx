@@ -8,7 +8,7 @@ import BlogsTable from "./admin/BlogsTable";
 import ReviewsTable from "./admin/ReviewsTable";
 
 import { useAuth } from "@/AuthProvider";
-import Logout from "@/Logout";
+import Logout from "@/routers/admin/Logout";
 
 const AdminPortal = () => {
   const [activeSection, setActiveSection] = useState("dashboard");

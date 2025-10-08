@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../../AuthProvider';
 
 export default function StaffProtectedRoute({ children }) {
   const { user, role, loading } = useAuth();

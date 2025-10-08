@@ -312,7 +312,7 @@ const CTA = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center items-center z-50 w-auto"
+            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center items-center z-50 md:w-auto w-[80vw] mx-auto"
           >
             <div className="flex items-center gap-3 rounded-lg bg-white px-5 py-4 shadow-lg border border-slate-200">
               <CheckCircle className="h-6 w-6 text-green-500" />

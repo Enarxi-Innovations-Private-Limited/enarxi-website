@@ -20,7 +20,7 @@ function Aboutusb() {
         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         <div className="relative max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-            About Enarxi
+            About Enarxi 
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto rounded-full"></div>
         </div>

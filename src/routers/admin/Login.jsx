@@ -3,7 +3,7 @@ import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../../AuthProvider";
 
 export default function Login() {
   const {role,loading}=useAuth();
@@ -85,7 +85,7 @@ export default function Login() {
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold w-full py-3 rounded-lg shadow-md"
         >
-          Login
+          Admin Login, not staff 
         </motion.button>
       </motion.form>
     </div>
