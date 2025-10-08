@@ -101,12 +101,9 @@
 
 // export default ServicesSection;
 
-
 "use client";
-
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { ArrowRight } from "lucide-react";
-import { motion } from "motion/react";
 
 import IconProduct from "../../assets/images/product-design.svg";
 import IconMCFirmware from "../../assets/images/mc-firmware.svg";
@@ -131,153 +128,77 @@ const services = [
   },
 ];
 
-// --- Utility Hook ---
-const useIsMobile = (breakpoint = 768) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [breakpoint]);
-
-  return isMobile;
-};
-
-let interval;
-
-// --- CardStack Component ---
-const CardStack = ({ items, offset = 12, scaleFactor = 0.07 }) => {
-  const [cards, setCards] = useState(items);
-  const isMobile = useIsMobile();
-  const scrollContainerRef = useRef(null);
-
-  useEffect(() => {
-    if (interval) clearInterval(interval);
-    if (!isMobile) {
-      interval = setInterval(() => {
-        setCards((prev) => {
-          const newArray = [...prev];
-          newArray.unshift(newArray.pop());
-          return newArray;
-        });
-      }, 2500);
-    }
-    return () => clearInterval(interval);
-  }, [isMobile]);
-
-  // --- Enable vertical → horizontal scroll for mobile ---
-  useEffect(() => {
-    if (!isMobile) return;
-    const el = scrollContainerRef.current;
-    if (!el) return;
-
-    const handleWheel = (e) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault();
-        el.scrollLeft += e.deltaY;
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, [isMobile]);
-
-  // --- Mobile View ---
-  if (isMobile) {
-    return (
-      <div
-        ref={scrollContainerRef}
-        className="flex w-full space-x-4 overflow-x-auto p-1 pb-4 scrollbar-hide"
-      >
-        {cards.map((card) => (
-          <div
-            key={card.id}
-            className="w-[85%] flex-shrink-0 rounded-3xl bg-gray-200 p-4 shadow-xl border border-slate-300 snap-center flex flex-col justify-center h-72"
-          >
-            {card.content}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // --- Desktop View ---
-  return (
-    <div className="relative h-72 w-full md:h-80">
-      {cards.map((card, index) => (
-        <motion.div
-          key={card.id}
-          className="absolute bg-gray-200 h-72 md:h-60 w-full rounded-3xl p-4 md:p-6 shadow-xl border border-slate-300 shadow-black/[0.05] dark:shadow-white/[0.05] flex flex-col justify-center"
-          style={{ transformOrigin: "top center" }}
-          animate={{
-            top: index * -offset,
-            scale: 1 - index * scaleFactor,
-            zIndex: cards.length - index,
-          }}
-          transition={{ type: "spring", stiffness: 120, damping: 20 }}
-        >
-          {card.content}
-        </motion.div>
-      ))}
-    </div>
-  );
-};
-
 // --- Main Section ---
 const ServicesSection = () => {
   return (
-    <section>
-      <div className="mx-auto max-w-7xl md:h-[90dvh] h-full px-6 py-16 md:py-20 flex items-center">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
-          {/* Left column */}
-          <div className="lg:col-span-5">
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Services We Offer You
-            </h2>
+    <section className="py-12 md:py-16 lg:py-20 relative min-h-screen">
+      <div className="container mx-auto px-4 md:px-6">
+        {/* Header Section - Sticky (FIX APPLIED HERE) */}
+        <div className="sticky top-16 md:top-14 z-20 bg-white/95 backdrop-blur-md py-4 md:py-6 -mx-4 md:-mx-6 px-4 md:px-6 mb-6 md:mb-8 flex flex-col items-center border-b border-slate-200/50">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+            Services We Offer You
+          </h2>
 
-            <p className="mt-6 text-slate-600 leading-relaxed">
-              Our custom software design and development teams can design,
-              build, test, and deliver a product that fits both your vision and
-              market demand. With our support, you will find customers, build
-              income, and attract new investors.
-            </p>
+          <p className="mt-3 md:mt-4 text-sm md:text-base text-slate-600 leading-relaxed max-w-xl text-center">
+            Our custom software design and development teams can design,
+            build, test, and deliver a product that fits both your vision and
+            market demand. With our support, you will find customers, build
+            income, and attract new investors.
+          </p>
 
-            <a
-              href="/services"
-              className="mt-8 inline-flex items-center gap-2 font-semibold text-slate-900 underline underline-offset-8 decoration-slate-300 hover:decoration-slate-800"
+          <a
+            href="/services"
+            className="mt-4 md:mt-5 inline-flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 underline underline-offset-4 decoration-slate-300 hover:decoration-slate-800 transition-colors"
+          >
+            SEE WHAT WE CAN DO
+            <ArrowRight className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
+          </a>
+        </div>
+
+        {/* Stacked Cards Section */}
+        <div className="flex flex-col gap-12 md:gap-16 items-center">
+          {services.map((service, index) => (
+            <div
+              key={service.title}
+              className="rounded-2xl md:rounded-3xl bg-gray-200 border border-slate-300 px-6 py-6 md:px-8 md:py-8 lg:px-12 lg:py-10 sticky after:pointer-events-none w-full max-w-5xl z-30"
+              style={{
+                top: `calc(240px + ${index * 30}px)`,
+              }}
             >
-              SEE WHAT WE CAN DO
-              <ArrowRight className="h-5 w-5" aria-hidden="true" />
-            </a>
-          </div>
-
-          {/* Right column: CardStack */}
-          <div className="lg:col-span-7 flex items-center justify-center">
-            <CardStack
-              items={services.map((s, i) => ({
-                id: i,
-                content: (
-                  <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left">
-                    <div className="shrink-0 rounded-2xl bg-slate-100 p-4 ring-1 ring-slate-200">
-                      <img
-                        src={s.icon}
-                        alt={s.title}
-                        loading="lazy"
-                        className="h-16 w-16 object-contain md:h-24 md:w-24"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-slate-900">
-                        {s.title}
-                      </h3>
-                      <p className="mt-2 text-slate-600">{s.text}</p>
-                    </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center">
+                <div className="order-2 lg:order-1">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 font-serif leading-tight">
+                    {service.title}
+                  </h3>
+                  <hr className="border-t-2 border-slate-900/10 mt-3 md:mt-4" />
+                  <p className="mt-3 md:mt-4 text-slate-600 text-sm md:text-base leading-relaxed">
+                    {service.text}
+                  </p>
+                  
+                  <div className="mt-5 md:mt-6">
+                    <a
+                      href="/services"
+                      className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-slate-800 transition-colors"
+                    >
+                      Learn More
+                      <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
+                    </a>
                   </div>
-                ),
-              }))}
-            />
-          </div>
+                </div>
+                
+                <div className="order-1 lg:order-2 flex items-center justify-center">
+                  <div className="rounded-xl md:rounded-2xl bg-white p-5 md:p-6 lg:p-8 ring-1 ring-slate-200 shadow-sm">
+                    <img
+                      src={service.icon}
+                      alt={service.title}
+                      loading="lazy"
+                      className="h-28 w-28 md:h-36 md:w-36 lg:h-40 lg:w-40 object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
