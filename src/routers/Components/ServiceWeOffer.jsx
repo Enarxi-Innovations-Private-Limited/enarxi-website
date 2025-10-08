@@ -101,6 +101,8 @@
 
 // export default ServicesSection;
 
+
+
 "use client";
 import React from "react";
 import { ArrowRight } from "lucide-react";
@@ -160,9 +162,9 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className="rounded-2xl md:rounded-3xl bg-gray-200 border border-slate-300 px-6 py-6 md:px-8 md:py-8 lg:px-12 lg:py-10 sticky after:pointer-events-none w-full max-w-5xl z-30"
+              className="rounded-2xl md:rounded-3xl bg-gray-100 border border-slate-300 px-6 py-6 md:px-8 md:py-8 lg:px-12 lg:py-10 sticky after:pointer-events-none w-full max-w-5xl z-30"
               style={{
-                top: `calc(240px + ${index * 30}px)`,
+                top: `calc(280px + ${index * 30}px)`,
               }}
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center">
@@ -186,13 +188,13 @@ const ServicesSection = () => {
                   </div>
                 </div>
                 
-                <div className="order-1 lg:order-2 flex items-center justify-center">
-                  <div className="rounded-xl md:rounded-2xl bg-white p-5 md:p-6 lg:p-8 ring-1 ring-slate-200 shadow-sm">
+                <div className="order-1 lg:order-2 flex items-center justify-center lg:justify-end">
+                  <div className="rounded-xl md:rounded-2xl bg-white p-5 md:p-6 lg:p-8 ring-1 ring-slate-200 shadow-sm lg:mr-10">
                     <img
                       src={service.icon}
                       alt={service.title}
                       loading="lazy"
-                      className="h-28 w-28 md:h-36 md:w-36 lg:h-40 lg:w-40 object-contain"
+                      className="h-32 w-32 md:h-40 md:w-40 lg:h-48 lg:w-48 object-contain"
                     />
                   </div>
                 </div>
