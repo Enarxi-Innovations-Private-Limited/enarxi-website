@@ -249,6 +249,9 @@
 // };
 
 // export default ProductDevelopmentWorks;
+
+
+
 import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -378,7 +381,7 @@ const ProductDevelopmentWorks = () => {
             headingSize = "1.875rem"; // text-3xl
             titleSize = "1.25rem";    // text-xl
             descSize = "1rem";        // text-base
-            iconSize = "64px";        // 🔥 larger icons
+            iconSize = "64px";        // larger icons
           } else if (width < 640) {
             headingSize = "2rem";     // text-3xl+
             titleSize = "1.375rem";   // text-xl+
@@ -448,7 +451,7 @@ const ProductDevelopmentWorks = () => {
           ease: "none",
           scrollTrigger: {
             trigger: mobileTimelineRef.current,
-            start: "top 55%",
+            start: "top 65%",
             end: "bottom 75%",
             scrub: true,
           },
