@@ -91,7 +91,7 @@ export default function StaffLogin() {
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold w-full py-3 rounded-lg shadow-md"
         >
-          Login
+          Login staff , not admin
         </motion.button>
       </motion.form>
     </div>

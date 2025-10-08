@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
-import Login from "./Login";
+import Login from "./routers/admin/Login";
 
 export default function ProtectedRoute({ children, requiredRole }) {
   const { user, role, loading } = useAuth();

@@ -16,9 +16,9 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="flex items-center justify-between py-4 mx-auto w-[90%] md:flex-row flex-col md:gap-4">
+      <div className="mx-auto flex w-[90%] flex-wrap items-center justify-between gap-4 py-4 md:flex-nowrap md:gap-6">
         {/* Logo + Hamburger */}
-        <div className="flex items-center justify-between w-full md:w-auto">
+        <div className="flex w-full items-center justify-between gap-4 md:w-auto md:gap-6">
           <a href="/" aria-label="Go to Enarxi homepage">
             <img
               src={enarxiLogo}
@@ -54,13 +54,13 @@ export default function Header() {
         {/* Navigation */}
         <nav
           id="primary-navigation"
-          className={`w-full md:w-auto ${
+          className={`w-full md:flex-1 ${
             isMenuOpen ? "block" : "hidden"
-          } md:flex md:items-center md:space-x-10 mt-4 md:mt-0 
+          } md:flex md:items-center md:justify-center md:space-x-10 mt-4 md:mt-0 
           transition-all duration-300 ease-in-out text-center md:text-left`}
           aria-label="Primary"
         >
-          <ul className="flex flex-col md:flex-row items-center md:space-x-10 space-y-4 md:space-y-0 text-black uppercase tracking-wide text-sm lg:text-base xl:text-lg">
+          <ul className="flex flex-col items-center space-y-4 text-black uppercase tracking-wide text-sm md:flex-row md:justify-center md:space-y-0 md:space-x-10 lg:text-base xl:text-lg">
             {navItems.map((item) => (
               <li key={item.label}>
                 <NavLink
@@ -93,7 +93,7 @@ export default function Header() {
         {/* Desktop CTA button */}
         <button
           type="button"
-          className="hidden md:block w-auto text-white bg-[#09B8DC] rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition cursor-pointer duration-300"
+          className="hidden w-auto rounded-full bg-[#09B8DC] px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] md:block "
           aria-label="Lets connect button"
         >
           Let’s Connect

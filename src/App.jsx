@@ -7,7 +7,6 @@ import Testimonials from "./routers/Testimonials";
 import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
 import AboutUs from "./routers/AboutUs";
-import ScrolltoTop from "./scrolltoTop";
 import AboutUs1 from "@components/new/Aboutus";
 import AdminPortal from "./routers/AdminPortal";
 import FeedBack from "./routers/FeedBack";
@@ -15,12 +14,12 @@ import TestSupa from "./routers/new/TestSupa";
 
 import { AuthProvider } from "./AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
-import StaffProtectedRoute from "./StaffProtectedRoute"; // Import the new protected route
-import Login from "./Login";
-import StaffLogin from "./StaffLogin"; // Import the new login page
+import StaffProtectedRoute from "././routers/admin/StaffProtectedRoute"; // Import the new protected route
+import Login from "././routers/admin/Login";
+import StaffLogin from "././routers/admin/StaffLogin"; // Import the new login page
 import StaffPortal from "./routers/StaffPortal"; // Import the new portal
 import AppLogger from "./AppLogger";
-import Logout from "./Logout";
+import Logout from "./routers/admin/Logout";
 import ErrorBoundary from "./routers/ErrorBoundary";
 
 function MainLayout() {
@@ -51,7 +50,6 @@ function App() {
       <AuthProvider>
         <Router>
           <AppLogger/>
-          <ScrolltoTop />
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Hero />} />
