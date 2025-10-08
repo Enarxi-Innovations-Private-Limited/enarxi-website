@@ -25,4 +25,5 @@ export const domains = [
     { title: "Health Care Devices", icon: healthcare },
     { title: "AR & VR", icon: vr },
     { title: "BioMedical Equipments", icon: biomedical },
+    { title: "Industrial Automation", icon: robot }, // Using robot icon as placeholder
   ];

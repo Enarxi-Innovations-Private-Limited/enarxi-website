@@ -2,35 +2,43 @@ import DomainCard from "./DomainCard";
 import { domains } from "./DomainData";
 import styles from "./domain.module.css";
 
-const gradients = [
-  "from-[#FFE1E1] to-[#E1E8FF]",
-  "from-[#D9F9E8] to-[#C7E9FF]",
-  "from-[#FDE1FF] to-[#C8E7F7]",
-  "from-[#E0E7FF] to-[#FFF0E1]",
-];
-
 const DomainsSection = () => {
+  // Arrange domains in honeycomb pattern matching reference image
+  // Row 1: 4 cards (indices 0-3)
+  // Row 2: 5 cards (indices 4-8) - offset to the left
+  // Row 3: 4 cards (indices 9-12) - aligned with row 1
+  
+  const row1 = domains.slice(0, 4);   // Industrial IOT, Drone & UAV, Wearables, Rapid Prototyping
+  const row2 = domains.slice(4, 9);   // Security Devices, ML & AI, Home Automation, Access Control, Electric Vehicles
+  const row3 = domains.slice(9, 13);  // Health Care Devices, AR & VR, BioMedical Equipments, Industrial Automation
+
   return (
-    <section className="w-full py-16 bg-gradient-to-b from-white to-[#f9fafb] flex flex-col items-center">
-      <h2 className="text-center text-3xl md:text-4xl font-bold text-[#0f172a] mb-12">
+    <section className="w-full py-16 bg-gradient-to-b from-white to-[#f9fafb] flex flex-col items-center overflow-hidden">
+      <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold text-[#0f172a] mb-12 md:mb-16">
         Our Working Domains
       </h2>
 
-      <div
-        className={`grid grid-cols-7 gap-6 place-items-center ${styles.gridContainer}`}
-      >
-        {domains.map((domain, i) => (
-          <div
-            key={i}
-            className={`relative ${i % 7 === 1 || i % 7 === 4 ? "translate-y-10" : ""}`}
-          >
-            <DomainCard
-              title={domain.title}
-              icon={domain.icon}
-              gradient={gradients[i % gradients.length]}
-            />
-          </div>
-        ))}
+      <div className={styles.honeycombContainer}>
+        {/* Row 1: 4 cards */}
+        <div className={styles.row1}>
+          {row1.map((domain, i) => (
+            <DomainCard key={`row1-${i}`} title={domain.title} icon={domain.icon} />
+          ))}
+        </div>
+
+        {/* Row 2: 5 cards (offset) */}
+        <div className={styles.row2}>
+          {row2.map((domain, i) => (
+            <DomainCard key={`row2-${i}`} title={domain.title} icon={domain.icon} />
+          ))}
+        </div>
+
+        {/* Row 3: 4 cards */}
+        <div className={styles.row3}>
+          {row3.map((domain, i) => (
+            <DomainCard key={`row3-${i}`} title={domain.title} icon={domain.icon} />
+          ))}
+        </div>
       </div>
     </section>
   );

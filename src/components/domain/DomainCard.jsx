@@ -3,16 +3,30 @@ import { motion } from "framer-motion";
 const DomainCard = ({ title, icon }) => {
   return (
     <motion.div
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.97 }}
-      className="relative w-40 h-44 sm:w-48 sm:h-52 flex flex-col items-center justify-center text-center"
+      whileHover={{ scale: 1.08, y: -5 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="relative flex flex-col items-center justify-center text-center cursor-pointer"
+      style={{
+        width: "200px",
+        height: "200px",
+      }}
     >
-      <img
-        src={icon}
-        alt={title}
-        className="w-full h-full object-contain select-none pointer-events-none"
-        loading="lazy"
-      />
+      {/* Hexagon background with gradient */}
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        style={{
+          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+        }}
+      >
+        <img
+          src={icon}
+          alt={title}
+          className="w-full h-full object-contain select-none pointer-events-none"
+          loading="lazy"
+          draggable="false"
+        />
+      </div>
     </motion.div>
   );
 };

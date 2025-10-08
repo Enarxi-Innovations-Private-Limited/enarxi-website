@@ -1,30 +1,82 @@
-.gridContainer {
-    transform: scale(var(--scale, 1));
-    transform-origin: top center;
-    transition: transform 0.3s ease;
+/* Honeycomb container - scales uniformly on all screen sizes */
+.honeycombContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  transform: scale(var(--scale, 1));
+  transform-origin: top center;
+  transition: transform 0.3s ease-in-out;
+  will-change: transform;
+}
+
+/* Row 1: 4 cards - centered */
+.row1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: -30px; /* Overlap for honeycomb effect */
+}
+
+/* Row 2: 5 cards - offset to the left by half a card width */
+.row2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-left: 0px; /* Offset to create honeycomb pattern */
+  margin-bottom: -30px; /* Overlap for honeycomb effect */
+}
+
+/* Row 3: 4 cards - aligned with row 1 */
+.row3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Responsive scaling - entire container shrinks uniformly */
+@media (max-width: 1536px) {
+  .honeycombContainer {
+    --scale: 0.95;
   }
-  
-  @media (max-width: 1280px) {
-    .gridContainer {
-      --scale: 0.9;
-    }
+}
+
+@media (max-width: 1280px) {
+  .honeycombContainer {
+    --scale: 0.85;
   }
-  
-  @media (max-width: 1024px) {
-    .gridContainer {
-      --scale: 0.75;
-    }
+}
+
+@media (max-width: 1024px) {
+  .honeycombContainer {
+    --scale: 0.7;
   }
-  
-  @media (max-width: 768px) {
-    .gridContainer {
-      --scale: 0.6;
-    }
+}
+
+@media (max-width: 768px) {
+  .honeycombContainer {
+    --scale: 0.55;
   }
-  
-  @media (max-width: 640px) {
-    .gridContainer {
-      --scale: 0.5;
-    }
+}
+
+@media (max-width: 640px) {
+  .honeycombContainer {
+    --scale: 0.45;
   }
+}
+
+@media (max-width: 480px) {
+  .honeycombContainer {
+    --scale: 0.35;
+  }
+}
+
+@media (max-width: 380px) {
+  .honeycombContainer {
+    --scale: 0.3;
+  }
+}
   
