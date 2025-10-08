@@ -1,15 +1,40 @@
+"use client";
 import { useState } from "react";
-import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
 import { NavLink } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Menu } from "lucide-react";
+import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
 
+// Navigation items
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blogs", href: "/blogs" },
-  // { label: "Gallery", href: "/gallery" },
   { label: "About Us", href: "/aboutus" },
 ];
+
+// Animation variants
+const mobileMenuVariants = {
+  hidden: { x: "100%" },
+  visible: {
+    x: 0,
+    transition: { type: "spring", stiffness: 120, damping: 20 },
+  },
+  exit: {
+    x: "100%",
+    transition: { type: "spring", stiffness: 120, damping: 20 },
+  },
+};
+
+const mobileNavItemVariants = {
+  hidden: { opacity: 0, x: 50 },
+  visible: (i) => ({
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.4, delay: i * 0.08, ease: "easeOut" },
+  }),
+};
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,6 +52,8 @@ export default function Header() {
               loading="lazy"
             />
           </a>
+
+          {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#09B8DC] rounded"
@@ -34,37 +61,30 @@ export default function Header() {
             aria-expanded={isMenuOpen}
             aria-label="Toggle navigation menu"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-8"
+            <motion.div
+              initial={false}
+              animate={{ rotate: isMenuOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
+              {isMenuOpen ? (
+                <X className="size-8 text-[#09B8DC]" />
+              ) : (
+                <Menu className="size-8 text-gray-800" />
+              )}
+            </motion.div>
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Desktop Navigation */}
         <nav
           id="primary-navigation"
-          className={`w-full md:flex-1 ${
-            isMenuOpen ? "block" : "hidden"
-          } md:flex md:items-center md:justify-center md:space-x-10 mt-4 md:mt-0 
-          transition-all duration-300 ease-in-out text-center md:text-left`}
+          className="hidden md:flex md:items-center md:justify-center md:space-x-10 text-center md:text-left"
           aria-label="Primary"
         >
-          <ul className="flex flex-col items-center space-y-4 text-[#4f4f4f] uppercase tracking-wide text-sm md:flex-row md:justify-center md:space-y-0 md:space-x-10 lg:text-base xl:text-lg">
+          <ul className="flex items-center space-x-10 text-[#4f4f4f] uppercase tracking-wide text-sm lg:text-base xl:text-lg">
             {navItems.map((item) => (
               <li key={item.label}>
                 <NavLink
-                  onClick={() => setIsMenuOpen(false)}
                   to={item.href}
                   className={({ isActive }) =>
                     `transition text-poppins-md cursor-pointer ${
@@ -78,27 +98,91 @@ export default function Header() {
                 </NavLink>
               </li>
             ))}
-            {/* CTA button in mobile menu */}
-            <li className="md:hidden">
-              <button
-                type="button"
-                className="w-full text-white bg-[#09B8DC] text-lets-connect rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition duration-300"
-              >
-                Let’s Connect
-              </button>
-            </li>
           </ul>
         </nav>
 
-        {/* Desktop CTA button */}
+        {/* Desktop CTA Button */}
         <div
           type="button"
-          className="hidden w-auto rounded-full bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] md:block "
+          className="hidden relative top-[-2px] w-auto rounded-3xl bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] md:block"
           aria-label="Lets connect button"
         >
           Let’s Connect
         </div>
       </div>
+
+      {/* Mobile Slide Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              onClick={() => setIsMenuOpen(false)}
+            />
+
+            {/* Sliding Nav Menu */}
+            <motion.nav
+              id="mobile-navigation"
+              className="fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white z-50 md:hidden shadow-2xl"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={mobileMenuVariants}
+              aria-label="Mobile Navigation"
+            >
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <ul className="flex flex-col items-center space-y-6 text-[#4f4f4f] uppercase tracking-wide text-sm lg:text-base">
+                  {navItems.map((item, i) => (
+                    <motion.li
+                      key={item.label}
+                      custom={i}
+                      variants={mobileNavItemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      <NavLink
+                        onClick={() => setIsMenuOpen(false)}
+                        to={item.href}
+                        className={({ isActive }) =>
+                          `transition text-poppins-md cursor-pointer text-lg ${
+                            isActive
+                              ? "text-[#09B8DC]"
+                              : "hover:text-[#09B8DC] hover:scale-105 transition-all duration-300"
+                          }`
+                        }
+                      >
+                        {item.label}
+                      </NavLink>
+                    </motion.li>
+                  ))}
+
+                  {/* CTA Button */}
+                  <motion.li
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: navItems.length * 0.08 }}
+                  >
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="w-full text-white bg-[#09B8DC] rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition duration-300 text-lg"
+                    >
+                      Let’s Connect
+                    </motion.button>
+                  </motion.li>
+                </ul>
+              </div>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

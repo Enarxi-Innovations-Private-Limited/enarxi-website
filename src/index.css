@@ -69,6 +69,7 @@
   .text-poppins-md {
     font-family: var(--font-poppins), sans-serif;
     font-weight: 600;
+    font-size: 15px;
     /* font-size: clamp(1.2rem, 3.5vw + 0.5rem, 9rem); */
   }
 
