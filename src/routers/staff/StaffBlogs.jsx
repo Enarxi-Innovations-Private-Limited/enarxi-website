@@ -5,6 +5,8 @@ import { db, auth } from "@/lib/firebase";
 import { useAuth } from "@/AuthProvider";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
+import CropImageModal from "@/components/CropImageModal";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -140,6 +142,11 @@ const StaffBlogs = () => {
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  
+  // Crop modal state
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [originalFileName, setOriginalFileName] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -171,12 +178,78 @@ const StaffBlogs = () => {
     }));
   }, []);
 
-  const handleFileChange = useCallback((e) => {
-    if (e.target.files?.length) {
-      // Only take the first file
-      setImageFile(e.target.files[0]);
+  const handleFileChange = useCallback(async (e) => {
+    if (!e.target.files?.length) return;
+    
+    const file = e.target.files[0];
+    
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setMessage(`❌ ${validation.error}`);
+      e.target.value = ''; // Clear input
+      return;
+    }
+    
+    try {
+      // Get image dimensions
+      const dimensions = await getImageDimensions(file);
+      console.log('📐 Image dimensions:', dimensions);
+      
+      // Check if image is 16:9
+      const is16x9 = isAspectRatio16x9(dimensions.width, dimensions.height);
+      
+      if (is16x9) {
+        // Image is already 16:9, use it directly
+        console.log('✅ Image is 16:9, no cropping needed');
+        setImageFile(file);
+        setMessage('');
+      } else {
+        // Image needs cropping
+        console.log('⚠️ Image is not 16:9, opening crop modal');
+        setOriginalFileName(file.name);
+        setImageToCrop(URL.createObjectURL(file));
+        setShowCropModal(true);
+        setMessage('');
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      setMessage('❌ Failed to process image. Please try again.');
+      e.target.value = ''; // Clear input
     }
   }, []);
+  
+  /**
+   * Handle cropped image from modal
+   */
+  const handleCropComplete = useCallback((croppedFile) => {
+    console.log('✅ Cropped image received:', croppedFile);
+    setImageFile(croppedFile);
+    setShowCropModal(false);
+    
+    // Clean up object URL
+    if (imageToCrop) {
+      URL.revokeObjectURL(imageToCrop);
+      setImageToCrop(null);
+    }
+  }, [imageToCrop]);
+  
+  /**
+   * Handle crop cancel
+   */
+  const handleCropCancel = useCallback(() => {
+    setShowCropModal(false);
+    
+    // Clean up object URL
+    if (imageToCrop) {
+      URL.revokeObjectURL(imageToCrop);
+      setImageToCrop(null);
+    }
+    
+    // Clear file input
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
+  }, [imageToCrop]);
 
   const handleRemoveImage = useCallback(() => {
     setImageFile(null);
@@ -375,6 +448,15 @@ const StaffBlogs = () => {
           </button>
         </form>
       </div>
+
+      {/* Crop Image Modal */}
+      <CropImageModal
+        isOpen={showCropModal}
+        imageSrc={imageToCrop}
+        fileName={originalFileName}
+        onCropComplete={handleCropComplete}
+        onCancel={handleCropCancel}
+      />
     </div>
   );
 };
