@@ -4,13 +4,15 @@ import {
 } from "lucide-react";
 
 import ProductDevelopmentWorks from "./Components/ProductDevelopmentWorks";
-import ServicesGrid from "./Components/OurWorkingDomain";
+import ModernWorkingDomain from "./Components/ModernWorkingDomain";
+import DomainsSection from "@components/newDomains/DomainSection";
 import OurStats from "./Components/OurStats";
 import ServiceWeOffer from "./Components/ServiceWeOffer";
 import WhyUs from "./Components/WhyUs";
 import TrustedBy from "./Components/TrustedBy";
 import CTA from "./Components/CTA";
 import HeroComponent from "./Components/HeroComponent";
+import CustomHoneycomb from "@components/honey/HoneyComb";
 
 
 export default function Home() {
@@ -19,7 +21,9 @@ export default function Home() {
     <div className="flex flex-col items-center w-full">
         <HeroComponent />
         <ProductDevelopmentWorks />
-        <ServicesGrid />
+        <CustomHoneycomb />
+        <DomainsSection />
+        {/* <ModernWorkingDomain /> */}
         <ServiceWeOffer />
         <OurStats />
         <WhyUs />  

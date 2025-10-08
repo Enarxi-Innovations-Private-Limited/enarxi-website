@@ -1,4 +1,4 @@
-import heroVideo from "../../assets/Videos/heroVideo.mp4";
+import heroVideo from "../../assets/Videos/hero.webm";
 
 const HeroComponent = () => {
   return (
