@@ -161,34 +161,3 @@
   display: none;
   /* Chrome, Safari, Opera */
 }
-
-.polygon {
-  width: 200px;
-  height: 200px;
-  background: linear-gradient(45deg, #4facfe, #00f2fe);
-  clip-path: polygon(
-    50% 0%,    /* top middle */
-    100% 25%,  /* right upper */
-    100% 75%,  /* right lower */
-    50% 100%,  /* bottom middle */
-    0% 75%,    /* left lower */
-    0% 25%     /* left upper */
-  );
-};
-
-.clip-hex {
-  clip-path: polygon(
-    25% 0%,
-    75% 0%,
-    100% 50%,
-    75% 100%,
-    25% 100%,
-    0% 50%
-  );
-}
-
-img {
-  image-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}

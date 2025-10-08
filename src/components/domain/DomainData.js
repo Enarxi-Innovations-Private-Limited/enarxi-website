@@ -1,4 +1,4 @@
-import iot from "@assets/Domain/iot.png"
+import iot from "@assets/Domain/iot.svg"
 import drone from "@assets/Domain/drone.svg"
 import wearables from "@assets/Domain/wearables.svg"
 import robot from "@assets/Domain/robot.svg"

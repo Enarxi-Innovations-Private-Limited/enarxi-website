@@ -1,0 +1,30 @@
+.gridContainer {
+    transform: scale(var(--scale, 1));
+    transform-origin: top center;
+    transition: transform 0.3s ease;
+  }
+  
+  @media (max-width: 1280px) {
+    .gridContainer {
+      --scale: 0.9;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .gridContainer {
+      --scale: 0.75;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .gridContainer {
+      --scale: 0.6;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .gridContainer {
+      --scale: 0.5;
+    }
+  }
+  
