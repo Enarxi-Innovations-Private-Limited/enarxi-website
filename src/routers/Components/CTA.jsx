@@ -97,7 +97,7 @@ const CTA = () => {
             <div className="order-2 md:order-1 mt-6 md:mt-0 md:pb-4">
               <button
                 onClick={() => setIsOpen(true)}
-                className="inline-flex items-center justify-center rounded-full bg-[#09B8DC] px-8 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#09B8DC] focus:ring-offset-[#0B1A27]"
+                className="inline-flex items-center justify-center rounded-full bg-[#09B8DC] px-8 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#09B8DC] focus:ring-offset-[#0B1A27] cursor-pointer"
               >
                 Let’s Connect
               </button>
@@ -112,9 +112,9 @@ const CTA = () => {
           <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-700"
+              className="absolute top-4 right-4 p-1 text-slate-500 hover:text-slate-700 cursor-pointer hover:bg-slate-300 hover:rounded-full "
             >
-              <X className="h-6 w-6" />
+              <X className="h-6 w-6 " />
             </button>
 
             <h3 className="text-xl font-bold text-slate-900 mb-4">
@@ -268,7 +268,7 @@ const CTA = () => {
                   {...register("reachout", {
                     required: "Please select a time",
                   })}
-                  className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
+                  className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none cursor-pointer ${
                     errors.reachout
                       ? "border-red-500 focus:ring-red-400"
                       : "border-slate-300 focus:ring-[#09B8DC]"
