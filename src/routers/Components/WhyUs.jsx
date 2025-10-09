@@ -7,13 +7,12 @@ import Scissors from "../../assets/images/whyus/scissors.svg?component";
 import Reliable from "../../assets/images/whyus/reliable.svg?component";
 
 /**
- * Icon-specific animation variants
+ * Icon-specific animation variants for hover
  */
 const iconAnimations = {
-  // Lightbulb: Flickering/glowing effect
+  // Lightbulb: Glowing effect (removed opacity for clarity)
   bulb: {
-    animate: {
-      opacity: [1, 0.6, 1, 0.7, 1],
+    whileHover: {
       filter: [
         "drop-shadow(0 0 0px rgba(251, 191, 36, 0))",
         "drop-shadow(0 0 8px rgba(251, 191, 36, 0.6))",
@@ -23,7 +22,7 @@ const iconAnimations = {
       ],
     },
     transition: {
-      duration: 3,
+      duration: 1.5,
       repeat: Infinity,
       ease: "easeInOut",
     },
@@ -31,7 +30,7 @@ const iconAnimations = {
 
   // Running figure: Running motion
   run: {
-    animate: {
+    whileHover: {
       x: [0, 3, 0, -3, 0],
       rotate: [0, -2, 0, 2, 0],
     },
@@ -44,20 +43,20 @@ const iconAnimations = {
 
   // Reliable (Medal/Thumbs up): Pulse and slight bounce
   reliable: {
-    animate: {
+    whileHover: {
       scale: [1, 1.1, 1],
       y: [0, -4, 0],
     },
     transition: {
-      duration: 2,
+      duration: 1,
       repeat: Infinity,
       ease: "easeInOut",
     },
   },
 
-  // CPU/Chip: Electricity flow effect
+  // CPU/Chip: Electricity flow effect (removed opacity for clarity)
   cpu: {
-    animate: {
+    whileHover: {
       filter: [
         "drop-shadow(0 0 0px rgba(59, 130, 246, 0))",
         "drop-shadow(0 0 6px rgba(59, 130, 246, 0.8))",
@@ -66,7 +65,7 @@ const iconAnimations = {
       scale: [1, 1.02, 1],
     },
     transition: {
-      duration: 2.5,
+      duration: 1.2,
       repeat: Infinity,
       ease: "linear",
     },
@@ -74,12 +73,12 @@ const iconAnimations = {
 
   // Wallet: Money pop out effect
   wallet: {
-    animate: {
+    whileHover: {
       y: [0, -3, 0],
       scale: [1, 1.05, 1],
     },
     transition: {
-      duration: 1.5,
+      duration: 0.8,
       repeat: Infinity,
       ease: "easeInOut",
     },
@@ -87,11 +86,11 @@ const iconAnimations = {
 
   // Scissors: Opening and closing
   scissors: {
-    animate: {
+    whileHover: {
       rotate: [0, 15, 0, -15, 0],
     },
     transition: {
-      duration: 2,
+      duration: 1,
       repeat: Infinity,
       ease: "easeInOut",
     },
@@ -174,14 +173,14 @@ const WhyUs = () => {
               variants={cardVariants}
               whileHover={{ 
                 scale: 1.05,
-                boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)",
               }}
-              className="flex flex-col p-8 bg-white rounded-2xl shadow-[0_4px_15px_rgba(59,130,246,0.15)] justify-center items-center relative overflow-hidden group"
+              
+              className="flex flex-col p-8 bg-white rounded-2xl shadow-[0_4px_15px_rgba(59,130,246,0.15)] justify-center items-center relative overflow-hidden group cursor-pointer"
             >
               {/* Animated Icon */}
               <motion.div
                 className="mb-6 relative"
-                animate={iconAnimations[feat.animationKey].animate}
+                whileHover={iconAnimations[feat.animationKey].whileHover}
                 transition={iconAnimations[feat.animationKey].transition}
               >
                 <img
@@ -197,10 +196,6 @@ const WhyUs = () => {
                 {feat.title}
               </h3>
 
-              {/* Hover gradient effect */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl"
-              />
             </motion.div>
           ))}
         </motion.div>
