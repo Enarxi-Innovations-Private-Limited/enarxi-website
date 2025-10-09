@@ -97,26 +97,31 @@
     font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem);
   }
 }
+
 .text-lets-connect {
   font-family: var(--font-poppins), sans-serif;
   font-weight: 600;
   font-size: 16px;
 }
 
-/* Scroll Animation */
+/* Scroll Animation - Seamless Infinite Marquee */
 @keyframes scroll {
   0% {
     transform: translateX(0);
   }
 
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-25%);
   }
 }
 
 .scroll {
   animation: scroll 5s linear infinite;
   width: max-content;
+  white-space: nowrap;
+  will-change: transform;
+  display: flex;
+  gap: 5rem;
 }
 
 /* SVG Icon Hover Animations */

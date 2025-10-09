@@ -13,20 +13,24 @@ const TrustedBy = () => {
     { src: tp4, alt: "Client 4" },
     { src: tp5, alt: "Client 5" },
   ];
+
+  // Duplicate logos multiple times for seamless infinite scroll
+  const duplicatedLogos = [...logos, ...logos, ...logos, ...logos];
+
   return (
     <section className="py-10 w-full flex flex-col justify-center items-center overflow-hidden">
       <h2 className="text-center text-2xl font-bold mb-6 font-oswald">
         Trusted By
       </h2>
 
-      <div className="w-[90%] mx-auto overflow-hidden">
-        <div className="flex gap-20 justify-center items-center scroll">
-          {logos.concat(logos).map((logo, i) => (
+      <div className="w-full mx-auto overflow-hidden relative">
+        <div className="flex gap-20 items-center scroll">
+          {duplicatedLogos.map((logo, i) => (
             <img
               key={i}
               src={logo.src}
               alt={logo.alt}
-              className="h-12 object-contain"
+              className="h-12 object-contain flex-shrink-0"
             />
           ))}
         </div>
@@ -34,4 +38,5 @@ const TrustedBy = () => {
     </section>
   );
 };
+
 export default TrustedBy;
