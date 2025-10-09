@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import Footer from "./routers/Components/Footer";
 import Header from "./routers/Components/Header";
 import Hero from "./routers/Hero";
 import Services from "./routers/Services";
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from "react-router-dom";
 import Testimonials from "./routers/Testimonials";
 import Blog from "./routers/Blog";
 import Gallery from "./routers/Gallery";
@@ -21,6 +22,17 @@ import StaffPortal from "./routers/StaffPortal"; // Import the new portal
 import AppLogger from "./AppLogger";
 import Logout from "./routers/admin/Logout";
 import ErrorBoundary from "./routers/ErrorBoundary";
+
+// Scroll to top component
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 function MainLayout() {
   return (
@@ -49,6 +61,7 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <AppLogger/>
           <Routes>
             <Route element={<MainLayout />}>
