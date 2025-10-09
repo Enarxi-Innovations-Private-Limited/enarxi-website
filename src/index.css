@@ -55,15 +55,29 @@
 
 /* Utilities */
 @layer utilities {
-  .font-oswald {
+  .text-oswald-bold {
     font-family: var(--font-oswald), sans-serif;
     font-weight: 700;
-    font-size: clamp(2rem, 2vw + 1rem, 2.5rem);
   }
+  .text-poppins-bold {
+    font-family: var(--font-poppins), sans-serif;
+    font-weight: 700;
+  }
+  .text-oswald-semibold {
+    font-family: var(--font-oswald), sans-serif;
+    font-weight: 600;
+  }
+  .text-poppins-semibold {
+    font-family: var(--font-poppins), sans-serif;
+    font-weight: 600;
+  }
+  .text-40 {
+    font-size: clamp(1.625rem, 1rem + 1.667vw, 2.5rem);
+  }
+
 
   .text-poppins {
     font-family: 'Poppins', sans-serif;
-    color: #676767;
   }
 
   .text-poppins-md {

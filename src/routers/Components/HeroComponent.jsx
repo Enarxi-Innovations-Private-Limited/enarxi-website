@@ -1,4 +1,4 @@
-import heroVideo from "../../assets/Videos/hero.webm";
+import heroVideo from "../../assets/Videos/hero3.webm";
 
 const HeroComponent = () => {
   return (
@@ -12,7 +12,7 @@ const HeroComponent = () => {
       </h1>
 
       {/* 🛠️ MODIFIED VIDEO CONTAINER AND VIDEO ELEMENT 🛠️ */}
-      <div className="w-64 h-52  mt-6 md:w-1/4 md:h-auto">
+      <div className="mt-6 md:w-1/4 md:h-auto">
         {/* Video element is perfect and responsive */}
         <video
           src={heroVideo}
