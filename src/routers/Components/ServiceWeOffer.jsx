@@ -137,7 +137,7 @@ const ServicesSection = () => {
       <div className="container mx-auto px-4 md:px-6">
         {/* Header Section - Sticky (FIX APPLIED HERE) */}
         <div className="sticky top-16 md:top-14 z-20 bg-white/95 backdrop-blur-md py-4 md:py-6 -mx-4 md:-mx-6 px-4 md:px-6 mb-6 md:mb-8 flex flex-col items-center border-b border-slate-200/50">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight font-oswald text-slate-900">
             Services We Offer You
           </h2>
 
@@ -169,7 +169,7 @@ const ServicesSection = () => {
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center">
                 <div className="order-2 lg:order-1">
-                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 font-serif leading-tight">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 leading-tight font-poppins">
                     {service.title}
                   </h3>
                   <hr className="border-t-2 border-slate-900/10 mt-3 md:mt-4" />
