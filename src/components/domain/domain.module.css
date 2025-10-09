@@ -1,0 +1,97 @@
+/* =====================================
+   HONEYCOMB CONTAINER — RESPONSIVE + SAFE FALLBACK
+===================================== */
+.honeycombContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    transform-origin: top center;
+    transition: transform 0.3s ease-in-out, zoom 0.3s ease-in-out;
+    transform: scale(var(--scale, 1)); /* default fallback */
+  }
+  
+  /* ✅ Use zoom where supported (Chrome, Edge, Safari) */
+  @supports (zoom: 1) {
+    .honeycombContainer {
+      transform: none; /* avoids layout shift/ghost spacing */
+      zoom: var(--scale, 1);
+    }
+  }
+  
+  /* =====================================
+     HONEYCOMB ROWS
+  ===================================== */
+  
+  /* Row 1: 4 cards - centered */
+  .row1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: -45px; /* Overlap for honeycomb effect */
+  }
+  
+  /* Row 2: 5 cards - offset to the left */
+  .row2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-left: 0px;
+    margin-bottom: -45px; /* Overlap */
+  }
+  
+  /* Row 3: 4 cards - aligned with row 1 */
+  .row3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  /* =====================================
+     RESPONSIVE SCALE FACTORS
+  ===================================== */
+  @media (max-width: 1536px) {
+    .honeycombContainer {
+      --scale: 0.95;
+    }
+  }
+  
+  @media (max-width: 1280px) {
+    .honeycombContainer {
+      --scale: 0.85;
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .honeycombContainer {
+      --scale: 0.7;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .honeycombContainer {
+      --scale: 0.55;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .honeycombContainer {
+      --scale: 0.45;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .honeycombContainer {
+      --scale: 0.35;
+    }
+  }
+  
+  @media (max-width: 380px) {
+    .honeycombContainer {
+      --scale: 0.3;
+    }
+  }
+  
