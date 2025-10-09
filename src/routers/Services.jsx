@@ -350,7 +350,7 @@ const ContactForm = () => {
 
 export default function Services() {
   return (
-    <section className="bg-[#F5FBFF] py-16">
+    <section className="bg-[#F5FBFF] py-12 md:py-16 overflow-hidden">
       <div className="w-[90%] mx-auto">
         <header className="text-center mb-12">
           <h2 className="text-2xl md:text-4xl font-bold text-gray-800 font-oswald">

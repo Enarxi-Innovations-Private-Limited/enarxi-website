@@ -1,82 +1,97 @@
-/* Honeycomb container - scales uniformly on all screen sizes */
+/* =====================================
+   HONEYCOMB CONTAINER — RESPONSIVE + SAFE FALLBACK
+===================================== */
 .honeycombContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  transform: scale(var(--scale, 1));
-  transform-origin: top center;
-  transition: transform 0.3s ease-in-out;
-  will-change: transform;
-}
-
-/* Row 1: 4 cards - centered */
-.row1 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: -30px; /* Overlap for honeycomb effect */
-}
-
-/* Row 2: 5 cards - offset to the left by half a card width */
-.row2 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin-left: 0px; /* Offset to create honeycomb pattern */
-  margin-bottom: -30px; /* Overlap for honeycomb effect */
-}
-
-/* Row 3: 4 cards - aligned with row 1 */
-.row3 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-
-/* Responsive scaling - entire container shrinks uniformly */
-@media (max-width: 1536px) {
-  .honeycombContainer {
-    --scale: 0.95;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    transform-origin: top center;
+    transition: transform 0.3s ease-in-out, zoom 0.3s ease-in-out;
+    transform: scale(var(--scale, 1)); /* default fallback */
   }
-}
-
-@media (max-width: 1280px) {
-  .honeycombContainer {
-    --scale: 0.85;
+  
+  /* ✅ Use zoom where supported (Chrome, Edge, Safari) */
+  @supports (zoom: 1) {
+    .honeycombContainer {
+      transform: none; /* avoids layout shift/ghost spacing */
+      zoom: var(--scale, 1);
+    }
   }
-}
-
-@media (max-width: 1024px) {
-  .honeycombContainer {
-    --scale: 0.7;
+  
+  /* =====================================
+     HONEYCOMB ROWS
+  ===================================== */
+  
+  /* Row 1: 4 cards - centered */
+  .row1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: -30px; /* Overlap for honeycomb effect */
   }
-}
-
-@media (max-width: 768px) {
-  .honeycombContainer {
-    --scale: 0.55;
+  
+  /* Row 2: 5 cards - offset to the left */
+  .row2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-left: 0px;
+    margin-bottom: -30px; /* Overlap */
   }
-}
-
-@media (max-width: 640px) {
-  .honeycombContainer {
-    --scale: 0.45;
+  
+  /* Row 3: 4 cards - aligned with row 1 */
+  .row3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
   }
-}
-
-@media (max-width: 480px) {
-  .honeycombContainer {
-    --scale: 0.35;
+  
+  /* =====================================
+     RESPONSIVE SCALE FACTORS
+  ===================================== */
+  @media (max-width: 1536px) {
+    .honeycombContainer {
+      --scale: 0.95;
+    }
   }
-}
-
-@media (max-width: 380px) {
-  .honeycombContainer {
-    --scale: 0.3;
+  
+  @media (max-width: 1280px) {
+    .honeycombContainer {
+      --scale: 0.85;
+    }
   }
-}
+  
+  @media (max-width: 1024px) {
+    .honeycombContainer {
+      --scale: 0.7;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .honeycombContainer {
+      --scale: 0.55;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .honeycombContainer {
+      --scale: 0.45;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .honeycombContainer {
+      --scale: 0.35;
+    }
+  }
+  
+  @media (max-width: 380px) {
+    .honeycombContainer {
+      --scale: 0.3;
+    }
+  }
   

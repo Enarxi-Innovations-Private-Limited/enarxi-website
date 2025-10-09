@@ -228,7 +228,7 @@ const CardStack = ({ items, offset = 12, scaleFactor = 0.07 }) => {
 const ServicesSection = () => {
   return (
     <section>
-      <div className="mx-auto max-w-7xl md:h-[90dvh] h-full px-6 py-16 md:py-20 flex items-center">
+      <div className="mx-auto max-w-7xl md:h-[90dvh] h-full px-6 pt-8 pb-12 md:pt-12 md:pb-16 flex items-center">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           {/* Left column */}
           <div className="lg:col-span-5">

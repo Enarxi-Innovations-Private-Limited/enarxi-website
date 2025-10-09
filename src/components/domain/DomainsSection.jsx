@@ -13,8 +13,8 @@ const DomainsSection = () => {
   const row3 = domains.slice(9, 13);  // Health Care Devices, AR & VR, BioMedical Equipments, Industrial Automation
 
   return (
-    <section className="w-full py-16 bg-gradient-to-b from-white to-[#f9fafb] flex flex-col items-center overflow-hidden">
-      <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold text-[#0f172a] mb-12 md:mb-16">
+    <section className="w-full py-12 md:py-16  bg-gradient-to-b from-white to-[#f9fafb] flex flex-col items-center overflow-hidden">
+      <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold text-[#0f172a] mb-8 md:mb-12">
         Our Working Domains
       </h2>
 
