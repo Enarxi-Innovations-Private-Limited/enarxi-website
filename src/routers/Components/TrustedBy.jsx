@@ -19,7 +19,7 @@ const TrustedBy = () => {
 
   return (
     <section className="py-10 w-full flex flex-col justify-center items-center overflow-hidden">
-      <h2 className="text-center text-2xl font-bold mb-6 font-oswald">
+      <h2 className="text-center  mb-6 text-40 text-oswald-bold">
         Trusted By
       </h2>
 

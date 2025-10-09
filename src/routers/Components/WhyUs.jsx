@@ -148,7 +148,7 @@ const WhyUs = () => {
         transition={{ duration: 0.6 }}
         className="flex flex-col items-center mb-16 max-w-4xl"
       >
-        <h1 className="font-oswald mb-4 text-3xl md:text-4xl font-bold text-gray-900">
+        <h1 className="text-oswald-bold mb-4 text-40 text-font-bold text-gray-900">
           Why us?
         </h1>
         <p className="text-poppins text-center text-sm md:text-base text-gray-600 leading-relaxed">

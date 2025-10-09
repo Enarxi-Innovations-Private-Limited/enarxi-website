@@ -366,7 +366,7 @@ export default function OurStats() {
           <h2
             id="stats-heading"
             // 👉 CHANGE: Even smaller heading font size
-            className="text-3xl font-bold text-white mb-3"
+            className="text-40 font-bold text-white mb-3"
           >
             Our Impact in Numbers
           </h2>

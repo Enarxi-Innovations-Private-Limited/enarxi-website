@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-const DomainCard = ({ title, icon }) => {
+const DomainCard = ({ title, icon, onClick }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.11, y: -5 }}
@@ -11,6 +11,7 @@ const DomainCard = ({ title, icon }) => {
         damping: 15, // more gentle damping
         mass: 0.8, // optional: makes it feel lighter
       }}
+      onClick={onClick}
       className="relative flex flex-col items-center justify-center text-center cursor-pointer"
       style={{
         width: "200px",
