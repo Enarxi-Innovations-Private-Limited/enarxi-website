@@ -54,7 +54,7 @@ const CTA = () => {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-16 py-16">
+    <section className="mx-auto max-w-7xl px-6 padding-y">
       {/* CTA card */}
       <div className="rounded-3xl bg-[#0B1A27] text-white shadow-xl ring-1 ring-black/5 p-8 md:p-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">

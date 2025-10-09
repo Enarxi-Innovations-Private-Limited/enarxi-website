@@ -469,10 +469,10 @@ const ProductDevelopmentWorks = () => {
       {/* Desktop Section */}
       <section
         ref={desktopContainerRef}
-        className="hidden 2xl:block w-full relative bg-white"
+        className="hidden 2xl:block w-full relative bg-white mt-20"
       >
         <div ref={desktopContentRef} className="h-screen w-full">
-          <h1 className="text-3xl lg:text-4xl font-bold font-oswald text-center pt-20">
+          <h1 className="text-40 font-bold font-oswald text-center pt-20">
             How Product Development Works?
           </h1>
           <div className="relative w-full h-full mx-auto">
@@ -514,8 +514,8 @@ const ProductDevelopmentWorks = () => {
       </section>
 
       {/* Mobile Section */}
-      <section className="block 2xl:hidden w-full bg-gradient-to-b from-white to-gray-50 py-8 px-4">
-        <h1 ref={mobileHeadingRef} className="text-2xl font-bold font-oswald text-center mb-12 text-gray-800">
+      <section className="block 2xl:hidden w-full bg-gradient-to-b from-white to-gray-50 py-8 px-4 mt-12">
+        <h1 ref={mobileHeadingRef} className="text-40 font-bold font-oswald text-center mb-12 text-gray-800">
           How Product Development Works?
         </h1>
         <div ref={mobileTimelineRef} className="relative max-w-lg mx-auto">

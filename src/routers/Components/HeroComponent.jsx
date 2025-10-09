@@ -12,17 +12,16 @@ const HeroComponent = () => {
       </h1>
 
       {/* 🛠️ MODIFIED VIDEO CONTAINER AND VIDEO ELEMENT 🛠️ */}
-      <div className="mt-6 md:w-1.5/4 md:h-auto">
-        {/* Video element is perfect and responsive */}
-        <video
-          src={heroVideo}
-          autoPlay
-          loop
-          muted
-          className="w-full h-full object-cover"
-        />
-      </div>
-    </section>
+      <div className="mt-6 w-full md:w-2/5 lg:w-1/3 md:h-auto">
+  <video
+    src={heroVideo}
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="w-full h-full object-cover"
+  />
+</div>    </section>
   );
 };
 

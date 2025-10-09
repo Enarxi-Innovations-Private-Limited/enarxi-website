@@ -150,7 +150,7 @@ const ServicesSection = () => {
   }, []);
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 relative min-h-screen">
+    <section className="padding-y lg:py-20 relative min-h-screen">
       <div className="container mx-auto px-4 md:px-6">
         {/* Header Section */}
         <div

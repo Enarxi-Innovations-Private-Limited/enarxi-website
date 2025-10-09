@@ -347,7 +347,7 @@ export default function OurStats() {
   return (
     <section
       // 👉 CHANGE: Further reduced vertical padding
-      className="relative w-full bg-[#0B1A27] py-10 md:py-12 overflow-hidden"
+      className="relative w-full bg-[#0B1A27] my-12 md:my-16 py-10 md:py-12 overflow-hidden"
       aria-labelledby="stats-heading"
     >
       {/* Background Effects */}

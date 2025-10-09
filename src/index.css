@@ -57,6 +57,9 @@
 
 /* Utilities */
 @layer utilities {
+  .padding-y {
+    @apply py-12 md:py-16
+  }
   .text-oswald-bold {
     font-family: var(--font-oswald), sans-serif;
     font-weight: 700;
