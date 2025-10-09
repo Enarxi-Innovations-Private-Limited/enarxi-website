@@ -347,18 +347,18 @@ export default function OurStats() {
   return (
     <section
       // 👉 CHANGE: Further reduced vertical padding
-      className="relative w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-10 md:py-12 overflow-hidden"
+      className="relative w-full bg-[#0B1A27] py-10 md:py-12 overflow-hidden"
       aria-labelledby="stats-heading"
     >
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(56,189,248,0.1),transparent_50%)]" />
+      {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(56,189,248,0.1),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
-      
+       */}
       {/* ==================================================================
         👉 PINPOINTED: CHANGE THE WIDTH HERE 
         Change max-w-7xl to max-w-6xl, max-w-5xl, etc. to control the width.
         ==================================================================
-      */}
+      // */}
       <div className="relative max-w-6xl mx-auto px-4 md:px-6">
         {/* Optional Section Header */}
         {/* 👉 CHANGE: Further reduced margin-bottom */}
