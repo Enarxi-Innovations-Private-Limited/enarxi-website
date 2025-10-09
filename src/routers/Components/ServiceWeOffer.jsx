@@ -102,41 +102,61 @@
 // export default ServicesSection;
 
 
-
 "use client";
-import React from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import { ArrowRight } from "lucide-react";
 
 import IconProduct from "../../assets/images/product-design.svg";
 import IconMCFirmware from "../../assets/images/mc-firmware.svg";
 import IconPCB from "../../assets/images/pcb-design.svg";
 
-// --- Service Data ---
 const services = [
-  {
-    icon: IconProduct,
-    title: "Product Design & Prototyping",
-    text: "Perfect balance of functionality, transformation, and innovation in electronics.",
-  },
-  {
-    icon: IconMCFirmware,
-    title: "Micro Controller & Processor Coding Services",
-    text: "Advanced firmware solutions for microcontroller and processor boards to complement your product.",
-  },
-  {
-    icon: IconPCB,
-    title: "PCB Design & Fabrication",
-    text: "High-density PCB layouts to meet market demands for sophisticated designs driven by miniaturization and semiconductor technology.",
-  },
+  { icon: IconProduct, title: "Product Design & Prototyping", text: "Perfect balance of functionality, transformation, and innovation in electronics." },
+  { icon: IconMCFirmware, title: "Micro Controller & Processor Coding Services", text: "Advanced firmware solutions for microcontroller and processor boards to complement your product." },
+  { icon: IconPCB, title: "PCB Design & Fabrication", text: "High-density PCB layouts to meet market demands for sophisticated designs driven by miniaturization and semiconductor technology." },
 ];
 
-// --- Main Section ---
 const ServicesSection = () => {
+  const headerRef = useRef(null);
+  const [baseTop, setBaseTop] = useState(280); // fallback
+
+  useLayoutEffect(() => {
+    const mobileExtraGap = 2; // increase for more mobile spacing
+    const desktopExtraGap = 12;
+
+    const compute = () => {
+      const el = headerRef.current;
+      if (!el) return setBaseTop(280);
+      const cs = getComputedStyle(el);
+      const topOffsetPx = parseFloat(cs.top) || 0; // top from CSS (e.g. top-16)
+      const headerHeight = Math.round(el.offsetHeight || 0);
+      const isMobile = window.innerWidth < 768;
+      const extra = isMobile ? mobileExtraGap : desktopExtraGap;
+      setBaseTop(Math.round(topOffsetPx + headerHeight + extra)); // px
+    };
+
+    compute();
+    window.addEventListener("resize", compute);
+    // observe header size changes (fonts, dynamic content)
+    let ro;
+    if (headerRef.current && window.ResizeObserver) {
+      ro = new ResizeObserver(compute);
+      ro.observe(headerRef.current);
+    }
+    return () => {
+      window.removeEventListener("resize", compute);
+      if (ro) ro.disconnect();
+    };
+  }, []);
+
   return (
     <section className="py-12 md:py-16 lg:py-20 relative min-h-screen">
       <div className="container mx-auto px-4 md:px-6">
-        {/* Header Section - Sticky (FIX APPLIED HERE) */}
-        <div className="sticky top-16 md:top-14 z-20 bg-white/95 backdrop-blur-md py-4 md:py-6 -mx-4 md:-mx-6 px-4 md:px-6 mb-6 md:mb-8 flex flex-col items-center border-b border-slate-200/50">
+        {/* Header Section */}
+        <div
+          ref={headerRef}
+          className="sticky top-16 md:top-14 lg:z-20 bg-white/95 backdrop-blur-md py-4 md:py-6 -mx-4 md:-mx-6 px-4 md:px-6 mb-6 md:mb-8 flex flex-col items-center border-b border-slate-200/50"
+        >
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight font-oswald text-slate-900">
             Services We Offer You
           </h2>
@@ -163,9 +183,7 @@ const ServicesSection = () => {
             <div
               key={service.title}
               className="rounded-2xl md:rounded-3xl bg-gray-100 border border-slate-300 px-6 py-6 md:px-8 md:py-8 lg:px-12 lg:py-10 sticky after:pointer-events-none w-full max-w-5xl z-30"
-              style={{
-                top: `calc(280px + ${index * 30}px)`,
-              }}
+              style={{ top: `${baseTop + index * 30}px` }}
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center">
                 <div className="order-2 lg:order-1">
@@ -176,7 +194,7 @@ const ServicesSection = () => {
                   <p className="mt-3 md:mt-4 text-slate-600 text-sm md:text-base leading-relaxed">
                     {service.text}
                   </p>
-                  
+
                   <div className="mt-5 md:mt-6">
                     <a
                       href="/services"
@@ -187,7 +205,7 @@ const ServicesSection = () => {
                     </a>
                   </div>
                 </div>
-                
+
                 <div className="order-1 lg:order-2 flex items-center justify-center lg:justify-end">
                   <div className="rounded-xl md:rounded-2xl bg-white p-5 md:p-6 lg:p-8 ring-1 ring-slate-200 shadow-sm lg:mr-10">
                     <img

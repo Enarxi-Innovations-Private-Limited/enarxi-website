@@ -239,17 +239,17 @@ const CTA = () => {
                   {...register("service", {
                     required: "Please select a service",
                   })}
-                  className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none cursor-pointer ${
+                  className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer transition-all duration-300 ease-in-out bg-white hover:border-[#09B8DC]/50 hover:shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 ${
                     errors.service
-                      ? "border-red-500 focus:ring-red-400"
-                      : "border-slate-300 focus:ring-[#09B8DC]"
+                      ? "border-red-500 focus:ring-red-400 focus:border-red-500"
+                      : "border-slate-300 focus:ring-[#09B8DC] focus:border-[#09B8DC]"
                   }`}
                 >
-                  <option value="">Select a service</option>
-                  <option>Product Design & Prototyping</option>
-                  <option>Micro Controller & Processor Coding</option>
-                  <option>PCB Design & Fabrication</option>
-                  <option>Custom Software Development</option>
+                  <option value="" className="text-slate-400">Select a service</option>
+                  <option className="py-2 hover:bg-[#09B8DC]/10">Product Design & Prototyping</option>
+                  <option className="py-2 hover:bg-[#09B8DC]/10">Micro Controller & Processor Coding</option>
+                  <option className="py-2 hover:bg-[#09B8DC]/10">PCB Design & Fabrication</option>
+                  <option className="py-2 hover:bg-[#09B8DC]/10">Custom Software Development</option>
                 </select>
                 {errors.service && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -259,7 +259,7 @@ const CTA = () => {
               </div>
 
               {/* Reachout */}
-              <div className="relative ">
+              <div className="relative">
                 <label className="block text-sm font-medium text-slate-700">
                   When can we reach out to you?
                 </label>
@@ -268,20 +268,20 @@ const CTA = () => {
                   {...register("reachout", {
                     required: "Please select a time",
                   })}
-                  className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none cursor-pointer ${
+                  className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer transition-all duration-300 ease-in-out bg-white hover:border-[#09B8DC]/50 hover:shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 ${
                     errors.reachout
-                      ? "border-red-500 focus:ring-red-400"
-                      : "border-slate-300 focus:ring-[#09B8DC]"
+                      ? "border-red-500 focus:ring-red-400 focus:border-red-500"
+                      : "border-slate-300 focus:ring-[#09B8DC] focus:border-[#09B8DC]"
                   }`}
                 >
-                  <option className="rounded-xl" value="">
+                  <option value="" className="text-slate-400">
                     Select a convenient time
                   </option>
-                  <option value="Weekdays after 6 PM">
+                  <option value="Weekdays after 6 PM" className="py-2 hover:bg-[#09B8DC]/10">
                     Weekdays after 6 PM
                   </option>
-                  <option value="Weekend after 4 PM">Weekend after 4 PM</option>
-                  <option value="Anytime this week">Anytime this week</option>
+                  <option value="Weekend after 4 PM" className="py-2 hover:bg-[#09B8DC]/10">Weekend after 4 PM</option>
+                  <option value="Anytime this week" className="py-2 hover:bg-[#09B8DC]/10">Anytime this week</option>
                 </select>
 
                 {errors.reachout && (
