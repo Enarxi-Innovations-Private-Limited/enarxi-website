@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import aboutUs1 from '../../assets/aboutus1.png';
+import aboutUs1 from '@assets/aboutus/aboutus1.svg';
 import aboutUsEye from '../../assets/aboutusEye.png';
 import ayazCEO from '../../assets/ayazCEO.jpg';
 import syedCTO from '../../assets/syedCTO.jpg';
@@ -20,6 +20,8 @@ import proMen7 from '@assets/aboutus/pro-men-7.jpg';
 import proMen8 from '@assets/aboutus/pro-men8.jpg';
 import proMen9 from '@assets/aboutus/pro-men9.jpg';
 import proMen10 from '@assets/aboutus/pro-men10.jpg';
+
+import CarouselDemo from '@components/CarouselDemo';
 
 
 export default function AboutUs() {
@@ -88,7 +90,7 @@ export default function AboutUs() {
   return (
     <div className="min-h-screen bg-background text-foreground font-poppins">
       {/* Hero Section */}
-      <section className="py-24 text-center relative overflow-hidden">
+      <section className="py-8 text-center relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -350,6 +352,10 @@ export default function AboutUs() {
           </motion.div>
         </motion.div>
       </section>
+      <h1 className='my-12 text-center font-oswald text-oswald-bold text-40'>Our Team</h1>
+      <div className='mb-12'>
+      <CarouselDemo />
+      </div>
 
       {/* Our Team Section - Optimized */}
       <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto bg-gradient-to-br from-secondary/30 to-primary/5">
