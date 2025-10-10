@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { href, NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Menu } from "lucide-react";
 import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
@@ -11,6 +11,7 @@ const navItems = [
   { label: "Services", href: "/services" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blogs", href: "/blogs" },
+  {label : "Gallery", href: "/gallery"},
   { label: "About Us", href: "/aboutus" },
 ];
 
