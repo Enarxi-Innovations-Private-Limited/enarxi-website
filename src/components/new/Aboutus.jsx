@@ -88,7 +88,7 @@ export default function AboutUs() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-poppins">
+    <div className="min-h-screen bg-background text-foreground font-poppins overflow-hidden">
       {/* Hero Section */}
       <section className="py-8 text-center relative overflow-hidden">
         <motion.div
@@ -352,13 +352,9 @@ export default function AboutUs() {
           </motion.div>
         </motion.div>
       </section>
-      <h1 className='my-12 text-center font-oswald text-oswald-bold text-40'>Our Team</h1>
-      <div className='mb-12'>
-      <CarouselDemo />
-      </div>
 
       {/* Our Team Section - Optimized */}
-      <section className="py-20 px-4 md:px-8 max-w-7xl mx-auto bg-gradient-to-br from-secondary/30 to-primary/5">
+      <section className="py-20 px-4 md:px-8 max-w-7xl rounded-xl mx-auto bg-gradient-to-br from-secondary/100 to-primary/5">
         <motion.h2 
           className="text-3xl md:text-4xl lg:text-5xl font-bold font-oswald text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -368,8 +364,9 @@ export default function AboutUs() {
         >
           Our Team
         </motion.h2>
+           <CarouselDemo />
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {staffsData.staffs.map((staff, index) => (
             <motion.div
               key={index}
@@ -384,7 +381,7 @@ export default function AboutUs() {
               }}
             >
               <div className="relative mb-6 mx-auto w-fit will-change-transform">
-                {/* Static gradient background - no blur animation for performance */}
+                Static gradient background - no blur animation for performance
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
                 
                 <motion.img 
@@ -411,7 +408,7 @@ export default function AboutUs() {
               </p>
             </motion.div>
           ))}
-        </div>
+        </div> */}
       </section>
 
       {/* Our Values Section */}
@@ -437,7 +434,7 @@ export default function AboutUs() {
           {values.map((value, index) => (
             <motion.div
               key={index}
-              className="relative text-center group bg-card/50 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-border/50 hover:shadow-2xl transition-all duration-300 overflow-hidden"
+              className="relative text-center group bg-card/50 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-border/50 transition-all duration-500 overflow-hidden"
               initial={{ opacity: 0, y: 60, scale: 0.8, rotateX: -15 }}
               whileInView={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
               viewport={{ once: true }}
@@ -448,46 +445,24 @@ export default function AboutUs() {
                 delay: index * 0.15
               }}
               whileHover={{ 
-                scale: 1.08, 
-                y: -15,
-                rotateY: 5,
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                y: -8,
+                boxShadow: "0 20px 40px -12px rgba(0, 0, 0, 0.3)"
               }}
             >
-              {/* Animated background gradient on hover */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                initial={{ scale: 0, rotate: 0 }}
-                whileHover={{ scale: 1.5, rotate: 180 }}
-                transition={{ duration: 0.8 }}
-              />
+              {/* Subtle background gradient on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div className="relative z-10">
-                <motion.div 
-                  className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:from-primary/40 group-hover:to-secondary/40 transition-all duration-300"
-                  animate={{
-                    rotate: [0, 5, -5, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    delay: index * 0.2
-                  }}
-                  whileHover={{ 
-                    rotate: 360, 
-                    scale: 1.15,
-                    boxShadow: "0 0 30px rgba(var(--primary), 0.5)"
-                  }}
-                >
-                  <motion.img 
+                {/* Icon container - no rotation animation */}
+                <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl mx-auto mb-6 flex items-center justify-center group-hover:from-primary/30 group-hover:to-secondary/30 group-hover:shadow-lg transition-all duration-500">
+                  <img 
                     src={`${value.icon}`} 
                     alt={`${value.title} icon`} 
-                    className="w-12 h-12 rounded-2xl"
-                    whileHover={{ scale: 1.1 }}
+                    className="w-12 h-12 rounded-2xl transition-transform duration-500 group-hover:scale-110"
                   />
-                </motion.div>
+                </div>
                 
+                {/* Title - keep the animation */}
                 <motion.h3 
                   className="text-xl md:text-2xl font-bold font-oswald mb-4 text-primary group-hover:text-secondary-foreground transition-colors duration-300"
                   whileHover={{ scale: 1.1, y: -2 }}
@@ -496,23 +471,14 @@ export default function AboutUs() {
                   {value.title}
                 </motion.h3>
                 
-                <motion.p 
-                  className="text-muted-foreground text-sm md:text-base leading-relaxed"
-                  initial={{ opacity: 0.8 }}
-                  whileHover={{ opacity: 1, scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                >
+                {/* Description - subtle fade */}
+                <p className="text-muted-foreground text-sm md:text-base leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-300">
                   {value.description}
-                </motion.p>
+                </p>
               </div>
               
-              {/* Animated border effect */}
-              <motion.div
-                className="absolute inset-0 rounded-3xl border-2 border-primary/0 group-hover:border-primary/50"
-                initial={{ scale: 0.95, opacity: 0 }}
-                whileHover={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.4 }}
-              />
+              {/* Subtle border glow on hover */}
+              <div className="absolute inset-0 rounded-3xl border-2 border-primary/0 group-hover:border-primary/30 transition-all duration-500" />
             </motion.div>
           ))}
         </motion.div>

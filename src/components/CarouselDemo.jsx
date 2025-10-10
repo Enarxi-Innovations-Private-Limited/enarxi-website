@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
 
-import React from 'react'
+import React from "react";
 
 const teamMembers = [
   {
@@ -52,7 +52,7 @@ const teamMembers = [
     role: "Data Scientist",
     image: "https://randomuser.me/api/portraits/men/15.jpg",
   },
-]
+];
 
 const CarouselDemo = () => {
   return (
@@ -66,16 +66,29 @@ const CarouselDemo = () => {
         {teamMembers.map((member, index) => (
           <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
             <div className="p-4">
-              <Card className="text-center">
-                <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
+              <Card
+                className="text-center shadow-md rounded-xl transition-transform hover:scale-[1.02] cursor-pointer"
+                style={{
+                  background:
+                    "linear-gradient(to bottom right, #eef8fe, #ffffff)",
+                }}
+              >
+                <CardContent className="flex flex-col items-center p-4 pt-6 h-72">
+                  {/* Image */}
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="w-24 h-24 rounded-full object-cover"
+                    className="aspect-[4.5/5] relative bottom-2 w-24 md:w-28 rounded-xl object-cover border border-gray-200 shadow-sm"
                   />
-                  <div>
+
+                  {/* Text Section */}
+                  <div className="mt-3 relative top-10 -mb-2 text-center">
+                    {" "}
+                    {/* 👈 Space above, move up a bit with -mb */}
                     <h3 className="text-lg font-semibold">{member.name}</h3>
-                    <p className="text-sm text-muted-foreground">{member.role}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {member.role}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -86,7 +99,7 @@ const CarouselDemo = () => {
       <CarouselPrevious />
       <CarouselNext />
     </Carousel>
-  )
-}
+  );
+};
 
-export default CarouselDemo
+export default CarouselDemo;
