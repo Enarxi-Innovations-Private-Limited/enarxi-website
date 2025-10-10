@@ -6,6 +6,8 @@
 export async function uploadToCloudinary(file) {
   const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  console.log(import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
+  console.log(import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
 
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
     throw new Error('Cloudinary configuration missing. Please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET');
@@ -70,8 +72,22 @@ export async function deleteFromCloudinary(publicId) {
   const API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY;
   const API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET;
   
+  // Debug logging to help identify the issue
+  console.log('🔍 Cloudinary Delete - Environment Check:');
+  console.log('  CLOUD_NAME:', CLOUD_NAME ? `✅ Set (${CLOUD_NAME})` : '❌ Missing');
+  console.log('  API_KEY:', API_KEY ? `✅ Set (${API_KEY.substring(0, 4)}...)` : '❌ Missing');
+  console.log('  API_SECRET:', API_SECRET ? `✅ Set (${API_SECRET.substring(0, 4)}...)` : '❌ Missing');
+  
   if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
-    throw new Error('Cloudinary credentials missing. Please set VITE_CLOUDINARY_CLOUD_NAME, VITE_CLOUDINARY_API_KEY, and VITE_CLOUDINARY_API_SECRET');
+    const missing = [];
+    if (!CLOUD_NAME) missing.push('VITE_CLOUDINARY_CLOUD_NAME');
+    if (!API_KEY) missing.push('VITE_CLOUDINARY_API_KEY');
+    if (!API_SECRET) missing.push('VITE_CLOUDINARY_API_SECRET');
+    
+    throw new Error(
+      `Cloudinary credentials missing: ${missing.join(', ')}. ` +
+      `Please check your .env file has real values (not placeholders like "your_cloud_name") and restart your dev server.`
+    );
   }
 
   if (!publicId) {
