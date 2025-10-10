@@ -1,13 +1,14 @@
 /**
  * Upload image to Cloudinary
  * @param {File} file - Image file to upload
+ * @param {string} uploadPreset - Optional upload preset (defaults to VITE_CLOUDINARY_UPLOAD_PRESET)
  * @returns {Promise<Object>} - Object with url and publicId
  */
-export async function uploadToCloudinary(file) {
+export async function uploadToCloudinary(file, uploadPreset = null) {
   const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  const UPLOAD_PRESET = uploadPreset || import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
   console.log(import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
-  console.log(import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+  console.log('Using upload preset:', UPLOAD_PRESET)
 
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
     throw new Error('Cloudinary configuration missing. Please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET');
@@ -16,7 +17,6 @@ export async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);
-  formData.append("folder", "enarxi/blogs"); // Organize in folder
 
   try {
     const res = await fetch(

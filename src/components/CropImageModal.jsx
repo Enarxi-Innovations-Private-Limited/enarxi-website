@@ -6,16 +6,17 @@ import { getCroppedImg } from '@/utils/imageCropUtils';
 
 /**
  * CropImageModal Component
- * A responsive modal for cropping images to 16:9 aspect ratio
+ * A responsive modal for cropping images to specified aspect ratio
  * 
  * @param {Object} props
  * @param {boolean} props.isOpen - Modal open state
  * @param {string} props.imageSrc - Source image URL
  * @param {string} props.fileName - Original file name
+ * @param {number} props.aspect - Aspect ratio (default: 16/9)
  * @param {Function} props.onCropComplete - Callback with cropped image file
  * @param {Function} props.onCancel - Callback when user cancels
  */
-const CropImageModal = ({ isOpen, imageSrc, fileName, onCropComplete, onCancel }) => {
+const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropComplete, onCancel }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -123,8 +124,8 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, onCropComplete, onCancel }
                   <Crop className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Crop Image to 16:9</h2>
-                  <p className="text-sm text-gray-500">Adjust the crop area to fit your blog post</p>
+                  <h2 className="text-xl font-bold text-gray-900">Crop Image to {aspect === 16/9 ? '16:9' : aspect === 4/5 ? '4:5' : 'Custom'}</h2>
+                  <p className="text-sm text-gray-500">Adjust the crop area to fit your image</p>
                 </div>
               </div>
               <button
@@ -143,7 +144,7 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, onCropComplete, onCancel }
                 crop={crop}
                 zoom={zoom}
                 rotation={rotation}
-                aspect={16 / 9}
+                aspect={aspect}
                 onCropChange={onCropChange}
                 onZoomChange={onZoomChange}
                 onCropComplete={onCropCompleteCallback}
