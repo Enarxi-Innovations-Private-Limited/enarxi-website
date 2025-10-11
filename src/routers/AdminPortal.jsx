@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logout from "@/assets/logout.png";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import Sidebar from "./admin/Sidebar";
 import DashboardStats from "./admin/DashboardStats";
 import StaffTable from "./admin/StaffTable";
@@ -12,10 +13,20 @@ import { useAuth } from "@/AuthProvider";
 import Logout from "@/routers/admin/Logout";
 
 const AdminPortal = () => {
+  const location = useLocation();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const {user,firebaseUser} = useAuth();
+
+  // Handle navigation from quick actions
+  useEffect(() => {
+    if (location.state?.section) {
+      setActiveSection(location.state.section);
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -83,6 +94,10 @@ const AdminPortal = () => {
               </button>
               <h1 className="text-2xl font-bold text-[#0A1524] ml-2 lg:ml-0">
                 {activeSection === "dashboard" && "Dashboard"}
+                {activeSection === "staff" && "Staff Management"}
+                {activeSection === "team" && "Team Members"}
+                {activeSection === "blogs" && "Blog Management"}
+                {activeSection === "reviews" && "Customer Reviews"}
               </h1>
             </div>
             <div className="flex items-center space-x-3">

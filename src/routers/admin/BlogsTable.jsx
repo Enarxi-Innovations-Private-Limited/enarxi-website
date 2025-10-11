@@ -5,8 +5,11 @@ import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc }
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
 import { extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinary';
+import { logAdminActivity } from '@/utils/adminActivityLogger';
+import { useAuth } from '@/AuthProvider';
 
 const BlogsTable = () => {
+  const { firebaseUser } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +59,18 @@ const BlogsTable = () => {
       await updateDoc(blogRef, {
         isAdminAccepted: true,
       });
+      
+      // Log activity
+      if (firebaseUser) {
+        await logAdminActivity(
+          firebaseUser.uid,
+          firebaseUser.displayName || firebaseUser.email,
+          'approved_blog',
+          `Approved blog: "${blogTitle}"`,
+          { blogId, blogTitle }
+        );
+      }
+      
       toast.success(`Blog "${blogTitle}" approved successfully!`);
       fetchBlogs(); // Refresh the list
     } catch (error) {
@@ -141,6 +156,17 @@ const BlogsTable = () => {
       toast.loading('Deleting blog from database...', { id: toastId });
       await deleteDoc(doc(db, 'blogs', blogId));
       console.log(`✅ Deleted blog from Firestore: ${blogId}`);
+      
+      // Log activity
+      if (firebaseUser) {
+        await logAdminActivity(
+          firebaseUser.uid,
+          firebaseUser.displayName || firebaseUser.email,
+          'deleted_blog',
+          `Deleted blog: "${blogTitle}"`,
+          { blogId, blogTitle, imagesDeleted: deletedImagesCount }
+        );
+      }
       
       // Step 3: Show success message based on results
       toast.dismiss(toastId);

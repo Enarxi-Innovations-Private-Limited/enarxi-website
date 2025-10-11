@@ -92,9 +92,10 @@ export default function Login() {
           {/* Header with icon */}
           <motion.div variants={itemVariants} className="flex flex-col items-center mb-8">
             <motion.div
-              whileHover={{ rotate: 360, scale: 1.1 }}
+            initial={{ filter: "drop-shadow(0px 0px 0px rgba(0,0,0,0))" }}
+              whileHover={{ scale: 1.1, filter: "drop-shadow(0px 8px 10px rgba(0, 0, 0, 0.25))", }}
               transition={{ duration: 0.6 }}
-              className="bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-2xl mb-4 shadow-lg"
+              className="bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-2xl mb-4"
             >
               <ShieldCheck className="w-8 h-8 text-white" />
             </motion.div>

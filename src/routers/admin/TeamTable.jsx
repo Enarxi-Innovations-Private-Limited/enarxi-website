@@ -17,6 +17,8 @@ import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
 import { extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinary';
 import AddEditTeamModal from './AddEditTeamModal';
+import { logAdminActivity } from '@/utils/adminActivityLogger';
+import { useAuth } from '@/AuthProvider';
 import {
   DndContext,
   closestCenter,
@@ -145,6 +147,7 @@ const SortableRow = ({ member, onEdit, onDelete, onToggleVisibility }) => {
 };
 
 const TeamTable = () => {
+  const { firebaseUser } = useAuth();
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -225,6 +228,18 @@ const TeamTable = () => {
         visibility: !member.visibility,
         updatedAt: serverTimestamp(),
       });
+      
+      // Log activity
+      if (firebaseUser) {
+        await logAdminActivity(
+          firebaseUser.uid,
+          firebaseUser.displayName || firebaseUser.email,
+          'updated_team_visibility',
+          `${!member.visibility ? 'Showed' : 'Hidden'} team member: ${member.name}`,
+          { memberId: member.id, memberName: member.name, visibility: !member.visibility }
+        );
+      }
+      
       toast.success(
         `Team member ${!member.visibility ? 'shown' : 'hidden'} successfully`
       );
@@ -275,6 +290,17 @@ const TeamTable = () => {
       toast.loading('Deleting member from database...', { id: toastId });
       await deleteDoc(doc(db, 'teamMembers', member.id));
       console.log(`✅ Deleted member from Firestore: ${member.id}`);
+
+      // Log activity
+      if (firebaseUser) {
+        await logAdminActivity(
+          firebaseUser.uid,
+          firebaseUser.displayName || firebaseUser.email,
+          'deleted_team_member',
+          `Deleted team member: ${member.name}`,
+          { memberId: member.id, memberName: member.name, role: member.role }
+        );
+      }
 
       toast.dismiss(toastId);
       toast.success(`Team member "${member.name}" deleted successfully!`);

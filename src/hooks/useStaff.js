@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { db, secondaryAuth } from '@/lib/firebase'; // Use secondaryAuth for creation
+import { db, secondaryAuth, auth } from '@/lib/firebase'; // Use secondaryAuth for creation
 import {
   collection,
   getDocs,
@@ -10,6 +10,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { logAdminActivity } from '@/utils/adminActivityLogger';
 
 export const useStaff = () => {
   const [staff, setStaff] = useState([]);
@@ -51,6 +52,18 @@ export const useStaff = () => {
         updatedAt: serverTimestamp(),
       });
 
+      // Log activity
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        await logAdminActivity(
+          currentUser.uid,
+          currentUser.displayName || currentUser.email,
+          'added_staff',
+          `Added new ${role}: ${name}`,
+          { staffId: newUser.uid, staffName: name, staffEmail: email, role }
+        );
+      }
+
       // Refresh the staff list to show the new member
       fetchStaff();
     } catch (err) {
@@ -75,6 +88,19 @@ export const useStaff = () => {
         ...updatedData,
         updatedAt: serverTimestamp(),
       });
+      
+      // Log activity
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        await logAdminActivity(
+          currentUser.uid,
+          currentUser.displayName || currentUser.email,
+          'updated_staff',
+          `Updated staff member: ${updatedData.name || staffId}`,
+          { staffId, updates: updatedData }
+        );
+      }
+      
       // Refresh the local state to show the update immediately
       await fetchStaff();
     } catch (err) {

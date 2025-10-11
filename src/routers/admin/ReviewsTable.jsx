@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, CheckCircle, Trash2, Star, X, Mail } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';// adjust path if needed
+import { supabase } from '@/lib/supabaseClient';
+import { logAdminActivity } from '@/utils/adminActivityLogger';
+import { useAuth } from '@/AuthProvider';
 
 const ReviewsTable = () => {
+  const { firebaseUser } = useAuth();
   const [reviewsData, setReviewsData] = useState([]);
   const [selectedReview, setSelectedReview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +34,7 @@ const ReviewsTable = () => {
 
   // Approve / Reject handlers
   const handleUpdateStatus = async (reviewId, newStatus) => {
+    const review = reviewsData.find(r => r.id === reviewId);
     const { error } = await supabase
       .from('Testimonial Form')
       .update({ status: newStatus })
@@ -40,6 +44,19 @@ const ReviewsTable = () => {
       console.error(`Error updating review ${reviewId}:`, error);
       alert('Failed to update review status.');
     } else {
+      // Log activity
+      if (firebaseUser && review) {
+        const action = newStatus === 'approved' ? 'approved_review' : 'rejected_review';
+        const description = `${newStatus === 'approved' ? 'Approved' : 'Rejected'} review from ${review.customer_name || 'Anonymous'}`;
+        await logAdminActivity(
+          firebaseUser.uid,
+          firebaseUser.displayName || firebaseUser.email,
+          action,
+          description,
+          { reviewId, customerName: review.customer_name, status: newStatus }
+        );
+      }
+      
       fetchReviews(); // refresh after update
       setSelectedReview(null);
     }
