@@ -285,7 +285,7 @@ const Gallery = () => {
           >
             
             {/* Left: Image Carousel */}
-            <div className="w-full md:w-3/5 h-[45vh] md:h-full relative bg-gradient-to-br from-gray-900 to-gray-800 flex-shrink-0">
+            <div className="w-full md:w-3/5 h-[30vh] md:h-full relative bg-gradient-to-br from-gray-900 to-gray-800 flex-shrink-0">
               <img
                 src={galleries[selectedIndex - 1].images[modalImageIndex]}
                 alt={galleries[selectedIndex - 1].title}
