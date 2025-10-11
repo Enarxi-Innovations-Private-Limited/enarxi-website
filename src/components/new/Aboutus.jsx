@@ -366,7 +366,8 @@ export default function AboutUs() {
           >
             <motion.div
               className="relative mb-8 mx-auto w-fit"
-              whileHover={{ rotate: 5 }}
+              whileHover={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
               <img
@@ -405,7 +406,8 @@ export default function AboutUs() {
           >
             <motion.div
               className="relative mb-8 mx-auto w-fit"
-              whileHover={{ rotate: -5 }}
+              whileHover={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-secondary/30 to-primary/30 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-300"></div>
               <img
@@ -421,7 +423,7 @@ export default function AboutUs() {
               Mr. Syed Sameeullah
             </motion.h3>
             <motion.p
-              className="text-muted-foreground text-lg font-medium"
+              className="text-muted-foreground text-lg font-poppins"
               whileHover={{ color: "hsl(var(--secondary-foreground))" }}
             >
               CTO & Founder
@@ -530,8 +532,8 @@ export default function AboutUs() {
                   boxShadow: "0 20px 40px -12px rgba(0, 0, 0, 0.3)",
                 }}
                 transition={{
-                  y: {  duration: 0.1, ease: "easeOut" },
-                  boxShadow: {  duration: 0.4, ease: "easeOut" },
+                  y: { duration: 0.1, ease: "easeOut" },
+                  boxShadow: { duration: 0.4, ease: "easeOut" },
                 }}
                 className="relative h-full flex flex-col justify-between text-center group bg-card/50 backdrop-blur-sm rounded-3xl p-8 shadow-lg border border-border/50 transition-all duration-500 overflow-hidden"
               >
