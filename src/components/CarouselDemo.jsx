@@ -18,6 +18,9 @@ const CarouselDemo = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [api, setApi] = useState(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const carouselRef = React.useRef(null);
 
   useEffect(() => {
     // Create query to fetch team members ordered by the order field
@@ -59,6 +62,44 @@ const CarouselDemo = () => {
     return () => unsubscribe();
   }, []);
 
+  // Auto-scroll hint animation on mobile when carousel comes into view
+  useEffect(() => {
+    if (!api || hasAnimated || teamMembers.length <= 1) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            // Check if mobile device
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+              // Wait a bit after the section is visible
+              setTimeout(() => {
+                api.scrollNext();
+                // Scroll back to original position
+                setTimeout(() => {
+                  api.scrollPrev();
+                  setHasAnimated(true);
+                }, 600);
+              }, 300);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    if (carouselRef.current) {
+      observer.observe(carouselRef.current);
+    }
+
+    return () => {
+      if (carouselRef.current) {
+        observer.unobserve(carouselRef.current);
+      }
+    };
+  }, [api, hasAnimated, teamMembers.length]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -84,12 +125,14 @@ const CarouselDemo = () => {
   }
 
   return (
-    <Carousel
-      opts={{
-        align: "center",
-      }}
-      className="w-full max-w-6xl mx-auto"
-    >
+    <div ref={carouselRef}>
+      <Carousel
+        setApi={setApi}
+        opts={{
+          align: "center",
+        }}
+        className="w-full max-w-6xl mx-auto"
+      >
       <CarouselContent>
         {teamMembers.map((member, index) => (
           <CarouselItem key={member.id} className="md:basis-1/2 lg:basis-1/3">
@@ -128,9 +171,10 @@ const CarouselDemo = () => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious className="left-2 md:-left-12" />
+      <CarouselNext className="right-2 md:-right-12" />
     </Carousel>
+    </div>
   );
 };
 
