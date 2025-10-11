@@ -15,7 +15,7 @@ export function isAspectRatio16x9(width, height, tolerance = 0.02) {
   const actualRatio = width / height;
   const difference = Math.abs(actualRatio - targetRatio);
   const allowedDifference = targetRatio * tolerance;
-  
+
   return difference <= allowedDifference;
 }
 
@@ -28,7 +28,7 @@ export function getImageDimensions(file) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    
+
     img.onload = () => {
       URL.revokeObjectURL(url);
       resolve({
@@ -36,12 +36,12 @@ export function getImageDimensions(file) {
         height: img.height,
       });
     };
-    
+
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image'));
+      reject(new Error("Failed to load image"));
     };
-    
+
     img.src = url;
   });
 }
@@ -55,57 +55,95 @@ export function getImageDimensions(file) {
  */
 export async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
   const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
   if (!ctx) {
-    throw new Error('No 2d context');
+    throw new Error("No 2d context");
   }
 
-  // Calculate bounding box of the rotated image
   const rotRad = getRadianAngle(rotation);
-  const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
-    image.width,
-    image.height,
-    rotation
-  );
 
-  // Set canvas size to match the bounding box
-  canvas.width = bBoxWidth;
-  canvas.height = bBoxHeight;
-
-  // Translate canvas context to a central location to allow rotating and flipping around the center
-  ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
-  ctx.rotate(rotRad);
-  ctx.translate(-image.width / 2, -image.height / 2);
-
-  // Draw rotated image
-  ctx.drawImage(image, 0, 0);
-
-  // Create data for the cropped image
-  const data = ctx.getImageData(
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height
-  );
-
-  // Set canvas width to final desired crop size
+  // Set canvas size to the final crop size
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
 
-  // Paste generated rotate image at the top left corner
-  ctx.putImageData(data, 0, 0);
+  // Enable high-quality image smoothing
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
+  // If there's rotation, we need to handle it differently
+  if (rotation !== 0) {
+    // Calculate bounding box of the rotated image
+    const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+      image.width,
+      image.height,
+      rotation
+    );
+
+    // Create temporary canvas for rotation
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    if (!tempCtx) {
+      throw new Error("No 2d context for temp canvas");
+    }
+
+    tempCanvas.width = bBoxWidth;
+    tempCanvas.height = bBoxHeight;
+
+    // Enable high-quality image smoothing for temp canvas
+    tempCtx.imageSmoothingEnabled = true;
+    tempCtx.imageSmoothingQuality = "high";
+
+    // Translate and rotate on temp canvas
+    tempCtx.translate(bBoxWidth / 2, bBoxHeight / 2);
+    tempCtx.rotate(rotRad);
+    tempCtx.translate(-image.width / 2, -image.height / 2);
+    tempCtx.drawImage(image, 0, 0);
+
+    // Draw the cropped area from temp canvas to final canvas
+    ctx.drawImage(
+      tempCanvas,
+      Math.round(pixelCrop.x),
+      Math.round(pixelCrop.y),
+      Math.round(pixelCrop.width),
+      Math.round(pixelCrop.height),
+      0,
+      0,
+      Math.round(pixelCrop.width),
+      Math.round(pixelCrop.height)
+    );
+  } else {
+    // No rotation - direct crop from source image
+    ctx.drawImage(
+      image,
+      Math.round(pixelCrop.x),
+      Math.round(pixelCrop.y),
+      Math.round(pixelCrop.width),
+      Math.round(pixelCrop.height),
+      0,
+      0,
+      Math.round(pixelCrop.width),
+      Math.round(pixelCrop.height)
+    );
+  }
 
   // Return as blob
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error('Canvas is empty'));
-        return;
-      }
-      resolve(blob);
-    }, 'image/jpeg', 0.95);
+    // Determine MIME type from image source
+    const mimeType = imageSrc.startsWith("data:image/png") ? "image/png" : "image/jpeg";
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Canvas is empty"));
+          return;
+        }
+        resolve(blob);
+      },
+      mimeType,
+      0.95
+    );
   });
 }
 
@@ -117,9 +155,9 @@ export async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
 function createImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.addEventListener('load', () => resolve(image));
-    image.addEventListener('error', (error) => reject(error));
-    image.setAttribute('crossOrigin', 'anonymous');
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.setAttribute("crossOrigin", "anonymous");
     image.src = url;
   });
 }
@@ -172,18 +210,18 @@ export function blobToFile(blob, fileName) {
 export function validateImageFile(file) {
   // Check if file exists
   if (!file) {
-    return { valid: false, error: 'No file selected' };
+    return { valid: false, error: "No file selected" };
   }
 
   // Check file type
-  if (!file.type.startsWith('image/')) {
-    return { valid: false, error: 'File must be an image' };
+  if (!file.type.startsWith("image/")) {
+    return { valid: false, error: "File must be an image" };
   }
 
   // Check file size (max 10MB)
   const maxSize = 10 * 1024 * 1024; // 10MB
   if (file.size > maxSize) {
-    return { valid: false, error: 'Image size must be less than 10MB' };
+    return { valid: false, error: "Image size must be less than 10MB" };
   }
 
   return { valid: true };

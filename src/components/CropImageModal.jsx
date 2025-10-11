@@ -148,9 +148,10 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
                 onCropChange={onCropChange}
                 onZoomChange={onZoomChange}
                 onCropComplete={onCropCompleteCallback}
-                objectFit="contain"
+                objectFit="vertical-cover"
                 showGrid={true}
                 cropShape="rect"
+                restrictPosition={false}
                 style={{
                   containerStyle: {
                     backgroundColor: '#111827',
