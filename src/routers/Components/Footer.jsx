@@ -29,9 +29,9 @@ const Footer = () => {
           </h3>
           <div className="text-footer-foreground space-y-2">
             <p>Enarxi Innovations Pvt Ltd,</p>
-            <p>18/2, 2nd floor, Valluvan St,</p>
-            <p>Purasaiwakkam,</p>
-            <p>Chennai, Tamil Nadu 600007</p>
+            <p>No: 23, Ground Floor, 1st cross street, Sripuram colony, Viralur</p>
+            <p>St.thomas Mount</p>
+            <p>Chennai, Tamil Nadu 600016</p>
           </div>
         </div>
 

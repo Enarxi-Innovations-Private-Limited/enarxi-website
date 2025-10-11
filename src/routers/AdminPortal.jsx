@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./admin/Sidebar";
 import DashboardStats from "./admin/DashboardStats";
 import StaffTable from "./admin/StaffTable";
+import TeamTable from "./admin/TeamTable";
 import BlogsTable from "./admin/BlogsTable";
 import ReviewsTable from "./admin/ReviewsTable";
 
@@ -22,6 +23,8 @@ const AdminPortal = () => {
         return <DashboardStats />;
       case "staff":
         return <StaffTable />;
+      case "team":
+        return <TeamTable />;
       case "blogs":
         return <BlogsTable />;
       case "reviews":

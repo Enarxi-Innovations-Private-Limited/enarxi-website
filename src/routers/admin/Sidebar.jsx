@@ -20,6 +20,11 @@ const Sidebar = ({
       icon: Users,
     },
     {
+      id: "team",
+      label: "Our Team",
+      icon: Users,
+    },
+    {
       id: "blogs",
       label: "Blog Review Section",
       icon: FileText,

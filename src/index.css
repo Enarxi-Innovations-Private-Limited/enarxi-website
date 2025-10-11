@@ -20,7 +20,8 @@
   /* Primary/Background */
   --color-primary: #28627B;
   --color-primary-dark: #1e40af;
-  --color-secondary: #F7DBA7;
+  /* --color-secondary: #F7DBA7; */
+  --color-secondary: #eef8fe;
   --color-bg: #111827;
   --color-bg-alt: #1f2937;
   --color-text: #d1d5db;
