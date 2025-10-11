@@ -4,7 +4,7 @@ import { X, Upload, Loader2, User } from 'lucide-react';
 import { doc, addDoc, updateDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
+import { uploadToCloudinary, extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinary';
 import CropImageModal from '@/components/CropImageModal';
 
 const AddEditTeamModal = ({ isOpen, onClose, member, existingMembersCount }) => {
@@ -184,8 +184,35 @@ const AddEditTeamModal = ({ isOpen, onClose, member, existingMembersCount }) => 
           updatedAt: serverTimestamp(),
         };
 
-        // Only update images if new image was uploaded
-        if (imageData) {
+        // Atomic deletion: If new image was uploaded, delete old image first
+        if (imageData && member.images && member.images.length > 0) {
+          toast.loading('Deleting old image from Cloudinary...', { id: toastId });
+          
+          const oldImageData = member.images[0];
+          const oldPublicId = oldImageData.publicId || extractPublicId(oldImageData.url);
+
+          if (oldPublicId) {
+            // Delete old image from Cloudinary FIRST
+            const deleteResult = await deleteFromCloudinary(oldPublicId);
+
+            if (!deleteResult.success) {
+              // If Cloudinary deletion fails, abort the entire update
+              toast.error(
+                'Failed to delete old image from Cloudinary. Update aborted to maintain data integrity.',
+                { id: toastId }
+              );
+              setLoading(false);
+              return;
+            }
+
+            console.log(`✅ Deleted old image from Cloudinary: ${oldPublicId}`);
+          }
+
+          // Only update with new image if old image deletion succeeded
+          updateData.images = [imageData];
+          toast.loading('Updating team member...', { id: toastId });
+        } else if (imageData) {
+          // No old image exists, just add the new one
           updateData.images = [imageData];
         }
 
