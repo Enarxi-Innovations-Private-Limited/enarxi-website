@@ -15,7 +15,7 @@ const AdminPortal = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const {user} = useAuth();
+  const {user,firebaseUser} = useAuth();
 
   const renderContent = () => {
     switch (activeSection) {
@@ -88,7 +88,7 @@ const AdminPortal = () => {
             <div className="flex items-center space-x-3">
               {user && (
                 <span className="text-sm font-medium text-gray-700">
-                  {user.displayName || user.email?.split('@')[0] || 'Admin'}
+                  {firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Admin'}
                 </span>
               )}
               <div className="text-sm text-gray-500">Admin Portal</div> 
