@@ -218,7 +218,7 @@ const ProductDevelopmentWorks = () => {
         className="hidden 2xl:block w-full relative bg-white mt-20"
       >
         <div ref={desktopContentRef} className="h-screen w-full">
-          <h1 className="text-40 font-bold font-oswald text-center pt-20">
+          <h1 className="text-40 font-bold font-oswald text-center mt-16">
             How Product Development Works?
           </h1>
           <div className="relative w-full h-full mx-auto">

@@ -3,8 +3,21 @@ import { collection, query, where, orderBy, onSnapshot } from "firebase/firestor
 import { db } from "../lib/firebase";
 import { Loader2 } from "lucide-react";
 
-const GalleryItem = ({ thumbnail, title, imageCount, onClick }) => {
+const GalleryItem = ({ images, thumbnail, title, imageCount, onClick }) => {
+  const [currentImage, setCurrentImage] = useState(0);
   const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (hovered && images && images.length > 1) {
+      interval = setInterval(() => {
+        setCurrentImage((prev) => (prev + 1) % images.length);
+      }, 1200);
+    } else {
+      setCurrentImage(0);
+    }
+    return () => clearInterval(interval);
+  }, [hovered, images]);
 
   return (
     <div
@@ -14,17 +27,30 @@ const GalleryItem = ({ thumbnail, title, imageCount, onClick }) => {
       onClick={onClick}
     >
       <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden">
-        <img
-          src={thumbnail}
-          alt={title}
-          className="w-full h-full object-contain transition-all duration-700 hover:scale-105"
-        />
+        {images && images.length > 0 ? (
+          images.map((img, idx) => (
+            <img
+              key={idx}
+              src={img.url}
+              alt={img.title || title}
+              className={`absolute top-0 left-0 w-full h-full object-contain transition-all duration-700 ${
+                idx === currentImage ? "opacity-100 scale-100" : "opacity-0 scale-110"
+              }`}
+            />
+          ))
+        ) : (
+          <img
+            src={thumbnail}
+            alt={title}
+            className="w-full h-full object-contain transition-all duration-700"
+          />
+        )}
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
         {/* Image counter indicator */}
         <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 md:px-3 rounded-full font-medium">
-          {imageCount} {imageCount === 1 ? 'Image' : 'Images'}
+          {images && images.length > 1 ? `${currentImage + 1} / ${images.length}` : `${imageCount} ${imageCount === 1 ? 'Image' : 'Images'}`}
         </div>
       </div>
       
@@ -168,7 +194,8 @@ const Gallery = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 w-[90%] max-w-7xl mx-auto">
           {galleries.map((item) => (
             <GalleryItem 
-              key={item.id} 
+              key={item.id}
+              images={item.images}
               thumbnail={item.thumbnail?.url} 
               title={item.title} 
               imageCount={item.images?.length || 0}
