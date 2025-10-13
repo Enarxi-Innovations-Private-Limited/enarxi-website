@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, FileText, Star, X } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Star, X, Images } from "lucide-react";
 
 const Sidebar = ({
   activeSection,
@@ -33,6 +33,11 @@ const Sidebar = ({
       id: "reviews",
       label: "Customer Review Section",
       icon: Star,
+    },
+    {
+      id: "gallery",
+      label: "Gallery Management",
+      icon: Images,
     },
   ];
 
