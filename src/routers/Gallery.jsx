@@ -1,33 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { Loader2 } from "lucide-react";
 
-import gallery1 from "../assets/images/gallery-1.jpg";
-import gallery2 from "../assets/images/gallery-2.jpg";
-import gallery3 from "../assets/images/gallery-3.jpg";
-import gallery4 from "../assets/images/gallery-4.jpg";
-import gallery5 from "../assets/images/gallery-5.svg";
-import gallery6 from "../assets/images/gallery-6.svg";
-import gallery7 from "../assets/images/gallery-7.svg";
-import gallery8 from "../assets/images/gallery-8.svg";
-import gallery9 from "../assets/images/gallery-9.svg";
-import gallery10 from "../assets/images/gallery-10.svg";
-import gallery11 from "../assets/images/gallery-11.svg";
-import gallery12 from "../assets/images/gallery-12.svg";
-
-const GalleryItem = ({ images, title, onClick }) => {
-  const [currentImage, setCurrentImage] = useState(0);
+const GalleryItem = ({ thumbnail, title, imageCount, onClick }) => {
   const [hovered, setHovered] = useState(false);
-
-  useEffect(() => {
-    let interval;
-    if (hovered) {
-      interval = setInterval(() => {
-        setCurrentImage((prev) => (prev + 1) % images.length);
-      }, 1200);
-    } else {
-      setCurrentImage(0);
-    }
-    return () => clearInterval(interval);
-  }, [hovered, images.length]);
 
   return (
     <div
@@ -37,22 +14,17 @@ const GalleryItem = ({ images, title, onClick }) => {
       onClick={onClick}
     >
       <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden">
-        {images.map((img, idx) => (
-          <img
-            key={idx}
-            src={img}
-            alt={title}
-            className={`absolute top-0 left-0 w-full h-full object-contain transition-all duration-700 ${
-              idx === currentImage ? "opacity-100 scale-100" : "opacity-0 scale-110"
-            }`}
-          />
-        ))}
+        <img
+          src={thumbnail}
+          alt={title}
+          className="w-full h-full object-contain transition-all duration-700 hover:scale-105"
+        />
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         
         {/* Image counter indicator */}
         <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 md:px-3 rounded-full font-medium">
-          {currentImage + 1} / {images.length}
+          {imageCount} {imageCount === 1 ? 'Image' : 'Images'}
         </div>
       </div>
       
@@ -72,118 +44,43 @@ const GalleryItem = ({ images, title, onClick }) => {
 };
 
 const Gallery = () => {
-
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [galleries, setGalleries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
 
-  const galleries = [
-    { 
-      id: 1, 
-      images: [gallery1, gallery2, gallery3], 
-      title: "CPU Microchip Electronic Components",
-      imageDescriptions: [
-        {
-          heading: "CPU Architecture & Core Components",
-          description: "A CPU microchip is the central computing unit of any electronic system, built from billions of transistors etched on a silicon wafer. It includes the Arithmetic Logic Unit (ALU), Control Unit (CU), and registers, along with cache memory and multi-core architectures for parallel processing.",
-          details: "Modern CPUs feature multiple cores, each capable of executing instructions independently. The integration of L1, L2, and L3 cache hierarchies ensures rapid data access, while advanced branch prediction and out-of-order execution maximize throughput.",
-          industry: "Industry leaders such as Intel, AMD, TSMC, and Samsung operate at 3nm process nodes, advancing transistor design and efficiency."
-        },
-        {
-          heading: "Semiconductor Fabrication Process",
-          description: "Fabrication involves photolithography, doping, etching, and metallization, using nanometer-scale EUV (Extreme Ultraviolet) technology. This process creates intricate circuit patterns on silicon wafers with precision down to atomic layers.",
-          details: "Materials like copper interconnects and high-k metal gates reduce power loss and improve signal integrity. The manufacturing process takes place in ultra-clean rooms with air quality 10,000 times cleaner than a hospital operating room.",
-          industry: "TSMC and Samsung lead in advanced node manufacturing, with ASML providing cutting-edge EUV lithography equipment for sub-5nm production."
-        },
-        {
-          heading: "Testing & Quality Assurance",
-          description: "After fabrication, each chip undergoes rigorous testing including wafer-level testing, burn-in tests, and functional verification. Only chips that pass all quality benchmarks are packaged and shipped.",
-          details: "Advanced testing methodologies include thermal cycling, voltage stress testing, and performance validation across different operating conditions. Chips are binned based on their performance characteristics, with higher-performing units sold as premium products.",
-          industry: "Quality standards like JEDEC and ISO 9001 ensure reliability, with major manufacturers achieving defect rates below 0.1% through automated inspection and AI-driven quality control."
-        }
-      ]
-    },
-    { 
-      id: 2, 
-      images: [gallery4, gallery5, gallery6], 
-      title: "Mobile Phone Chip Manufacturing",
-      imageDescriptions: [
-        {
-          heading: "System-on-Chip (SoC) Integration",
-          description: "Mobile chips or System-on-Chips (SoCs) combine CPU, GPU, modem, DSP, and AI accelerators into one compact silicon die. Design starts with RTL coding and verification, followed by wafer fabrication using FinFET or GAAFET transistors at 5nm or smaller.",
-          details: "SoCs integrate heterogeneous computing elements including high-performance cores, efficiency cores, neural processing units (NPUs), and image signal processors (ISPs). This integration reduces power consumption and improves performance per watt.",
-          industry: "Qualcomm's Snapdragon, Apple's A-series and M-series, and MediaTek's Dimensity chips lead the mobile SoC market with advanced 4nm and 3nm process technologies."
-        },
-        {
-          heading: "Advanced Packaging Technologies",
-          description: "Packaging uses Fan-Out Wafer-Level (FOWLP) or 3D stacking techniques for better performance and compactness. These methods allow for higher density interconnects and improved thermal management.",
-          details: "3D stacking enables vertical integration of memory and logic chips, reducing latency and power consumption. Technologies like TSMC's InFO (Integrated Fan-Out) and Samsung's I-Cube provide superior electrical performance compared to traditional packaging.",
-          industry: "Major foundries invest billions in advanced packaging R&D, with chiplet architectures becoming increasingly popular for mixing different process nodes in a single package."
-        },
-        {
-          heading: "Performance Testing & Optimization",
-          description: "Each chip is tested for power efficiency, processing speed, thermal characteristics, and 5G/Wi-Fi connectivity. Comprehensive validation ensures devices meet stringent mobile performance standards.",
-          details: "Testing includes benchmark suites for CPU/GPU performance, AI inference speed, camera processing capabilities, and battery life optimization. Chips are validated across different temperature ranges and usage scenarios.",
-          industry: "Companies like Qualcomm, Apple, and MediaTek focus on balancing peak performance with battery life, integrating advanced AI capabilities and 5G modems for flagship mobile devices."
-        }
-      ]
-    },
-    { 
-      id: 3, 
-      images: [gallery7, gallery8, gallery9], 
-      title: "Embedded System Design Engineering",
-      imageDescriptions: [
-        {
-          heading: "Hardware & Software Co-Design",
-          description: "Embedded systems are specialized computers built for dedicated functions inside larger products. Engineers design both hardware (microcontrollers, sensors, PCBs) and software (firmware, drivers, RTOS) in an integrated approach.",
-          details: "The design process involves selecting appropriate microcontrollers (ARM Cortex-M, RISC-V), designing power management circuits, and implementing communication protocols. Real-Time Operating Systems (RTOS) like FreeRTOS or Zephyr provide deterministic task scheduling.",
-          industry: "ARM dominates the embedded processor market with Cortex-M series, while RISC-V is gaining traction as an open-source alternative for IoT and edge computing applications."
-        },
-        {
-          heading: "Communication Protocols & Interfaces",
-          description: "These systems rely on interfaces like SPI, I2C, UART, and CAN for real-time communication between components. Protocol selection depends on speed requirements, distance, and number of connected devices.",
-          details: "SPI offers high-speed serial communication for sensors and displays, I2C enables multi-device communication with just two wires, UART provides simple point-to-point serial communication, and CAN bus ensures reliable automotive and industrial networking.",
-          industry: "Modern embedded systems increasingly adopt Ethernet, USB, and wireless protocols (BLE, Zigbee, LoRa) for IoT connectivity and edge computing applications."
-        },
-        {
-          heading: "Applications & Future Trends",
-          description: "Embedded systems are used in industrial automation, consumer electronics, automotive control, and medical devices. New trends include IoT connectivity, edge AI, and secure firmware to prevent cyber attacks.",
-          details: "Edge AI enables on-device machine learning for applications like predictive maintenance, voice recognition, and computer vision. Security features include secure boot, encrypted firmware updates, and hardware-based cryptographic accelerators.",
-          industry: "The embedded systems market is projected to reach $116 billion by 2025, driven by IoT expansion, Industry 4.0 automation, and the proliferation of smart devices across all sectors."
-        }
-      ]
-    },
-    { 
-      id: 4, 
-      images: [gallery10, gallery11, gallery12], 
-      title: "Automotive Electronics Manufacturing",
-      imageDescriptions: [
-        {
-          heading: "Electronic Control Units (ECUs)",
-          description: "Automotive electronics integrate embedded control units (ECUs) with sensors and actuators for systems like engine control, safety, infotainment, and ADAS (Advanced Driver Assistance Systems). Modern vehicles contain 50-100 ECUs managing different functions.",
-          details: "ECUs control critical functions including fuel injection, anti-lock braking (ABS), electronic stability control (ESC), airbag deployment, and adaptive cruise control. Each ECU runs specialized firmware optimized for real-time performance and safety.",
-          industry: "Bosch, Continental, and Denso are leading ECU manufacturers, with increasing focus on domain controllers that consolidate multiple ECU functions to reduce complexity and cost."
-        },
-        {
-          heading: "Safety Standards & Reliability",
-          description: "Components must meet strict AEC-Q100 and ISO 26262 standards for automotive safety and reliability. These standards ensure electronics can withstand extreme temperatures, vibrations, and electromagnetic interference.",
-          details: "Manufacturing includes PCB assembly with automotive-grade components, extensive testing protocols, and reliability validation under extreme conditions (-40°C to +125°C). Functional safety requirements demand redundancy and fail-safe mechanisms.",
-          industry: "ISO 26262 defines Automotive Safety Integrity Levels (ASIL) from A to D, with ASIL-D representing the highest safety requirements for critical systems like steering and braking."
-        },
-        {
-          heading: "Electric Vehicle Power Electronics",
-          description: "Power systems use SiC (Silicon Carbide) and GaN (Gallium Nitride) semiconductors for higher efficiency, especially in electric vehicles (EVs). These wide-bandgap materials enable faster switching and reduced energy losses.",
-          details: "EV power electronics include inverters for motor control, DC-DC converters for battery management, and onboard chargers. SiC and GaN devices operate at higher temperatures and frequencies, improving power density and reducing cooling requirements.",
-          industry: "Leaders such as Bosch, Continental, Denso, and NXP are driving advancements in vehicle electrification, autonomous driving systems, and AI-based predictive maintenance for next-generation mobility."
-        }
-      ]
-    },
-  ];
+  // Fetch gallery posts from Firestore
+  useEffect(() => {
+    const q = query(
+      collection(db, 'gallery'),
+      where('visibility', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const posts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setGalleries(posts);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error fetching gallery posts:', error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
-    if (selectedIndex !== null) {
+    if (selectedPost !== null) {
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
@@ -191,27 +88,29 @@ const Gallery = () => {
     return () => {
       document.body.classList.remove('modal-open');
     };
-  }, [selectedIndex]);
+  }, [selectedPost]);
 
   // Keyboard navigation for gallery posts
   useEffect(() => {
-    if (selectedIndex === null) return;
+    if (selectedPost === null) return;
 
     const handleKeyDown = (e) => {
-      if (e.key === 'ArrowLeft' && selectedIndex > 1) {
-        setSelectedIndex((prev) => prev - 1);
+      const currentIndex = galleries.findIndex(g => g.id === selectedPost.id);
+      
+      if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        setSelectedPost(galleries[currentIndex - 1]);
         setModalImageIndex(0);
-      } else if (e.key === 'ArrowRight' && selectedIndex < galleries.length) {
-        setSelectedIndex((prev) => prev + 1);
+      } else if (e.key === 'ArrowRight' && currentIndex < galleries.length - 1) {
+        setSelectedPost(galleries[currentIndex + 1]);
         setModalImageIndex(0);
       } else if (e.key === 'Escape') {
-        setSelectedIndex(null);
+        setSelectedPost(null);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIndex, galleries.length]);
+  }, [selectedPost, galleries]);
 
   // Touch swipe handlers for mobile navigation
   const minSwipeDistance = 50;
@@ -231,13 +130,14 @@ const Gallery = () => {
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
+    const currentIndex = galleries.findIndex(g => g.id === selectedPost?.id);
 
-    if (isLeftSwipe && selectedIndex < galleries.length) {
-      setSelectedIndex((prev) => prev + 1);
+    if (isLeftSwipe && currentIndex < galleries.length - 1) {
+      setSelectedPost(galleries[currentIndex + 1]);
       setModalImageIndex(0);
     }
-    if (isRightSwipe && selectedIndex > 1) {
-      setSelectedIndex((prev) => prev - 1);
+    if (isRightSwipe && currentIndex > 0) {
+      setSelectedPost(galleries[currentIndex - 1]);
       setModalImageIndex(0);
     }
   };
@@ -256,25 +156,36 @@ const Gallery = () => {
       </div>
 
       {/* Gallery Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 w-[90%] max-w-7xl mx-auto">
-        {galleries.map((item) => (
-          <GalleryItem 
-            key={item.id} 
-            images={item.images} 
-            title={item.title} 
-            onClick={() => { 
-              setSelectedIndex(item.id); 
-              setModalImageIndex(0);
-            }} 
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
+        </div>
+      ) : galleries.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-gray-500 text-lg">No gallery posts available at the moment.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8 w-[90%] max-w-7xl mx-auto">
+          {galleries.map((item) => (
+            <GalleryItem 
+              key={item.id} 
+              thumbnail={item.thumbnail?.url} 
+              title={item.title} 
+              imageCount={item.images?.length || 0}
+              onClick={() => { 
+                setSelectedPost(item); 
+                setModalImageIndex(0);
+              }} 
+            />
+          ))}
+        </div>
+      )}
 
       {/* Premium Modal */}
-      {selectedIndex !== null && (
+      {selectedPost !== null && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 md:p-4 animate-fadeIn overflow-hidden"
-          onClick={() => setSelectedIndex(null)}
+          onClick={() => setSelectedPost(null)}
         >
           <div 
             className="bg-white w-full max-w-6xl h-[92vh] md:h-[85vh] flex flex-col md:flex-row rounded-2xl md:rounded-3xl overflow-hidden relative shadow-2xl transform transition-all duration-500 scale-100"
@@ -287,102 +198,65 @@ const Gallery = () => {
             {/* Left: Image Carousel */}
             <div className="w-full md:w-3/5 h-[30vh] md:h-full relative bg-gradient-to-br from-gray-900 to-gray-800 flex-shrink-0">
               <img
-                src={galleries[selectedIndex - 1].images[modalImageIndex]}
-                alt={galleries[selectedIndex - 1].title}
+                src={selectedPost.images[modalImageIndex]?.url}
+                alt={selectedPost.images[modalImageIndex]?.title || selectedPost.title}
                 className="w-full h-full object-contain transition-all duration-500"
               />
               
               {/* Image navigation arrows */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setModalImageIndex((prev) => (prev - 1 + galleries[selectedIndex - 1].images.length) % galleries[selectedIndex - 1].images.length);
-                }}
-                className="absolute cursor-pointer left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 md:p-2 shadow-lg transition-all duration-300 z-10"
-              >
-                <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setModalImageIndex((prev) => (prev + 1) % galleries[selectedIndex - 1].images.length);
-                }}
-                className="absolute cursor-pointer right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 md:p-2 shadow-lg transition-all duration-300 z-10"
-              >
-                <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              {selectedPost.images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalImageIndex((prev) => (prev - 1 + selectedPost.images.length) % selectedPost.images.length);
+                    }}
+                    className="absolute cursor-pointer left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 md:p-2 shadow-lg transition-all duration-300 z-10"
+                  >
+                    <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalImageIndex((prev) => (prev + 1) % selectedPost.images.length);
+                    }}
+                    className="absolute cursor-pointer right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-1 md:p-2 shadow-lg transition-all duration-300 z-10"
+                  >
+                    <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
 
               {/* Image counter */}
               <div className="absolute bottom-3 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-md text-white px-3 md:px-4 py-1 md:py-2 rounded-full text-xs md:text-sm font-medium">
-                {modalImageIndex + 1} / {galleries[selectedIndex - 1].images.length}
+                {modalImageIndex + 1} / {selectedPost.images.length}
               </div>
             </div>
 
             {/* Right: Description */}
             <div className="w-full md:w-2/5 p-5 md:p-8 lg:p-10 flex flex-col justify-between bg-gradient-to-br from-white to-gray-50 overflow-y-auto flex-1 min-h-0">
-              <div key={`${selectedIndex}-${modalImageIndex}`} className="animate-fadeIn">
-                <div className="inline-block px-3 md:px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-xs md:text-sm font-semibold mb-3 md:mb-4">
-                  Product No: {selectedIndex}
-                </div>
-                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2 md:mb-3">
-                  {galleries[selectedIndex - 1].title}
+              <div key={`${selectedPost.id}-${modalImageIndex}`} className="animate-fadeIn">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-4 md:mb-6">
+                  {selectedPost.title}
                 </h2>
-                {/* <h3 className="text-lg md:text-xl font-semibold text-blue-600 mb-4 md:mb-6 transition-all duration-300">
-                  {galleries[selectedIndex - 1].imageDescriptions[modalImageIndex].heading}
-                </h3> */}
+                <h3 className="text-lg md:text-xl font-semibold text-blue-600 mb-3 md:mb-4 transition-all duration-300">
+                  {selectedPost.images[modalImageIndex]?.title}
+                </h3>
                 <div className="space-y-3 md:space-y-4">
                   <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                    {galleries[selectedIndex - 1].imageDescriptions[modalImageIndex].description}
+                    {selectedPost.images[modalImageIndex]?.description}
                   </p>
-                  <p className="text-gray-600 leading-relaxed text-sm md:text-base">
-                    {galleries[selectedIndex - 1].imageDescriptions[modalImageIndex].details}
-                  </p>
-                  {galleries[selectedIndex - 1].imageDescriptions[modalImageIndex].industry && (
-                    <p className="text-gray-600 leading-relaxed text-sm md:text-base font-medium">
-                      {galleries[selectedIndex - 1].imageDescriptions[modalImageIndex].industry}
-                    </p>
-                  )}
                 </div>
               </div>
-
-              {/* Gallery navigation */}
-              {/* <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedIndex((prev) => (prev - 1 < 1 ? galleries.length : prev - 1));
-                    setModalImageIndex(0);
-                  }}
-                  className="flex items-center cursor-pointer gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors duration-300 font-medium"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Previous
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedIndex((prev) => (prev % galleries.length) + 1);
-                    setModalImageIndex(0);
-                  }}
-                  className="flex items-center cursor-pointer gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors duration-300 font-medium"
-                >
-                  Next
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div> */}
             </div>
 
             {/* Close button */}
             <button
-              onClick={() => setSelectedIndex(null)}
+              onClick={() => setSelectedPost(null)}
               className="absolute top-3 right-3 md:top-6 md:right-6 cursor-pointer bg-white/90 hover:bg-white rounded-full p-1.5 md:p-2 shadow-lg transition-all duration-300 hover:scale-110 z-20"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,11 +267,12 @@ const Gallery = () => {
 
           {/* External Navigation Arrows - Outside Modal (Instagram Style) */}
           {/* Left Arrow - Previous Post - Hidden on mobile */}
-          {selectedIndex > 1 && (
+          {galleries.findIndex(g => g.id === selectedPost.id) > 0 && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedIndex((prev) => prev - 1);
+                const currentIndex = galleries.findIndex(g => g.id === selectedPost.id);
+                setSelectedPost(galleries[currentIndex - 1]);
                 setModalImageIndex(0);
               }}
               className="hidden md:flex absolute left-2 lg:left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 md:p-3 shadow-xl transition-all duration-300 hover:scale-110 z-10 group cursor-pointer items-center justify-center"
@@ -410,11 +285,12 @@ const Gallery = () => {
           )}
 
           {/* Right Arrow - Next Post - Hidden on mobile */}
-          {selectedIndex < galleries.length && (
+          {galleries.findIndex(g => g.id === selectedPost.id) < galleries.length - 1 && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedIndex((prev) => prev + 1);
+                const currentIndex = galleries.findIndex(g => g.id === selectedPost.id);
+                setSelectedPost(galleries[currentIndex + 1]);
                 setModalImageIndex(0);
               }}
               className="hidden md:flex absolute right-2 lg:right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 md:p-3 shadow-xl transition-all duration-300 hover:scale-110 z-10 group cursor-pointer items-center justify-center"
