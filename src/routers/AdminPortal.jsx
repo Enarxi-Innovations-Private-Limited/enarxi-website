@@ -8,6 +8,7 @@ import StaffTable from "./admin/StaffTable";
 import TeamTable from "./admin/TeamTable";
 import BlogsTable from "./admin/BlogsTable";
 import ReviewsTable from "./admin/ReviewsTable";
+import GalleryTable from "./admin/GalleryTable";
 
 import { useAuth } from "@/AuthProvider";
 import Logout from "@/routers/admin/Logout";
@@ -40,6 +41,8 @@ const AdminPortal = () => {
         return <BlogsTable />;
       case "reviews":
         return <ReviewsTable />;
+      case "gallery":
+        return <GalleryTable />;
       default:
         return <DashboardStats />;
     }
@@ -98,6 +101,7 @@ const AdminPortal = () => {
                 {activeSection === "team" && "Team Members"}
                 {activeSection === "blogs" && "Blog Management"}
                 {activeSection === "reviews" && "Customer Reviews"}
+                {activeSection === "gallery" && "Gallery Management"}
               </h1>
             </div>
             <div className="flex items-center space-x-3">
