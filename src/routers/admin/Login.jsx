@@ -9,45 +9,62 @@ import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from "lucide-react";
 import BrandedLoader from "@/components/shared/BrandedLoader";
 
 export default function Login() {
-  const {role,loading}=useAuth();
+  const { role, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (!loading && role === "admin") {
       navigate("/admin");
     }
-  }, [ role,loading]);
-  
-  if (loading || role === "admin") {
+  }, [role, loading, navigate]);
+
+  if (loading) {
     return <BrandedLoader message="Loading Admin Portal..." />;
+  }
+
+  if (role === "admin") {
+    return <BrandedLoader message="Redirecting to Admin Portal..." />;
   }
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
-      // Check user role in Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        if (userData.role === 'admin') {
-          navigate('/admin'); // Success, navigate to admin portal
+
+        if (userData.role === "admin") {
+          navigate("/admin");
         } else {
-          await signOut(auth); // Not an admin, sign out
-          setError('Access denied. Not an admin.');
+          // Save error before signOut clears the state
+          const accessError = "Access denied. Not an admin.";
+
+          // Sign out quietly without triggering a redirect flicker
+          await signOut(auth);
+
+          // Force stop any "loading" UI from showing again
+          setIsLoading(false);
+          setError(accessError);
         }
       } else {
-        await signOut(auth); // No user record, sign out
-        setError('User profile not found.');
+        await signOut(auth);
+        setError("User profile not found.");
       }
     } catch (err) {
       setError("Invalid credentials. Please try again.");
@@ -55,7 +72,6 @@ export default function Login() {
       setIsLoading(false);
     }
   };
-  
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -91,7 +107,8 @@ export default function Login() {
           repeatType: "reverse",
         }}
         style={{
-          backgroundImage: "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)",
+          backgroundImage:
+            "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)",
         }}
       />
 
@@ -109,17 +126,27 @@ export default function Login() {
           className="bg-white/95 backdrop-blur-xl p-8 md:p-10 rounded-3xl shadow-2xl border border-white/20"
         >
           {/* Header with icon */}
-          <motion.div variants={itemVariants} className="flex flex-col items-center mb-8">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col items-center mb-8"
+          >
             <motion.div
-            initial={{ filter: "drop-shadow(0px 0px 0px rgba(0,0,0,0))" }}
-              whileHover={{ scale: 1.1, filter: "drop-shadow(0px 8px 10px rgba(0, 0, 0, 0.25))", }}
+              initial={{ filter: "drop-shadow(0px 0px 0px rgba(0,0,0,0))" }}
+              whileHover={{
+                scale: 1.1,
+                filter: "drop-shadow(0px 8px 10px rgba(0, 0, 0, 0.25))",
+              }}
               transition={{ duration: 0.6 }}
               className="bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-2xl mb-4"
             >
               <ShieldCheck className="w-8 h-8 text-white" />
             </motion.div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Admin Portal</h2>
-            <p className="text-gray-500 text-sm">Sign in to access your dashboard</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Admin Portal
+            </h2>
+            <p className="text-gray-500 text-sm">
+              Sign in to access your dashboard
+            </p>
           </motion.div>
 
           {/* Error message */}
@@ -131,14 +158,18 @@ export default function Login() {
                 exit={{ opacity: 0, y: -10, height: 0 }}
                 className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
               >
-                <p className="text-red-600 text-sm font-medium text-center">{error}</p>
+                <p className="text-red-600 text-sm font-medium text-center">
+                  {error}
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Email input */}
           <motion.div variants={itemVariants} className="mb-5">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Email Address
+            </label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <motion.input
@@ -156,7 +187,9 @@ export default function Login() {
 
           {/* Password input */}
           <motion.div variants={itemVariants} className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <motion.input
@@ -176,7 +209,11 @@ export default function Login() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </motion.button>
             </div>
           </motion.div>
@@ -184,7 +221,10 @@ export default function Login() {
           {/* Submit button */}
           <motion.button
             variants={itemVariants}
-            whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)" }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)",
+            }}
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}

@@ -1,12 +1,13 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../AuthProvider';
+import BrandedLoader from '@components/shared/BrandedLoader';
 
 export default function StaffProtectedRoute({ children }) {
   const { user, role, loading } = useAuth();
 
   if (loading) {
     // You might want a more sophisticated loading spinner here
-    return <div className="flex justify-center items-center h-screen"><p>Loading...</p></div>;
+    return <div className="flex justify-center items-center h-screen"> <BrandedLoader />   </div>;
   }
 
   if (!user) {

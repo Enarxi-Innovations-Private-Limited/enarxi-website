@@ -76,7 +76,7 @@ function App() {
             </Route>
         
             <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminPortal /></ProtectedRoute>} />
               <Route path="/user" element={<TestSupa />} />
               <Route path="/login" element={<Login />} />
               <Route path="/stafflogin" element={<StaffLogin />} />

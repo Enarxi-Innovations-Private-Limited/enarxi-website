@@ -19,6 +19,7 @@ import { extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinar
 import AddEditTeamModal from './AddEditTeamModal';
 import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 import {
   DndContext,
   closestCenter,
@@ -152,6 +153,7 @@ const TeamTable = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, member: null });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -249,13 +251,16 @@ const TeamTable = () => {
     }
   };
 
+  const handleDeleteClick = (member) => {
+    setDeleteConfirm({ isOpen: true, member });
+  };
+
   // Handle delete with atomic Cloudinary deletion
-  const handleDelete = async (member) => {
-    const confirmMessage = `Are you sure you want to delete "${member.name}"? This will permanently delete the image from Cloudinary and the member from the database.`;
-    
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+  const handleDelete = async () => {
+    const { member } = deleteConfirm;
+    if (!member) return;
+
+    setDeleteConfirm({ isOpen: false, member: null });
 
     const toastId = toast.loading('Starting deletion process...');
 
@@ -336,7 +341,7 @@ const TeamTable = () => {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div className="space-y-6 text-poppins">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Our Team</h2>
@@ -412,7 +417,7 @@ const TeamTable = () => {
                           key={member.id}
                           member={member}
                           onEdit={handleEdit}
-                          onDelete={handleDelete}
+                          onDelete={handleDeleteClick}
                           onToggleVisibility={handleToggleVisibility}
                         />
                       ))}
@@ -455,6 +460,18 @@ const TeamTable = () => {
         }}
         member={editingMember}
         existingMembersCount={teamMembers.length}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, member: null })}
+        onConfirm={handleDelete}
+        title="Delete Team Member"
+        message={`Are you sure you want to delete "${deleteConfirm.member?.name}"? This will permanently delete the image from Cloudinary and the member from the database.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
       />
     </>
   );

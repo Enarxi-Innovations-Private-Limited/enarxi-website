@@ -233,7 +233,7 @@ const GalleryTable = () => {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-6">
+      <div className="space-y-6 text-poppins">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Gallery Management</h2>

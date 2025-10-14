@@ -31,10 +31,10 @@ const AdminPortal = () => {
   if (!loading && role !== 'admin') {
     return (
       <AccessDenied 
-        title="Admin Access Required"
-        message="You do not have permission to access the admin portal."
-        backPath="/staff-login"
-        backText="Go to Staff Login"
+        title="Access Denied"
+        message="Not an admin. Please login as an admin."
+        backPath="/admin-login"
+        backText="Go to Admin Login"
       />
     );
   }
@@ -68,7 +68,7 @@ const AdminPortal = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex text-poppins">
+    <div className="min-h-screen bg-white flex">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (

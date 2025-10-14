@@ -113,7 +113,7 @@ const ReviewsTable = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-poppins">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -264,7 +264,8 @@ const ReviewsTable = () => {
                   </button>
                 </div>
                 
-                <div className="space-y-4">
+                <Toaster position="top-right" />
+                <div className="space-y-6 text-poppins">
                   <div>
                     <label className="text-sm font-medium text-gray-500">Reviewer</label>
                     <p className="text-lg font-medium text-[#0A1524]">

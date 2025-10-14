@@ -25,10 +25,10 @@ const StaffPortal = () => {
   if (!loading && role !== 'employee' && role !== 'intern') {
     return (
       <AccessDenied 
-        title="Staff Access Required"
-        message="You do not have permission to access the staff portal."
-        backPath="/admin-login"
-        backText="Go to Admin Login"
+        title="Access Denied"
+        message="Not a staff member. Please login as a staff member."
+        backPath="/staff-login"
+        backText="Go to Staff Login"
       />
     );
   }
