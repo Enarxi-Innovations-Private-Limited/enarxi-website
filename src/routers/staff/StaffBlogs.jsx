@@ -115,7 +115,7 @@ const AuthorDetails = memo(({ formData, onChange }) => {
           required
           readOnly
         />
-      </div>
+      </div>user
     </div>
   );
 });
@@ -124,14 +124,14 @@ const AuthorDetails = memo(({ formData, onChange }) => {
 //  FINAL MAIN BLOG FORM COMPONENT
 //======================================================================
 const StaffBlogs = () => {
-  const { user, role } = useAuth(); // Get authenticated user and role
+  const { user, role,firebaseUser } = useAuth(); // Get authenticated user and role
   const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "" });
 
   useEffect(() => {
     // Pre-fill author details from the authenticated user context
     if (user && role) {
       setFormData({
-        authorName: user.displayName || user.email || '',
+        authorName: firebaseUser.name || user.email || '',
         authorRole: role,
         title: '',
       });

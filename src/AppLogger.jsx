@@ -5,11 +5,12 @@ import {createContext, useContext } from 'react';
 import { useAuth } from './AuthProvider';
 
 export default function AppLogger() {
-  const { firbaseUser } = useAuth();
+  const { firbaseUser,user } = useAuth();
+  console.log("user object: ",user)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log('Logged in user:', user.name || user.email);
+        console.log('Logged in user:', user.name || user.email || user.displayName);
       } else {
         console.log('No user logged in');
       }
