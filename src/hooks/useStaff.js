@@ -9,7 +9,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { logAdminActivity } from "@/utils/adminActivityLogger";
 
 export const useStaff = () => {
@@ -22,13 +22,16 @@ export const useStaff = () => {
     setError(null);
     try {
       const querySnapshot = await getDocs(collection(db, "users"));
-      const staffList = querySnapshot.docs.map((doc) => ({
+      const allUsers = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+      
+      const staffList = allUsers.filter((user) => user.role === 'employee' || user.role === 'intern');
+      
       setStaff(staffList);
     } catch (err) {
-      console.error("Error fetching staff:", err);
+      console.error("❌ Error fetching staff:", err);
       setError("Failed to fetch staff data.");
     } finally {
       setLoading(false);

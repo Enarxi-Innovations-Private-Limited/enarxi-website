@@ -3,7 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
 
 const ModifyStaffModal = ({ isOpen, onClose, staffMember, onUpdate, onDelete }) => {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    role: 'employee',
+    status: 'active',
+  });
 
   useEffect(() => {
     if (staffMember) {
@@ -12,6 +17,14 @@ const ModifyStaffModal = ({ isOpen, onClose, staffMember, onUpdate, onDelete }) 
         email: staffMember.email || '',
         role: staffMember.role || 'employee',
         status: staffMember.status || 'active',
+      });
+    } else {
+      // Reset form when modal closes
+      setFormData({
+        name: '',
+        email: '',
+        role: 'employee',
+        status: 'active',
       });
     }
   }, [staffMember]);
@@ -113,15 +126,15 @@ const ModifyStaffModal = ({ isOpen, onClose, staffMember, onUpdate, onDelete }) 
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-6">
-              <button
+            {/* <div className="flex justify-between items-center pt-6"> */}
+              {/* <button
                 type="button"
                 onClick={() => onDelete(staffMember.id)}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Delete User
-              </button>
-              <div className="flex gap-4">
+              </button> */}
+              <div className="flex justify-between items-center pt-6 gap-4">
                 <button
                   type="button"
                   onClick={onClose}
@@ -136,7 +149,7 @@ const ModifyStaffModal = ({ isOpen, onClose, staffMember, onUpdate, onDelete }) 
                   Submit Changes
                 </button>
               </div>
-            </div>
+            {/* </div> */}
           </form>
         </motion.div>
       </div>
