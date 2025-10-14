@@ -225,7 +225,7 @@ const ProductDevelopmentWorks = () => {
             <img
               src={RoadPng}
               alt="Product development roadmap"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
+              className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
             />
             {roadmapSteps.map((step, index) => (
               <div
