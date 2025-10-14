@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, ChevronDown } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
@@ -15,13 +15,16 @@ const BlogsTable = () => {
   const [blogs, setBlogs] = useState([]);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('pending'); // 'pending' or 'approved'
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const fetchBlogs = async () => {
+  const fetchBlogs = async (status = filterStatus) => {
     try {
       setLoading(true);
+      const isApproved = status === 'approved';
       const q = query(
         collection(db, 'blogs'),
-        where('isAdminAccepted', '==', false),
+        where('isAdminAccepted', '==', isApproved),
         orderBy('updatedAt', 'desc')
       );
       const snapshot = await getDocs(q);
@@ -53,13 +56,26 @@ const BlogsTable = () => {
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, [filterStatus]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.dropdown-container')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
 
   const handleApprove = async (blogId, blogTitle) => {
     try {
       const blogRef = doc(db, 'blogs', blogId);
       await updateDoc(blogRef, {
         isAdminAccepted: true,
+        visibility: true, // Set visibility to true by default when approving
       });
       
       // Log activity
@@ -78,6 +94,34 @@ const BlogsTable = () => {
     } catch (error) {
       console.error('Error approving blog:', error);
       toast.error('Failed to approve blog');
+    }
+  };
+
+  const handleToggleVisibility = async (blogId, blogTitle, currentVisibility) => {
+    try {
+      const blogRef = doc(db, 'blogs', blogId);
+      const newVisibility = !currentVisibility;
+      
+      await updateDoc(blogRef, {
+        visibility: newVisibility,
+      });
+      
+      // Log activity
+      if (firebaseUser) {
+        await logAdminActivity(
+          firebaseUser.uid,
+          firebaseUser.displayName || firebaseUser.email,
+          'toggled_blog_visibility',
+          `${newVisibility ? 'Showed' : 'Hid'} blog: "${blogTitle}"`,
+          { blogId, blogTitle, visibility: newVisibility }
+        );
+      }
+      
+      toast.success(`Blog "${blogTitle}" is now ${newVisibility ? 'visible' : 'hidden'}`);
+      fetchBlogs(); // Refresh the list
+    } catch (error) {
+      console.error('Error toggling visibility:', error);
+      toast.error('Failed to toggle visibility');
     }
   };
 
@@ -233,6 +277,11 @@ const BlogsTable = () => {
     },
   };
 
+  const handleFilterChange = (newStatus) => {
+    setFilterStatus(newStatus);
+    setIsDropdownOpen(false);
+  };
+
   return (
     <>
       <Toaster position="top-right" />
@@ -242,10 +291,48 @@ const BlogsTable = () => {
             <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Blog Review Section</h2>
             <p className="text-gray-600">Review and manage submitted blog posts.</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">
-              {blogs.length} blogs pending review
-            </span>
+          
+          {/* Dropdown Filter */}
+          <div className="relative dropdown-container">
+            <motion.button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center space-x-2 bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200"
+            >
+              <span className="capitalize">{filterStatus}</span>
+              <ChevronDown 
+                className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+              />
+            </motion.button>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden"
+              >
+                <button
+                  onClick={() => handleFilterChange('pending')}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
+                    filterStatus === 'pending' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                  }`}
+                >
+                  Pending
+                </button>
+                <button
+                  onClick={() => handleFilterChange('approved')}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
+                    filterStatus === 'approved' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                  }`}
+                >
+                  Approved
+                </button>
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -256,7 +343,9 @@ const BlogsTable = () => {
         ) : blogs.length === 0 ? (
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-12 text-center">
             <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No blogs pending review</p>
+            <p className="text-gray-500 text-lg">
+              {filterStatus === 'pending' ? 'No blogs pending review' : 'No approved blogs'}
+            </p>
           </div>
         ) : (
           <motion.div
@@ -270,8 +359,10 @@ const BlogsTable = () => {
                 <BlogTile
                   blog={blog}
                   onView={setSelectedBlog}
-                  onApprove={(blog) => handleApprove(blog.id, blog.title)}
+                  onApprove={filterStatus === 'pending' ? (blog) => handleApprove(blog.id, blog.title) : null}
                   onDelete={(blog) => handleDelete(blog.id, blog.title, blog.images)}
+                  onToggleVisibility={filterStatus === 'approved' ? (blog) => handleToggleVisibility(blog.id, blog.title, blog.visibility) : null}
+                  isPending={filterStatus === 'pending'}
                 />
               </motion.div>
             ))}
@@ -283,11 +374,11 @@ const BlogsTable = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
             <div className="text-2xl font-bold text-[#0A1524]">{blogs.length}</div>
-            <div className="text-sm text-gray-600">Pending Reviews</div>
+            <div className="text-sm text-gray-600 capitalize">{filterStatus} Blogs</div>
           </div>
           <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
             <div className="text-2xl font-bold text-[#0A1524]">
@@ -295,6 +386,14 @@ const BlogsTable = () => {
             </div>
             <div className="text-sm text-gray-600">Active Authors</div>
           </div>
+          {filterStatus === 'approved' && (
+            <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+              <div className="text-2xl font-bold text-[#0A1524]">
+                {blogs.filter(blog => blog.visibility !== false).length}
+              </div>
+              <div className="text-sm text-gray-600">Visible Blogs</div>
+            </div>
+          )}
         </motion.div>
       </div>
 

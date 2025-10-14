@@ -17,42 +17,47 @@ export default function Blog() {
           orderBy("createdAt", "desc")
         );
         const snapshot = await getDocs(q);
-        const blogData = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          console.log(data);
+        const blogData = snapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            console.log(data);
 
-          // Handle both old format (string) and new format (object with url)
-          let imageUrl = "/blogs/default.jpg";
-          if (data.images && data.images.length > 0) {
-            const firstImage = data.images[0];
-            // Check if it's the new format (object with url property)
-            if (typeof firstImage === "object" && firstImage.url) {
-              imageUrl = firstImage.url;
+            // Handle both old format (string) and new format (object with url)
+            let imageUrl = "/blogs/default.jpg";
+            if (data.images && data.images.length > 0) {
+              const firstImage = data.images[0];
+              // Check if it's the new format (object with url property)
+              if (typeof firstImage === "object" && firstImage.url) {
+                imageUrl = firstImage.url;
+              }
+              // Check if it's a Cloudinary URL (string)
+              else if (
+                typeof firstImage === "string" &&
+                firstImage.includes("cloudinary")
+              ) {
+                imageUrl = firstImage;
+              }
+              // Fallback to old format (local path)
+              else if (typeof firstImage === "string") {
+                imageUrl = `/blogs/${firstImage}`;
+              }
             }
-            // Check if it's a Cloudinary URL (string)
-            else if (
-              typeof firstImage === "string" &&
-              firstImage.includes("cloudinary")
-            ) {
-              imageUrl = firstImage;
-            }
-            // Fallback to old format (local path)
-            else if (typeof firstImage === "string") {
-              imageUrl = `/blogs/${firstImage}`;
-            }
-          }
 
-          return {
-            id: doc.id,
-            title: data.title || "Untitled Blog",
-            desc: data.content || "",
-            date: data.createdAt?.toDate().toLocaleDateString() || "",
-            img: imageUrl,
-            images: data.images || [], // Store all images for modal
-            authorName: data.authorName || "Anonymous",
-            authorRole: data.authorRole || "Staff",
-          };
-        });
+            return {
+              id: doc.id,
+              title: data.title || "Untitled Blog",
+              desc: data.content || "",
+              date: data.createdAt?.toDate().toLocaleDateString() || "",
+              img: imageUrl,
+              images: data.images || [], // Store all images for modal
+              authorName: data.authorName || "Anonymous",
+              authorRole: data.authorRole || "Staff",
+              visibility: data.visibility, // Include visibility field
+            };
+          })
+          // Filter to show only visible blogs (visibility === true OR visibility field doesn't exist)
+          .filter((blog) => blog.visibility !== false);
+        
         setBlogs(blogData);
       } catch (error) {
         console.error("Error fetching blogs:", error);
