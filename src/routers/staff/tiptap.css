@@ -158,11 +158,28 @@
   padding: 0 1rem;
 }
 
-.ProseMirror h1,
-.ProseMirror h2,
-.ProseMirror h3 {
-  line-height: 1.1;
+.ProseMirror h1 {
+  font-size: 2em;
+  line-height: 1.2;
   font-weight: bold;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  line-height: 1.3;
+  font-weight: bold;
+  margin-top: 0.83em;
+  margin-bottom: 0.83em;
+}
+
+.ProseMirror h3 {
+  font-size: 1.17em;
+  line-height: 1.4;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 .ProseMirror code {

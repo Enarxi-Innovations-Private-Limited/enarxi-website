@@ -6,11 +6,32 @@ import { auth } from "@/lib/firebase";
 import { useAuth } from "@/AuthProvider";
 import StaffDashboard from "./staff/StaffDashboard";
 import StaffBlogs from "./staff/StaffBlogs";
+import BrandedLoader from "@/components/shared/BrandedLoader";
+import AccessDenied from "@/components/shared/AccessDenied";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 const StaffPortal = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { user } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { user, role, loading } = useAuth();
+
+  // Show loader while checking auth
+  if (loading) {
+    return <BrandedLoader message="Loading Staff Portal..." />;
+  }
+
+  // Show access denied if not staff (employee or intern)
+  if (!loading && role !== 'employee' && role !== 'intern') {
+    return (
+      <AccessDenied 
+        title="Staff Access Required"
+        message="You do not have permission to access the staff portal."
+        backPath="/admin-login"
+        backText="Go to Admin Login"
+      />
+    );
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -23,9 +44,11 @@ const StaffPortal = () => {
     }
   };
 
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
   const logoutStaff = async () => {
-    const confirmLogout = window.confirm("Are you sure you want to log out?");
-    if (!confirmLogout) return;
     try {
       await signOut(auth);
       console.log("Staff logged out successfully.");
@@ -53,7 +76,7 @@ const StaffPortal = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-white flex text-poppins">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -106,7 +129,7 @@ const StaffPortal = () => {
           {/* Logout Button */}
           <div className="px-2 pb-4">
             <motion.button
-              onClick={logoutStaff}
+              onClick={handleLogoutClick}
               className="group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left text-red-400 hover:bg-red-900 hover:text-red-200 transition-colors duration-200"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -168,7 +191,7 @@ const StaffPortal = () => {
           {/* Logout Button */}
           <div className="px-2 pb-4">
             <motion.button
-              onClick={logoutStaff}
+              onClick={handleLogoutClick}
               className="group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left text-red-400 hover:bg-red-900 hover:text-red-200 transition-colors duration-200"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -238,6 +261,18 @@ const StaffPortal = () => {
           </AnimatePresence>
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={logoutStaff}
+        title="Confirm Logout"
+        message="Are you sure you want to log out?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        variant="warning"
+      />
     </div>
   );
 };

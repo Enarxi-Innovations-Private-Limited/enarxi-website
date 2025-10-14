@@ -12,13 +12,32 @@ import GalleryTable from "./admin/GalleryTable";
 
 import { useAuth } from "@/AuthProvider";
 import Logout from "@/routers/admin/Logout";
+import BrandedLoader from "@/components/shared/BrandedLoader";
+import AccessDenied from "@/components/shared/AccessDenied";
 
 const AdminPortal = () => {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const {user,firebaseUser} = useAuth();
+  const {user, firebaseUser, role, loading} = useAuth();
+
+  // Show loader while checking auth
+  if (loading) {
+    return <BrandedLoader message="Loading Admin Portal..." />;
+  }
+
+  // Show access denied if not admin
+  if (!loading && role !== 'admin') {
+    return (
+      <AccessDenied 
+        title="Admin Access Required"
+        message="You do not have permission to access the admin portal."
+        backPath="/staff-login"
+        backText="Go to Staff Login"
+      />
+    );
+  }
 
   // Handle navigation from quick actions
   useEffect(() => {
@@ -49,7 +68,7 @@ const AdminPortal = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-white flex text-poppins">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (

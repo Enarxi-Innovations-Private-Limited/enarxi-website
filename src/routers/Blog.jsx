@@ -4,9 +4,12 @@ import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import styles from "./Blog.module.css";
 import { motion, AnimatePresence } from "framer-motion";
+import BlogSkeleton from "@/components/shared/BlogSkeleton";
+
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -75,6 +78,8 @@ export default function Blog() {
 
         // Set empty array so UI doesn't break
         setBlogs([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -92,7 +97,7 @@ export default function Blog() {
   }, [selected]);
 
   return (
-    <section className="w-[90%] mx-auto py-12">
+    <section className="w-[90%] mx-auto py-12 min-h-[60vh]">
       <div className="text-center mb-10">
         <h2 className="text-2xl md:text-3xl font-bold font-oswald">
           Our Blogs
@@ -101,36 +106,61 @@ export default function Blog() {
 
       {/* Blog grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blogs.map((blog) => (
-          <div
-            key={blog.id}
-            className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
-          >
-            <div className="w-full aspect-w-16 aspect-h-9 overflow-hidden rounded-xl">
-              <img
-                src={blog.img}
-                alt={blog.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-1">{blog.title}</h3>
-              <p
-                className="text-sm text-gray-500 mb-3 line-clamp-2"
-                dangerouslySetInnerHTML={{
-                  __html: blog.desc.slice(0, 120) + "...",
-                }}
-              />
-              <p className="text-xs text-gray-400">{blog.date}</p>
-              <button
-                onClick={() => setSelected(blog)}
-                className="text-sm text-sky-500 font-medium mt-2 cursor-pointer underline"
+        {loading ? (
+          // Show skeleton loaders while loading
+          <>
+            {[...Array(6)].map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                View Post
-              </button>
-            </div>
+                <BlogSkeleton />
+              </motion.div>
+            ))}
+          </>
+        ) : blogs.length === 0 ? (
+          // Show empty state
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 text-lg">No blogs available at the moment.</p>
           </div>
-        ))}
+        ) : (
+          // Show actual blogs with fade-in animation
+          blogs.map((blog, index) => (
+            <motion.div
+              key={blog.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
+            >
+              <div className="w-full aspect-w-16 aspect-h-9 overflow-hidden rounded-xl">
+                <img
+                  src={blog.img}
+                  alt={blog.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold mb-1">{blog.title}</h3>
+                <p
+                  className="text-sm text-gray-500 mb-3 line-clamp-2"
+                  dangerouslySetInnerHTML={{
+                    __html: blog.desc.slice(0, 120) + "...",
+                  }}
+                />
+                <p className="text-xs text-gray-400">{blog.date}</p>
+                <button
+                  onClick={() => setSelected(blog)}
+                  className="text-sm text-sky-500 font-medium mt-2 cursor-pointer underline"
+                >
+                  View Post
+                </button>
+              </div>
+            </motion.div>
+          ))
+        )}
       </div>
 
       {/* Modal */}

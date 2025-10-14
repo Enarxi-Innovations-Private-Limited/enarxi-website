@@ -9,6 +9,7 @@ import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
 import BlogTile from './blogs/BlogTile';
 import BlogViewModal from './blogs/BlogViewModal';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 
 const BlogsTable = () => {
   const { firebaseUser } = useAuth();
@@ -17,6 +18,7 @@ const BlogsTable = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('pending'); // 'pending' or 'approved'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, blog: null });
 
   const fetchBlogs = async (status = filterStatus) => {
     try {
@@ -125,15 +127,19 @@ const BlogsTable = () => {
     }
   };
 
-  const handleDelete = async (blogId, blogTitle, blogImages = []) => {
-    const imageCount = blogImages?.length || 0;
-    const confirmMessage = imageCount > 0 
-      ? `Are you sure you want to delete "${blogTitle}"? This will permanently delete ${imageCount} image(s) from Cloudinary and the blog from the database.`
-      : `Are you sure you want to delete "${blogTitle}"?`;
+  const handleDeleteClick = (blog) => {
+    setDeleteConfirm({ isOpen: true, blog });
+  };
+
+  const handleDelete = async () => {
+    const { blog } = deleteConfirm;
+    if (!blog) return;
+
+    const blogId = blog.id;
+    const blogTitle = blog.title;
+    const blogImages = blog.images || [];
     
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    setDeleteConfirm({ isOpen: false, blog: null });
     
     const toastId = toast.loading('Starting deletion process...');
     
@@ -360,7 +366,7 @@ const BlogsTable = () => {
                   blog={blog}
                   onView={setSelectedBlog}
                   onApprove={filterStatus === 'pending' ? (blog) => handleApprove(blog.id, blog.title) : null}
-                  onDelete={(blog) => handleDelete(blog.id, blog.title, blog.images)}
+                  onDelete={handleDeleteClick}
                   onToggleVisibility={filterStatus === 'approved' ? (blog) => handleToggleVisibility(blog.id, blog.title, blog.visibility) : null}
                   isPending={filterStatus === 'pending'}
                 />
@@ -403,7 +409,19 @@ const BlogsTable = () => {
         isOpen={!!selectedBlog}
         onClose={() => setSelectedBlog(null)}
         onApprove={handleApprove}
-        onDelete={handleDelete}
+        onDelete={() => handleDeleteClick(selectedBlog)}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, blog: null })}
+        onConfirm={handleDelete}
+        title="Delete Blog"
+        message={`Are you sure you want to delete "${deleteConfirm.blog?.title}"? ${deleteConfirm.blog?.images?.length > 0 ? `This will permanently delete ${deleteConfirm.blog.images.length} image(s) from Cloudinary and the blog from the database.` : 'This action cannot be undone.'}`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
       />
     </>
   );

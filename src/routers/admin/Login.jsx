@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../AuthProvider";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from "lucide-react";
+import BrandedLoader from "@/components/shared/BrandedLoader";
 
 export default function Login() {
   const {role,loading}=useAuth();
@@ -14,13 +16,15 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  
   useEffect(() => {
     if (!loading && role === "admin") {
       navigate("/admin");
     }
   }, [ role,loading]);
+  
   if (loading || role === "admin") {
-    return <div className="text-black text-center">Loading...</div>;
+    return <BrandedLoader message="Loading Admin Portal..." />;
   }
 
   const handleLogin = async (e) => {
@@ -28,8 +32,23 @@ export default function Login() {
     setError("");
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/admin");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Check user role in Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.role === 'admin') {
+          navigate('/admin'); // Success, navigate to admin portal
+        } else {
+          await signOut(auth); // Not an admin, sign out
+          setError('Access denied. Not an admin.');
+        }
+      } else {
+        await signOut(auth); // No user record, sign out
+        setError('User profile not found.');
+      }
     } catch (err) {
       setError("Invalid credentials. Please try again.");
     } finally {
