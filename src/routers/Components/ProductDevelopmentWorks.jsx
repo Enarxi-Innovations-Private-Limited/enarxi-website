@@ -218,14 +218,14 @@ const ProductDevelopmentWorks = () => {
         className="hidden 2xl:block w-full relative bg-white mt-20"
       >
         <div ref={desktopContentRef} className="h-screen w-full">
-          <h1 className="text-40 font-bold font-oswald text-center mt-16">
+          <h1 className="text-40 font-bold font-oswald text-center pt-17">
             How Product Development Works?
           </h1>
           <div className="relative w-full h-full mx-auto">
             <img
               src={RoadPng}
               alt="Product development roadmap"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
+              className="absolute top-1/2 left-1/2  -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
             />
             {roadmapSteps.map((step, index) => (
               <div
