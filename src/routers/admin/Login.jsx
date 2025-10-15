@@ -141,10 +141,10 @@ export default function Login() {
             >
               <ShieldCheck className="w-8 h-8 text-white" />
             </motion.div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl text-oswald text-weight-500 text-gray-900 mb-2">
               Admin Portal
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-sm text-poppins text-weight-300">
               Sign in to access your dashboard
             </p>
           </motion.div>
@@ -167,47 +167,57 @@ export default function Login() {
 
           {/* Email input */}
           <motion.div variants={itemVariants} className="mb-5">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm text-poppins text-weight-600 text-gray-700 mb-2">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                type="email"
-                placeholder="admin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+              {/* Mail Icon */}
+              <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+
+              {/* Animate the wrapper instead of the input */}
+              <motion.div whileFocus={{ scale: 1.01 }}>
+                <input
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 text-poppins text-weight-300 placeholder-poppins-weight-300 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </motion.div>
             </div>
           </motion.div>
 
           {/* Password input */}
           <motion.div variants={itemVariants} className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm text-poppins text-weight-600 text-gray-700 mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+              {/* Lock Icon - Add z-10 to keep it above the input */}
+              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+
+              {/* Animate the container instead of the input */}
+              <motion.div whileFocus={{ scale: 1.01 }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 text-poppins text-weight-300 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </motion.div>
+
+              {/* Show/Hide Password Icon */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -237,19 +247,30 @@ export default function Login() {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                 />
-                <span>Signing in...</span>
+                <span className="text-poppins text-weight-600">
+                  Signing in...
+                </span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <span className="text-poppins">Sign In</span>
+                <ArrowRight className="w-5 h-5  group-hover:translate-x-1 transition-transform" />
               </>
             )}
           </motion.button>
+          <p className="mt-6 relative top2 text-sm text-center text-gray-500 text-poppins">
+            Are you a staff?{" "}
+            <a
+              href="/staff"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Staff Login
+            </a>
+          </p>
 
           {/* Footer note */}
           <motion.div variants={itemVariants} className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 text-poppins text-weight-600">
               Administrator access only. Unauthorized access is prohibited.
             </p>
           </motion.div>

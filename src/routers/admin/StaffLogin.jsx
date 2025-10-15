@@ -1,29 +1,33 @@
-import { useState } from 'react';
-import { auth, db } from '@/lib/firebase';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Users, ArrowRight } from 'lucide-react';
+import { useState } from "react";
+import { auth, db } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, Eye, EyeOff, Users, ArrowRight } from "lucide-react";
 
 export default function StaffLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Check user role in Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if ((userData.role === 'employee' || userData.role === 'intern') && userData.status=="active") {
@@ -36,14 +40,14 @@ export default function StaffLogin() {
         }
         else {
           await signOut(auth); // Not a staff member, sign out
-          setError('Access denied. Not a staff member.');
+          setError("Access denied. Not a staff member.");
         }
       } else {
         await signOut(auth); // No user record, sign out
-        setError('User profile not found.');
+        setError("User profile not found.");
       }
     } catch (err) {
-      setError('Incorrect credentials. Please try again.');
+      setError("Incorrect credentials. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +87,8 @@ export default function StaffLogin() {
           repeatType: "reverse",
         }}
         style={{
-          backgroundImage: "radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%)",
+          backgroundImage:
+            "radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%)",
         }}
       />
 
@@ -101,17 +106,27 @@ export default function StaffLogin() {
           className="bg-white/95 backdrop-blur-xl p-8 md:p-10 rounded-3xl shadow-2xl border border-white/20"
         >
           {/* Header with icon */}
-          <motion.div variants={itemVariants} className="flex flex-col items-center mb-8">
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col items-center mb-8"
+          >
             <motion.div
               initial={{ filter: "drop-shadow(0px 0px 0px rgba(0,0,0,0))" }}
-              whileHover={{ scale: 1.1, filter: "drop-shadow(0px 8px 10px rgba(0, 0, 0, 0.25))", }}
+              whileHover={{
+                scale: 1.1,
+                filter: "drop-shadow(0px 8px 10px rgba(0, 0, 0, 0.25))",
+              }}
               transition={{ duration: 0.6 }}
               className="bg-gradient-to-br from-emerald-600 to-teal-600 p-4 rounded-2xl mb-4"
             >
               <Users className="w-8 h-8 text-white" />
             </motion.div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Staff Portal</h2>
-            <p className="text-gray-500 text-sm">Sign in to access your workspace</p>
+            <h2 className="text-3xl text-oswald text-weight-500 text-gray-900 mb-2">
+              Staff Portal
+            </h2>
+            <p className="text-gray-500 text-sm text-poppins text-weight-300">
+              Sign in to access your workspace
+            </p>
           </motion.div>
 
           {/* Error message */}
@@ -123,52 +138,70 @@ export default function StaffLogin() {
                 exit={{ opacity: 0, y: -10, height: 0 }}
                 className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
               >
-                <p className="text-red-600 text-sm font-medium text-center">{error}</p>
+                <p className="text-red-600 text-sm text-poppins text-weight-500 text-center">
+                  {error}
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Email input */}
           <motion.div variants={itemVariants} className="mb-5">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+            <label className="block text-sm text-poppins text-weight-600 text-gray-700 mb-2">
+              Email Address
+            </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                type="email"
-                placeholder="staff@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+
+              <motion.div whileFocus={{ scale: 1.01 }}>
+                <input
+                  type="email"
+                  placeholder="staff@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 text-poppins text-weight-300 placeholder-poppins-weight-300 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </motion.div>
             </div>
           </motion.div>
 
           {/* Password input */}
           <motion.div variants={itemVariants} className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <label className="block text-sm text-poppins text-weight-600 text-gray-700 mb-2">
+              Password
+            </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <motion.input
-                whileFocus={{ scale: 1.01 }}
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+              {/* Left lock icon */}
+              <Lock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+
+              {/* Input wrapped in motion.div */}
+              <motion.div whileFocus={{ scale: 1.01 }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 text-poppins text-weight-300 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed z-0"
+                />
+              </motion.div>
+
+              {/* Show/hide password icon button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </motion.button>
             </div>
           </motion.div>
@@ -176,7 +209,10 @@ export default function StaffLogin() {
           {/* Submit button */}
           <motion.button
             variants={itemVariants}
-            whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)" }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)",
+            }}
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={isLoading}
@@ -189,19 +225,29 @@ export default function StaffLogin() {
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                 />
-                <span>Signing in...</span>
+                <span className="text-poppins text-weight-600">
+                  Signing in...
+                </span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
+                <span className="text-poppins">Sign In</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </>
             )}
           </motion.button>
-
+          <p className="mt-6 relative top2 text-sm text-center text-gray-500 text-poppins">
+            Are you an admin?{" "}
+            <a
+              href="/admin"
+              className="text-green-600 hover:underline font-medium"
+            >
+              Admin Login
+            </a>
+          </p>
           {/* Footer note */}
           <motion.div variants={itemVariants} className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 text-poppins text-weight-600">
               Staff members only. Employees and interns access.
             </p>
           </motion.div>

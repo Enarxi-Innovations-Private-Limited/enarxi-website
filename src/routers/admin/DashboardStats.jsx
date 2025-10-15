@@ -147,8 +147,8 @@ const DashboardStats = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Dashboard Overview</h2>
-        <p className="text-gray-600">Welcome to the Enarxi Admin Portal. Here's a quick overview of your system.</p>
+        <h2 className="text-2xl text-poppins text-weight-700 text-[#0A1524] mb-2">Dashboard Overview</h2>
+        <p className="text-gray-600 text-poppins text-weight-300">Welcome to the Enarxi Admin Portal. Here's a quick overview of your system.</p>
       </div>
 
       <motion.div
@@ -176,17 +176,17 @@ const DashboardStats = () => {
                   <Icon className={`h-6 w-6 ${stat.textColor}`} />
                 </div>
                 <div className="ml-4 flex-1">
-                  <p className="text-sm font-medium text-gray-600 truncate">
+                  <p className="text-sm text-poppins text-weight-500 text-gray-600 truncate">
                     {stat.title}
                   </p>
-                  <p className="text-2xl font-bold text-[#0A1524]">
+                  <p className="text-2xl text-poppins text-weight-700 text-[#0A1524]">
                     {stat.value}
                   </p>
                 </div>
               </div>
               
               <div className="mt-4">
-                <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center justify-between text-sm text-poppins text-weight-300 text-gray-500">
                   <span className="flex items-center">
                     <span className={`w-2 h-2 ${stat.color} rounded-full mr-2 animate-pulse`}></span>
                     Live data
@@ -208,14 +208,14 @@ const DashboardStats = () => {
       >
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#0A1524]">Recent Activity</h3>
+            <h3 className="text-lg text-poppins text-weight-600 text-[#0A1524]">Recent Activity</h3>
             <Clock className="w-5 h-5 text-gray-400" />
           </div>
           <div className="space-y-3">
             {loading ? (
-              <div className="text-center text-gray-500 py-4">Loading activities...</div>
+              <div className="text-center text-poppins text-weight-300 text-gray-500 py-4">Loading activities...</div>
             ) : recentActivities.length === 0 ? (
-              <div className="text-center text-gray-500 py-4">No recent activities</div>
+              <div className="text-center text-poppins text-weight-300 text-gray-500 py-4">No recent activities</div>
             ) : (
               recentActivities.map((activity) => {
                 const getActivityColor = (action) => {
@@ -245,10 +245,10 @@ const DashboardStats = () => {
                   >
                     <div className={`w-2 h-2 ${getActivityColor(activity.action)} rounded-full mr-3 mt-1.5 flex-shrink-0`}></div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-gray-600 block truncate">{activity.description}</span>
-                      <span className="text-xs text-gray-400">{activity.adminName}</span>
+                      <span className="text-gray-600 text-poppins text-weight-300 block truncate">{activity.description}</span>
+                      <span className="text-xs text-poppins text-weight-300 text-gray-400">{activity.adminName}</span>
                     </div>
-                    <span className="ml-2 text-gray-400 text-xs whitespace-nowrap">{getTimeAgo(activity.timestamp)}</span>
+                    <span className="ml-2 text-gray-400 text-poppins text-weight-300 text-xs whitespace-nowrap">{getTimeAgo(activity.timestamp)}</span>
                   </motion.div>
                 );
               })
@@ -257,7 +257,7 @@ const DashboardStats = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-[#0A1524] mb-4">Quick Actions</h3>
+          <h3 className="text-lg text-poppins text-weight-600 text-[#0A1524] mb-4">Quick Actions</h3>
           <div className="space-y-3">
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -267,8 +267,8 @@ const DashboardStats = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-blue-600">Review Pending Blogs</div>
-                  <div className="text-xs text-blue-500">{pendingBlogs} blogs waiting for approval</div>
+                  <div className="text-sm text-poppins text-weight-600 text-blue-600">Review Pending Blogs</div>
+                  <div className="text-xs text-poppins text-weight-300 text-blue-500">{pendingBlogs} blogs waiting for approval</div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-blue-400 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -281,8 +281,8 @@ const DashboardStats = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-yellow-600">Review Customer Feedback</div>
-                  <div className="text-xs text-yellow-500">{pendingReviews} reviews pending approval</div>
+                  <div className="text-sm text-poppins text-weight-600 text-yellow-600">Review Customer Feedback</div>
+                  <div className="text-xs text-poppins text-weight-300 text-yellow-500">{pendingReviews} reviews pending approval</div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-yellow-400 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -295,8 +295,8 @@ const DashboardStats = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-green-600">Manage Staff</div>
-                  <div className="text-xs text-green-500">{totalUsers} users in the system</div>
+                  <div className="text-sm text-poppins text-weight-600 text-green-600">Manage Staff</div>
+                  <div className="text-xs text-poppins text-weight-300 text-green-500">{totalUsers} users in the system</div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-green-400 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -309,8 +309,8 @@ const DashboardStats = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-purple-600">Manage Team Members</div>
-                  <div className="text-xs text-purple-500">Update team display on website</div>
+                  <div className="text-sm text-poppins text-weight-600 text-purple-600">Manage Team Members</div>
+                  <div className="text-xs text-poppins text-weight-300 text-purple-500">Update team display on website</div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-purple-400 group-hover:translate-x-1 transition-transform" />
               </div>
