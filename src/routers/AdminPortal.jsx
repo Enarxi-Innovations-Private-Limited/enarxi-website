@@ -114,7 +114,7 @@ const AdminPortal = () => {
                   />
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold text-[#0A1524] ml-2 lg:ml-0">
+              <h1 className="text-2xl text-poppins text-weight-600 text-[#0A1524] ml-2 lg:ml-0">
                 {activeSection === "dashboard" && "Dashboard"}
                 {activeSection === "staff" && "Staff Management"}
                 {activeSection === "team" && "Team Members"}
@@ -125,11 +125,11 @@ const AdminPortal = () => {
             </div>
             <div className="flex items-center space-x-3">
               {user && (
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm text-poppins text-weight-500 text-gray-700">
                   {firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Admin'}
                 </span>
               )}
-              <div className="text-sm text-gray-500">Admin Portal</div> 
+              <div className="text-sm text-poppins text-weight-500 text-gray-500">Admin Portal</div> 
               {user && <Logout/>}
             </div>
           </div>
