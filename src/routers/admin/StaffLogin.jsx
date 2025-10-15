@@ -26,9 +26,15 @@ export default function StaffLogin() {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        if (userData.role === 'employee' || userData.role === 'intern') {
+        if ((userData.role === 'employee' || userData.role === 'intern') && userData.status=="active") {
           navigate('/staff'); // Success, navigate to staff portal
-        } else {
+        } 
+        
+        else if(userData.status!="active") {
+          await signOut(auth); // Not a staff member, sign out
+          setError('Your account is not active. Please contact admin.');
+        }
+        else {
           await signOut(auth); // Not a staff member, sign out
           setError('Access denied. Not a staff member.');
         }
