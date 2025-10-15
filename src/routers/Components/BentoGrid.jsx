@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Star } from "lucide-react";
+import { db } from "../../lib/firebase";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 
 const StarRating = ({ rating = 5 }) => (
   <div className="flex gap-1">
@@ -39,53 +41,124 @@ const ReviewCard = ({ review }) => (
 );
 
 const BentoReviews = () => {
-  const reviews = [
-    {
-      text: "Excellent experience with professional service and timely delivery.",
-      name: "TechTrendsHub",
-      role: "CEO, Tech Company",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-      rating: 5,
-      colSpan: "1 lg:col-span-2",
-    },
-    {
-      text: "Outstanding Digital Marketing through understanding client business, prompt communication, and results.",
-      name: "TechTrendsHub",
-      role: "Marketing Director",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-      rating: 5,
-      colSpan: "1 lg:col-span-2",
-    },
-    {
-      text: "Professional and reliable service with excellent results.",
-      name: "TechTrendsHub",
-      role: "Product Manager",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-      rating: 5,
-      colSpan: "2 lg:col-span-3",
-    },
-    {
-      text: "They study responsive and understand client needs. Always pleased with good service and fast turnaround.",
-      name: "TechTrendsHub",
-      role: "Creative Director",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-      rating: 5,
-      colSpan: "2 lg:col-span-5",
-    },
-    {
-      text: "Professional service with excellent attention to detail and creative digital marketing solutions.",
-      name: "TechTrendsHub",
-      role: "Operations Manager",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-      rating: 5,
-      colSpan: "2 lg:col-span-2",
-    },
-  ];
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch approved testimonials from Firebase
+  useEffect(() => {
+    const fetchApprovedReviews = async () => {
+      setLoading(true);
+      try {
+        // Try with orderBy first (requires composite index)
+        const q = query(
+          collection(db, 'testimonials'),
+          where('status', '==', 'approved'),
+          orderBy('createdAt', 'desc'),
+          limit(10)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const approvedReviews = querySnapshot.docs.map((doc, index) => {
+          const data = doc.data();
+          // Assign dynamic colSpan for bento grid layout
+          const colSpans = [
+            "1 lg:col-span-2",
+            "1 lg:col-span-2",
+            "2 lg:col-span-3",
+            "2 lg:col-span-5",
+            "2 lg:col-span-2"
+          ];
+          
+          return {
+            text: data.feedback || '',
+            name: data.customer_name || 'Anonymous',
+            role: data.email || 'Customer',
+            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+            rating: data.rating || 5,
+            colSpan: colSpans[index % colSpans.length]
+          };
+        });
+        
+        setReviews(approvedReviews);
+        console.log('✅ BentoGrid: Fetched approved reviews:', approvedReviews.length);
+      } catch (error) {
+        console.error('❌ BentoGrid: Error fetching approved reviews:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        
+        // If index error or permission issue, try without orderBy
+        if (error.code === 'failed-precondition' || error.message?.includes('index') || error.code === 'permission-denied') {
+          console.warn('⚠️ Trying fallback query without orderBy...');
+          try {
+            const simpleQuery = query(
+              collection(db, 'testimonials'),
+              where('status', '==', 'approved'),
+              limit(10)
+            );
+            
+            const querySnapshot = await getDocs(simpleQuery);
+            const approvedReviews = querySnapshot.docs.map((doc, index) => {
+              const data = doc.data();
+              const colSpans = [
+                "1 lg:col-span-2",
+                "1 lg:col-span-2",
+                "2 lg:col-span-3",
+                "2 lg:col-span-5",
+                "2 lg:col-span-2"
+              ];
+              
+              return {
+                text: data.feedback || '',
+                name: data.customer_name || 'Anonymous',
+                role: data.email || 'Customer',
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+                rating: data.rating || 5,
+                colSpan: colSpans[index % colSpans.length]
+              };
+            });
+            
+            // Sort manually by createdAt
+            approvedReviews.sort((a, b) => {
+              const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+              const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+              return dateB - dateA;
+            });
+            
+            setReviews(approvedReviews);
+            console.log('✅ BentoGrid: Fetched approved reviews (fallback):', approvedReviews.length);
+          } catch (fallbackError) {
+            console.error('❌ BentoGrid: Fallback query also failed:', fallbackError);
+            setReviews([]);
+          }
+        } else {
+          setReviews([]);
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchApprovedReviews();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-[90%] mx-auto">
+        <div className="bg-white rounded-lg p-8 text-center text-gray-600">
+          Loading testimonials...
+        </div>
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className="w-[90%] mx-auto">
+        <div className="bg-white rounded-lg p-8 text-center text-gray-600">
+          No testimonials available yet.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-[90%] mx-auto">
@@ -99,9 +172,9 @@ const BentoReviews = () => {
                   alt="Google"
                   className="w-5 h-5"
                 />
-                Google Reviews
+                Customer Reviews
               </p>
-              <span className="text-sm text-gray-300">(165 Reviews)</span>
+              <span className="text-sm text-gray-300">({reviews.length} Reviews)</span>
             </div>
           </div>
 

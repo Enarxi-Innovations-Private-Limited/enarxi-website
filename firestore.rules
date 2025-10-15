@@ -36,6 +36,23 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // Testimonials collection
+    match /testimonials/{testimonialId} {
+      // Anyone can create a testimonial (for feedback form)
+      allow create: if true;
+      
+      // Allow reading for:
+      // 1. Admins (can read all)
+      // 2. Anyone can read approved testimonials
+      allow read: if isAdmin() || resource.data.status == 'approved';
+      
+      // Only admins can update testimonials (approve/reject)
+      allow update: if isAdmin();
+      
+      // Only admins can delete testimonials
+      allow delete: if isAdmin();
+    }
+
     // Default deny for any other collections
     match /{document=**} {
       allow read, write: if false;

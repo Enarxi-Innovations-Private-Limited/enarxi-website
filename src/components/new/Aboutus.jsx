@@ -128,7 +128,7 @@ export default function AboutUs() {
           className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/10"
         />
         <motion.h1
-          className="text-4xl md:text-6xl lg:text-7xl font-bold font-oswald mb-6 relative z-10"
+          className="text-3xl md:text-4xl lg:text-5xl font-bold font-oswald mb-6 relative z-10"
           initial={{ opacity: 0, y: 50, scale: 0.8 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{

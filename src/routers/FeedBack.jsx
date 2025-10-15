@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { supabase } from "./client/supabaseClient";
+import { db } from "../lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { Star } from "lucide-react"; // For star rating icons
 
 const FeedbackForm = () => {
@@ -35,14 +36,15 @@ const FeedbackForm = () => {
       email: formData.email,
       rating: parseInt(formData.rating, 10),
       feedback: formData.comments,
+      status: "pending",
+      createdAt: serverTimestamp(),
     };
 
     try {
-      const { error } = await supabase
-        .from("Testimonial Form")
-        .insert([feedbackData]);
-
-      if (error) throw error;
+      // Add document to Firebase Firestore
+      console.log("📝 Submitting feedback:", feedbackData);
+      await addDoc(collection(db, "testimonials"), feedbackData);
+      console.log("✅ Feedback submitted successfully!");
 
       setSubmitted(true);
       setFormData({
@@ -52,8 +54,19 @@ const FeedbackForm = () => {
         comments: "",
       });
     } catch (error) {
-      console.error("Submission failed:", error.message);
-      alert("An error occurred. Please try again.");
+      console.error("❌ Submission failed:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+      
+      // Show more specific error message
+      let errorMessage = "An error occurred. Please try again.";
+      if (error.code === 'permission-denied') {
+        errorMessage = "Permission denied. Please contact the administrator.";
+      } else if (error.code === 'unavailable') {
+        errorMessage = "Service unavailable. Please check your internet connection.";
+      }
+      
+      alert(errorMessage);
     }
   };
 

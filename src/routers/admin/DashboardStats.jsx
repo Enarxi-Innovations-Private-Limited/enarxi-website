@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { FileText, Star, Users, Clock, ArrowRight } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
-import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/AuthProvider';
 
@@ -30,24 +29,22 @@ const DashboardStats = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch pending customer reviews from Supabase
+  // Fetch pending customer reviews from Firebase
   useEffect(() => {
-    const fetchPendingReviews = async () => {
-      const { count, error } = await supabase
-        .from('Testimonial Form')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+    const q = query(
+      collection(db, 'testimonials'),
+      where('status', '==', 'pending')
+    );
 
-      if (!error && count !== null) {
-        setPendingReviews(count);
-      }
-    };
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setPendingReviews(snapshot.size);
+      console.log('📊 Dashboard: Pending reviews count:', snapshot.size);
+    }, (error) => {
+      console.error('❌ Dashboard: Error fetching pending reviews:', error);
+      setPendingReviews(0);
+    });
 
-    fetchPendingReviews();
-    
-    // Poll every 30 seconds for updates
-    const interval = setInterval(fetchPendingReviews, 30000);
-    return () => clearInterval(interval);
+    return () => unsubscribe();
   }, []);
 
   // Fetch total users from Firestore

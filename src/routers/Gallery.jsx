@@ -175,7 +175,7 @@ const Gallery = () => {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 font-oswald mb-3 md:mb-4 tracking-tight">
           Gallery
         </h1>
-        <div className="w-16 md:w-24 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 mx-auto rounded-full" />
+        {/* <div className="w-16 md:w-24 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 mx-auto rounded-full" /> */}
         <p className="mt-3 md:mt-4 text-gray-600 text-sm md:text-lg max-w-2xl mx-auto px-4">
           Explore our collection of premium electronic components
         </p>

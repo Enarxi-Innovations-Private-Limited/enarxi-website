@@ -99,7 +99,7 @@ export default function Blog() {
   return (
     <section className="w-[90%] mx-auto py-12 min-h-[60vh]">
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold font-oswald">
+        <h2 className="text-3xl md:text-5xl font-bold font-oswald">
           Our Blogs
         </h2>
       </div>

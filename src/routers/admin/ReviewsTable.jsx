@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, CheckCircle, Trash2, Star, X, Mail } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, doc, updateDoc, orderBy } from 'firebase/firestore';
 import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
 
@@ -18,16 +19,60 @@ const ReviewsTable = () => {
 
   const fetchReviews = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('Testimonial Form') // ⚠️ exact table name
-      .select('*')
-      .eq('status', 'pending'); // fetch only pending reviews
-
-    if (error) {
-      console.error('Error fetching reviews:', error);
-      setReviewsData([]);
-    } else {
-      setReviewsData(data);
+    try {
+      // Try with orderBy first (requires composite index)
+      const q = query(
+        collection(db, 'testimonials'),
+        where('status', '==', 'pending'),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const reviews = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        created_at: doc.data().createdAt?.toDate().toISOString() || null
+      }));
+      
+      setReviewsData(reviews);
+      console.log('✅ Fetched reviews:', reviews.length);
+    } catch (error) {
+      console.error('❌ Error fetching reviews:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      // If index error, try without orderBy
+      if (error.code === 'failed-precondition' || error.message?.includes('index')) {
+        console.warn('⚠️ Composite index not found. Fetching without orderBy...');
+        try {
+          const simpleQuery = query(
+            collection(db, 'testimonials'),
+            where('status', '==', 'pending')
+          );
+          
+          const querySnapshot = await getDocs(simpleQuery);
+          const reviews = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            created_at: doc.data().createdAt?.toDate().toISOString() || null
+          }));
+          
+          // Sort manually
+          reviews.sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+            const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+            return dateB - dateA;
+          });
+          
+          setReviewsData(reviews);
+          console.log('✅ Fetched reviews (without index):', reviews.length);
+        } catch (fallbackError) {
+          console.error('❌ Fallback query also failed:', fallbackError);
+          setReviewsData([]);
+        }
+      } else {
+        setReviewsData([]);
+      }
     }
     setLoading(false);
   };
@@ -35,15 +80,11 @@ const ReviewsTable = () => {
   // Approve / Reject handlers
   const handleUpdateStatus = async (reviewId, newStatus) => {
     const review = reviewsData.find(r => r.id === reviewId);
-    const { error } = await supabase
-      .from('Testimonial Form')
-      .update({ status: newStatus })
-      .eq('id', reviewId);
-
-    if (error) {
-      console.error(`Error updating review ${reviewId}:`, error);
-      alert('Failed to update review status.');
-    } else {
+    
+    try {
+      const reviewRef = doc(db, 'testimonials', reviewId);
+      await updateDoc(reviewRef, { status: newStatus });
+      
       // Log activity
       if (firebaseUser && review) {
         const action = newStatus === 'approved' ? 'approved_review' : 'rejected_review';
@@ -59,6 +100,9 @@ const ReviewsTable = () => {
       
       fetchReviews(); // refresh after update
       setSelectedReview(null);
+    } catch (error) {
+      console.error(`Error updating review ${reviewId}:`, error);
+      alert('Failed to update review status.');
     }
   };
 
