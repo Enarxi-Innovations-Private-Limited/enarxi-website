@@ -93,9 +93,15 @@
   .text-weight-700{
     font-weight:700;
   }
+  .text-45 {
+    font-size:  clamp(1.563rem, 1.116rem + 1.19vw, 2.188rem);
+  }
 
   .text-40 {
     font-size: clamp(1.625rem, 1rem + 1.667vw, 2.5rem);
+  }
+  .text-35 {
+    font-size: clamp(1.25rem, 0.58rem + 1.786vw, 2.188rem);
   }
 
 
@@ -139,17 +145,35 @@
   }
 
   100% {
-    transform: translateX(-25%);
+    transform: translateX(-50%);
   }
 }
 
-.scroll {
-  animation: scroll 5s linear infinite;
-  width: max-content;
-  white-space: nowrap;
-  will-change: transform;
+@keyframes scroll-rev {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.scroll,
+.scroll-rev {
   display: flex;
   gap: 5rem;
+  white-space: nowrap;
+  width: max-content;
+  will-change: transform;
+}
+
+.scroll {
+  animation: scroll 25s linear infinite;
+}
+
+.scroll-rev {
+  animation: scroll-rev 25s linear infinite;
 }
 
 /* SVG Icon Hover Animations */
