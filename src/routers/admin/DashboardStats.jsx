@@ -179,7 +179,7 @@ const DashboardStats = () => {
                   <Icon className={`h-6 w-6 ${stat.textColor}`} />
                 </div>
                 <div className="ml-4 flex-1">
-                  <p className="text-sm text-poppins text-weight-500 text-gray-600 truncate">
+                  <p className="text-lg md:text-xl text-weight-500 text-poppins text-weight-500 text-gray-600 truncate">
                     {stat.title}
                   </p>
                   <p className="text-2xl text-poppins text-weight-700 text-[#0A1524]">
