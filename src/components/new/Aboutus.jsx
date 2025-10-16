@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import aboutUs1 from "@assets/aboutus/aboutus1.svg";
 import aboutUsEye from "../../assets/aboutusEye.png";
-import ayazCEO from "../../assets/ayazCEO.jpg";
-import syedCTO from "../../assets/syedCTO.jpg";
+import ayazCEO from "../../assets/ayazCEO.jpeg";
+import syedCTO from "../../assets/syedCTO.jpeg";
 import mission from "@assets/aboutus/mission.png";
 import vision from "@assets/aboutus/vision.png";
 import innovation from "@assets/aboutus/innovation.png";
@@ -240,7 +240,7 @@ export default function AboutUs() {
       </section>
 
       {/* Mission and Vision Section */}
-      <section className="py-20 bg-gradient-to-br from-secondary/50 to-primary/10">
+      <section className="py-20 bg-gradient-to-b from-secondary/40 via-secondary/50 to-secondary/50">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <motion.h2
             className="text-3xl md:text-4xl lg:text-5xl font-bold font-oswald text-center mb-16"
@@ -264,7 +264,6 @@ export default function AboutUs() {
             >
               <motion.div
                 className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 mx-auto"
-                whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
               >
                 <div className="w-8 h-8 bg-white rounded-lg">
@@ -273,7 +272,6 @@ export default function AboutUs() {
               </motion.div>
               <motion.h3
                 className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-primary"
-                whileHover={{ scale: 1.05 }}
               >
                 Our Mission
               </motion.h3>
@@ -304,8 +302,7 @@ export default function AboutUs() {
               whileHover={{ scale: 1.02, y: -5 }}
             >
               <motion.div
-                className="w-16 h-16 bg-secondary/20 rounded-2xl flex items-center justify-center mb-6 mx-auto"
-                whileHover={{ rotate: -360 }}
+                className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 mx-auto"
                 transition={{ duration: 0.6 }}
               >
                 <div className="w-8 h-8 bg-secondary rounded-lg">
@@ -314,7 +311,6 @@ export default function AboutUs() {
               </motion.div>
               <motion.h3
                 className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-secondary-foreground"
-                whileHover={{ scale: 1.05 }}
               >
                 Our Vision
               </motion.h3>
@@ -433,7 +429,7 @@ export default function AboutUs() {
       </section>
 
       {/* Our Team Section - Optimized */}
-      <section className="py-20 px-4 md:px-8 max-w-7xl rounded-xl mx-auto bg-gradient-to-br from-secondary/100 to-primary/5">
+      <section className="py-20 px-4 md:px-8 max-w-7xl rounded-xl mx-auto bg-gradient-to-b from-secondary/40 via-secondary/50 to-secondary/50">
         <motion.h2
           className="text-3xl md:text-4xl lg:text-5xl font-bold font-oswald text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -444,50 +440,6 @@ export default function AboutUs() {
           Our Team
         </motion.h2>
         <CarouselDemo />
-
-        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-          {staffsData.staffs.map((staff, index) => (
-            <motion.div
-              key={index}
-              className="text-center group"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ 
-                duration: 0.25,
-                delay: index * 0.05,
-                ease: "easeOut"
-              }}
-            >
-              <div className="relative mb-6 mx-auto w-fit will-change-transform">
-                Static gradient background - no blur animation for performance
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-200"></div>
-                
-                <motion.img 
-                  src={teamImages[index % teamImages.length]} 
-                  alt={`${staff.name} - ${staff.designation}`}
-                  loading="lazy"
-                  decoding="async"
-                  className="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-3xl shadow-lg border-4 border-background"
-                  style={{ willChange: "transform" }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    rotate: index % 2 === 0 ? 3 : -3
-                  }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                />
-              </div>
-              
-              <h3 className="text-lg md:text-xl font-bold font-oswald mb-2 text-primary capitalize transition-transform duration-200 hover:scale-105">
-                {staff.name}
-              </h3>
-              
-              <p className="text-muted-foreground text-sm md:text-base font-medium capitalize transition-colors duration-200 hover:text-primary">
-                {staff.designation}
-              </p>
-            </motion.div>
-          ))}
-        </div> */}
       </section>
 
       {/* Our Values Section */}

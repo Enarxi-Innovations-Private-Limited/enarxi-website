@@ -286,10 +286,10 @@ export default function WorkingDomain() {
   };
 
   return (
-    <div className="h-1/2 w-full bg-gray-50 font-sans">
+    <div className="h-1/2 w-full bg-red-500 font-sans">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Our Working Domain
+          Our Working
         </h2>
         {bp === "mobile" ? (
           // Mobile: Custom 4-5-4 grid layout

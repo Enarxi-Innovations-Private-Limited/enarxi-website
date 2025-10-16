@@ -133,7 +133,8 @@ export default function Blog() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
+              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+              onClick={() => setSelected(blog)}
             >
               <div className="w-full aspect-w-16 aspect-h-9 overflow-hidden rounded-xl">
                 <img
@@ -152,7 +153,7 @@ export default function Blog() {
                 />
                 <p className="text-xs text-gray-400">{blog.date}</p>
                 <button
-                  onClick={() => setSelected(blog)}
+                  // onClick={() => setSelected(blog)}
                   className="text-sm text-sky-500 font-medium mt-2 cursor-pointer underline"
                 >
                   View Post
@@ -236,14 +237,15 @@ export default function Blog() {
 
                 {/* Scrollable content (now part of the whole scroll) */}
                 <div className="p-4">
+                  <div className="flex flex-row gap-8 justify-between justify-items-center">
+                  <span>By <span className="underline">{selected.authorName}</span></span>
                   <h2 className={styles.title}>{selected.title}</h2>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                    <span>By {selected.authorName}</span>
-                    <span>•</span>
-                    <span>{selected.authorRole}</span>
-                    <span>•</span>
-                    <p className={styles.date}>{selected.date}</p>
+                  <span>on {selected.date}</span>
                   </div>
+                  {/* <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    
+                   
+                  </div> */}
                   <div
                     className={styles.content}
                     dangerouslySetInnerHTML={{ __html: selected.desc }}

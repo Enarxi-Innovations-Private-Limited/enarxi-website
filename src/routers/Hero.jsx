@@ -15,9 +15,9 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center w-full">
         <HeroComponent />
-        <ProductDevelopmentWorks />
-        <DomainsSection/>
         <ServiceWeOffer />
+        <DomainsSection/>
+        <ProductDevelopmentWorks />
         <OurStats />
         <WhyUs />  
         <TrustedBy /> 

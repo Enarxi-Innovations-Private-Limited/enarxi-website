@@ -19,7 +19,7 @@ const TrustedBy = () => {
 
   return (
     <section className="padding-y w-full flex flex-col justify-center items-center overflow-hidden">
-      <h2 className="text-center  mb-6 text-40 text-oswald-bold">
+      <h2 className="text-center mb-6 text-4xl text-oswald-bold">
         Trusted By
       </h2>
 
@@ -30,7 +30,7 @@ const TrustedBy = () => {
               key={i}
               src={logo.src}
               alt={logo.alt}
-              className="h-12 object-contain flex-shrink-0"
+              className="h-12 object-contain flex-shrink-0 mt-4"
             />
           ))}
         </div>

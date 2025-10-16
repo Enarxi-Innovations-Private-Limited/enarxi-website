@@ -38,7 +38,7 @@ const DomainsSection = () => {
   };
 
   return (
-    <section className="w-full padding-y  bg-gradient-to-b from-white to-[#f9fafb] flex flex-col items-center overflow-hidden">
+    <section className="w-full padding-y mt-4 bg-gradient-to-b from-[#DEF4FF]/10 via-[#DEF4FF] to-white flex flex-col items-center overflow-hidden">
       <h2 className="text-center  text-[#0f172a] mb-8 md:mb-12 text-oswald-bold text-40">
         Our Working Domains
       </h2>

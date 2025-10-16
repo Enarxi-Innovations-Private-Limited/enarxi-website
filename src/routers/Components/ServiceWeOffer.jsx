@@ -182,7 +182,7 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className="rounded-2xl md:rounded-3xl bg-gray-100 border border-slate-300 px-6 py-6 md:px-8 md:py-8 lg:px-12 lg:py-10 sticky after:pointer-events-none w-full max-w-5xl z-30"
+              className="rounded-2xl md:rounded-3xl bg-gradient-to-b from-[#EBF7FF] via-[#D8EEFF] to-white border border-slate-300 px-6 py-6 md:px-8 md:py-8 lg:px-12 lg:py-10 sticky after:pointer-events-none w-full max-w-5xl z-30"
               style={{ top: `${baseTop + index * 30}px` }}
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 items-center">

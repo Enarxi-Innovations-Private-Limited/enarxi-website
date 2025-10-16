@@ -138,7 +138,7 @@ const CarouselDemo = () => {
           <CarouselItem key={member.id} className="md:basis-1/2 lg:basis-1/3">
             <div className="p-4">
               <Card
-                className="text-center shadow-md rounded-xl transition-transform hover:scale-[1.02] cursor-pointer"
+                className="text-center shadow-md rounded-xl transition-transform hover:scale-[1.02]"
                 style={{
                   background:
                     "linear-gradient(to bottom right, #eef8fe, #ffffff)",
@@ -171,8 +171,8 @@ const CarouselDemo = () => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="left-2 md:-left-12" />
-      <CarouselNext className="right-2 md:-right-12" />
+      <CarouselPrevious className="left-2 md:-left-12 cursor-pointer" />
+      <CarouselNext className="right-2 md:-right-12 cursor-pointer" />
     </Carousel>
     </div>
   );

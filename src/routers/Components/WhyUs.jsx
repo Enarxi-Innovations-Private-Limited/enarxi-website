@@ -147,7 +147,7 @@ const WhyUs = () => {
         transition={{ duration: 0.6 }}
         className="flex flex-col items-center mb-16 max-w-4xl"
       >
-        <h1 className="text-oswald-bold mb-4 text-40 text-font-bold text-gray-900">
+        <h1 className="text-oswald-bold mb-4 text-4xl text-font-bold text-gray-900">
           Why us?
         </h1>
         <p className="text-poppins text-center text-sm md:text-base text-gray-600 leading-relaxed">
@@ -165,7 +165,7 @@ const WhyUs = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3"
         >
           {features.map((feat, index) => (
             <motion.div

@@ -20,8 +20,8 @@
   /* Primary/Background */
   --color-primary: #28627B;
   --color-primary-dark: #1e40af;
-  /* --color-secondary: #F7DBA7; */
   --color-secondary: #eef8fe;
+  --color-hero-primary: #d0eaf7;
   --color-bg: #111827;
   --color-bg-alt: #1f2937;
   --color-text: #d1d5db;
@@ -61,18 +61,22 @@
   .padding-y {
     @apply py-12 md:py-16
   }
+
   .text-oswald-bold {
     font-family: var(--font-oswald), sans-serif;
     font-weight: 700;
   }
+
   .text-poppins-bold {
     font-family: var(--font-poppins), sans-serif;
     font-weight: 700;
   }
+
   .text-oswald-semibold {
     font-family: var(--font-oswald), sans-serif;
     font-weight: 600;
   }
+
   .text-poppins-semibold {
     font-family: var(--font-poppins), sans-serif;
     font-weight: 600;
@@ -210,6 +214,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

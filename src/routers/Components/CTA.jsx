@@ -60,11 +60,11 @@ const CTA = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
           {/* Left: Headline */}
           <div className="md:pr-6">
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
-              Let's get started on your ideas 💡
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight md:whitespace-nowrap ">
+              Let's get started on your ideas💡
             </h2>
-            <p className="mt-5 text-slate-300 leading-relaxed">
-              Stay home, stay safe, and save lives. Connect with us digitally —
+            <p className="mt-5 text-slate-300 leading-relaxed ">
+              Stay home, stay safe, and save lives. Connect with us digitally -
               we’re all ears!
             </p>
           </div>
