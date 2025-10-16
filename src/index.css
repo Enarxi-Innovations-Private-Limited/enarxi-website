@@ -89,9 +89,15 @@
   .text-weight-700{
     font-weight:700;
   }
+  .text-45 {
+    font-size:  clamp(1.563rem, 1.116rem + 1.19vw, 2.188rem);
+  }
 
   .text-40 {
     font-size: clamp(1.625rem, 1rem + 1.667vw, 2.5rem);
+  }
+  .text-35 {
+    font-size: clamp(1.25rem, 0.58rem + 1.786vw, 2.188rem);
   }
 
 
