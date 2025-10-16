@@ -6,32 +6,25 @@ import tp5 from "../../assets/images/tp5.svg";
 import "../../index.css";
 
 const TrustedBy = () => {
-  const logos = [
-    { src: tp1, alt: "Client 1" },
-    { src: tp2, alt: "Client 2" },
-    { src: tp3, alt: "Client 3" },
-    { src: tp4, alt: "Client 4" },
-    { src: tp5, alt: "Client 5" },
-  ];
-
-  // Duplicate logos multiple times for seamless infinite scroll
-  const duplicatedLogos = [...logos, ...logos, ...logos, ...logos];
+  const logos = [tp1, tp2, tp3, tp4, tp5];
+  const duplicatedLogos = [...logos, ...logos, ...logos, ...logos]; // ensure long enough
 
   return (
     <section className="padding-y w-full flex flex-col justify-center items-center overflow-hidden">
-      <h2 className="text-center  mb-6 text-40 text-oswald-bold">
-        Trusted By
-      </h2>
+      <h2 className="text-center mb-6 text-40 text-oswald-bold">Trusted By</h2>
 
-      <div className="w-full mx-auto overflow-hidden relative">
-        <div className="flex gap-20 items-center scroll">
-          {duplicatedLogos.map((logo, i) => (
-            <img
-              key={i}
-              src={logo.src}
-              alt={logo.alt}
-              className="h-12 object-contain flex-shrink-0"
-            />
+      <div className="w-full overflow-hidden flex flex-col gap-10">
+        {/* Left scrolling row */}
+        <div className="scroll flex gap-20 items-center">
+          {duplicatedLogos.map((src, i) => (
+            <img key={`left-${i}`} src={src} alt={`Client ${i}`} className="h-12 object-contain" />
+          ))}
+        </div>
+
+        {/* Right scrolling row (reverse direction) */}
+        <div className="scroll-rev flex gap-20 items-center">
+          {duplicatedLogos.map((src, i) => (
+            <img key={`right-${i}`} src={src} alt={`Client ${i}`} className="h-12 object-contain" />
           ))}
         </div>
       </div>

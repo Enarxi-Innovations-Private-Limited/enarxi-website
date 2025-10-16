@@ -141,17 +141,35 @@
   }
 
   100% {
-    transform: translateX(-25%);
+    transform: translateX(-50%);
   }
 }
 
-.scroll {
-  animation: scroll 5s linear infinite;
-  width: max-content;
-  white-space: nowrap;
-  will-change: transform;
+@keyframes scroll-rev {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.scroll,
+.scroll-rev {
   display: flex;
   gap: 5rem;
+  white-space: nowrap;
+  width: max-content;
+  will-change: transform;
+}
+
+.scroll {
+  animation: scroll 25s linear infinite;
+}
+
+.scroll-rev {
+  animation: scroll-rev 25s linear infinite;
 }
 
 /* SVG Icon Hover Animations */
