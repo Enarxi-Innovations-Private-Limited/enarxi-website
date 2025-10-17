@@ -13,73 +13,79 @@ const mockUser = {
   profileImage: "https://randomuser.me/api/portraits/men/32.jpg",
   bio: "I am passionate about electronics and IoT. I love creating innovative projects that blend hardware and software to solve real-world problems. Whether it's a gift for family, a surprise for friends, or something useful for the community, I enjoy crafting things that bring joy and spark curiosity.",
   stats: {
-    instructables: 28,
+    blogs: 28,
     views: 20836,
-    comments: 29,
-    followers: 18,
   },
   blogs: [
     {
       id: 1,
       title: "The Future of AI in Edge Devices",
-      thumbnail: "https://via.placeholder.com/400x250/4A90E2/FFFFFF?text=AI+Edge+Devices",
-      description: "Exploring how AI models are optimized for on-device performance and real-time inference.",
+      thumbnail: "https://picsum.photos/seed/ai-edge/400/250",
+      description:
+        "Exploring how AI models are optimized for on-device performance and real-time inference.",
       views: 320,
       published: "June 14, 2024",
     },
     {
       id: 2,
       title: "Building a Smart Home with ESP32",
-      thumbnail: "https://via.placeholder.com/400x250/7B68EE/FFFFFF?text=Smart+Home+ESP32",
-      description: "A comprehensive guide to creating an IoT-based smart home automation system.",
+      thumbnail: "https://picsum.photos/seed/smart-home/400/250",
+      description:
+        "A comprehensive guide to creating an IoT-based smart home automation system.",
       views: 542,
       published: "May 22, 2024",
     },
     {
       id: 3,
       title: "PCB Design Best Practices",
-      thumbnail: "https://via.placeholder.com/400x250/50C878/FFFFFF?text=PCB+Design",
-      description: "Learn the essential principles for designing efficient and reliable printed circuit boards.",
+      thumbnail: "https://picsum.photos/seed/pcb-design/400/250",
+      description:
+        "Learn the essential principles for designing efficient and reliable printed circuit boards.",
       views: 789,
       published: "April 18, 2024",
     },
     {
       id: 4,
       title: "3D Printing for Rapid Prototyping",
-      thumbnail: "https://via.placeholder.com/400x250/FF6347/FFFFFF?text=3D+Printing",
-      description: "How to leverage 3D printing technology to accelerate your product development cycle.",
+      thumbnail: "https://picsum.photos/seed/3d-printing/400/250",
+      description:
+        "How to leverage 3D printing technology to accelerate your product development cycle.",
       views: 456,
       published: "March 30, 2024",
     },
     {
       id: 5,
       title: "Introduction to MQTT Protocol",
-      thumbnail: "https://via.placeholder.com/400x250/FFD700/333333?text=MQTT+Protocol",
-      description: "Understanding the lightweight messaging protocol for IoT applications.",
+      thumbnail: "https://picsum.photos/seed/mqtt-protocol/400/250",
+      description:
+        "Understanding the lightweight messaging protocol for IoT applications.",
       views: 612,
       published: "March 10, 2024",
     },
     {
       id: 6,
       title: "Wireless Sensor Networks Explained",
-      thumbnail: "https://via.placeholder.com/400x250/FF69B4/FFFFFF?text=Sensor+Networks",
-      description: "Deep dive into the architecture and applications of wireless sensor networks.",
+      thumbnail: "https://picsum.photos/seed/sensor-networks/400/250",
+      description:
+        "Deep dive into the architecture and applications of wireless sensor networks.",
       views: 398,
       published: "February 25, 2024",
     },
     {
       id: 7,
       title: "Arduino vs Raspberry Pi: Which to Choose?",
-      thumbnail: "https://via.placeholder.com/400x250/20B2AA/FFFFFF?text=Arduino+vs+RPi",
-      description: "A detailed comparison to help you choose the right platform for your project.",
+      thumbnail: "https://picsum.photos/seed/arduino-rpi/400/250",
+      description:
+        "A detailed comparison to help you choose the right platform for your project.",
       views: 891,
       published: "February 12, 2024",
     },
     {
       id: 8,
       title: "Battery Management Systems for IoT",
-      thumbnail: "https://via.placeholder.com/400x250/9370DB/FFFFFF?text=Battery+Management",
-      description: "Essential techniques for optimizing battery life in IoT devices.",
+      thumbnail: "https://picsum.photos/seed/battery-iot/400/250",
+      description:
+        "Essential techniques for optimizing battery life in IoT devices.",
       views: 523,
       published: "January 28, 2024",
     },
@@ -98,7 +104,7 @@ export default function UserProfile() {
     //   const data = await response.json();
     //   setUser(data);
     // };
-    
+
     // Simulate API call
     setTimeout(() => {
       setUser(mockUser);
@@ -135,12 +141,12 @@ export default function UserProfile() {
 
   return (
     <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
-      {/* Profile Section */}
+      {/* Profile Section with Blue Gradient */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-xl shadow-sm p-8 mb-12"
+        className="bg-gradient-to-b from-[#dff4ff] to-white rounded-xl shadow-sm p-8 mb-12"
       >
         <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* Profile Image */}
@@ -153,19 +159,19 @@ export default function UserProfile() {
             <img
               src={user.profileImage}
               alt={user.name}
-              className="w-48 h-48 rounded-full object-cover border-4 border-gray-100 shadow-md"
+              className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-md"
             />
           </motion.div>
 
-          {/* User Details */}
+          {/* User Details Column */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="flex-1"
+            className="flex flex-col"
           >
             {/* Name */}
-            <h1 className="text-4xl md:text-5xl font-bold font-oswald text-gray-900 mb-3">
+            <h1 className="text-4xl  md:text-5xl/12  font-bold font-oswald text-gray-900 mb-3">
               {user.name}
             </h1>
 
@@ -186,7 +192,8 @@ export default function UserProfile() {
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
               <Calendar size={16} />
               <span className="font-poppins">
-                Joined on {new Date(user.joinedDate).toLocaleDateString("en-US", {
+                Joined on{" "}
+                {new Date(user.joinedDate).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -199,46 +206,55 @@ export default function UserProfile() {
               href={user.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm mb-4"
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm"
             >
               <Linkedin size={18} />
               <span className="font-poppins">Connect on LinkedIn</span>
             </a>
+          </motion.div>
 
-            {/* Stats */}
-            <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-2xl font-bold font-oswald text-gray-900">
-                  {user.stats.instructables}
-                </p>
-                <p className="text-xs text-gray-500 font-poppins">Instructables</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold font-oswald text-gray-900">
-                  {user.stats.views.toLocaleString()}
-                </p>
-                <p className="text-xs text-gray-500 font-poppins">Views</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold font-oswald text-gray-900">
-                  {user.stats.comments}
-                </p>
-                <p className="text-xs text-gray-500 font-poppins">Comments</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold font-oswald text-gray-900">
-                  {user.stats.followers}
-                </p>
-                <p className="text-xs text-gray-500 font-poppins">Followers</p>
-              </div>
-            </div>
+          {/* Vertical Separator */}
+          <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
 
-            {/* Bio */}
-            {user.bio && (
-              <p className="text-sm text-gray-700 leading-relaxed mt-6 font-poppins">
-                {user.bio}
+          {/* Stats Column */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="flex gap-12"
+          >
+            <div className="flex flex-col">
+            <div>
+            <div className="text-center md:text-left">
+              <p className="text-4xl font-bold font-oswald text-gray-900">
+                {user.stats.blogs}
               </p>
+              <p className="text-sm text-gray-600 font-poppins">Blogs</p>
+            </div>
+            <div className="text-center pt-2 md:text-left">
+              <p className="text-4xl font-bold font-oswald text-gray-900">
+                {user.stats.views.toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-600 font-poppins">Views</p>
+            </div>
+            </div>
+            <div className="pt-5">
+            {/* Bio - Below everything */}
+            {user.bio && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className=" border-t border-gray-200"
+              >
+                <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-4xl">
+                  {user.bio}
+                </p>
+              </motion.div>
             )}
+            </div>
+            </div>
+            
           </motion.div>
         </div>
       </motion.div>
