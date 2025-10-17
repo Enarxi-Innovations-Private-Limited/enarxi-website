@@ -1,13 +1,11 @@
-import {
-  MessageCircle,
-  Mail,
-  Phone,
-  Instagram,
-  Facebook,
-  Linkedin,
-} from "lucide-react";
 import enarxiLogoWhite from "../../assets/images/logo-white.svg";
-import whatsappFooterSVG from "../../assets/icons/whatsappFooterSVG.svg";
+
+import whatsappSVG from "../../assets/footer/whatsapp.svg"
+import facebookSVG from "../../assets/footer/facebook.svg";
+import instagramSVG from "../../assets/footer/instagram.svg";
+import linkedinSVG from "../../assets/footer/linkedin.svg";
+import gmailSVG from "../../assets/footer/gmail.svg";
+import dialpadSVG from "../../assets/footer/dialpad.svg";
 
 const Footer = () => {
   return (
@@ -75,7 +73,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="text-footer-foreground hover:text-footer-brand transition-colors"
               >
-                <MessageCircle className="w-6 h-6" />
+                <img src={whatsappSVG} alt="whatsappsvg" className="w-6 h-6" />
               </a>
               <a
                 href="mailto:contact@enarxi.com"
@@ -83,13 +81,13 @@ const Footer = () => {
                 target="_blank"
                 className="text-footer-foreground hover:text-footer-brand transition-colors"
               >
-                <Mail className="w-6 h-6" />
+                <img src={gmailSVG} alt="gmailsvg" className="w-6 h-6" />
               </a>
               <a
                 href="tel:+91 96006 76639"
                 className="text-footer-foreground hover:text-footer-brand transition-colors"
               >
-                <Phone className="w-6 h-6" />
+                <img src={dialpadSVG} alt="dialpadsvg" className="w-6 h-6" />
               </a>
               <a
                 href="https://www.instagram.com/enarxi/"
@@ -97,7 +95,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="text-footer-foreground hover:text-footer-brand transition-colors"
               >
-                <Instagram className="w-6 h-6" />
+                <img src={instagramSVG} alt="instagramsvg" className="w-6 h-6" />
               </a>
               <a
                 href="https://www.facebook.com/enarxitech/"
@@ -105,7 +103,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="text-footer-foreground hover:text-footer-brand transition-colors"
               >
-                <Facebook className="w-6 h-6" />
+                <img src={facebookSVG} alt="facebooksvg" className="w-6 h-6" />
               </a>
               <a
                 href="https://www.linkedin.com/company/enarxi/"
@@ -113,7 +111,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="text-footer-foreground hover:text-footer-brand transition-colors"
               >
-                <Linkedin className="w-6 h-6" />
+                <img src={linkedinSVG} alt="linkedinsvg" className="w-6 h-6" />
               </a>
             </div>
           </div>

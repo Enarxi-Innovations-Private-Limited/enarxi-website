@@ -39,10 +39,10 @@ const CTA = () => {
       setTimeout(() => setShowSuccess(false), 3000);
 
       const result = await emailjs.send(
-        "service_n7kz6xp", 
-        "template_71as93u", 
+        "service_9kqymv2", 
+        "template_by1gtll", 
         payload,
-        "4YeEjxO8U73uvXDOk" 
+        "DrjvKCy8rORVEmghe" 
       );
 
       console.log(result.text);

@@ -169,11 +169,11 @@
 }
 
 .scroll {
-  animation: scroll 25s linear infinite;
+  animation: scroll 45s linear infinite;
 }
 
 .scroll-rev {
-  animation: scroll-rev 25s linear infinite;
+  animation: scroll-rev 45s linear infinite;
 }
 
 /* SVG Icon Hover Animations */
