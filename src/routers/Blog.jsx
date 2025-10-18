@@ -60,7 +60,7 @@ export default function Blog() {
           })
           // Filter to show only visible blogs (visibility === true OR visibility field doesn't exist)
           .filter((blog) => blog.visibility !== false);
-        
+
         setBlogs(blogData);
       } catch (error) {
         console.error("Error fetching blogs:", error);
@@ -114,7 +114,7 @@ export default function Blog() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: (index % 4) * 0.1}}
+                transition={{ delay: (index % 4) * 0.1 }}
               >
                 <BlogSkeleton />
               </motion.div>
@@ -123,7 +123,9 @@ export default function Blog() {
         ) : blogs.length === 0 ? (
           // Show empty state
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg">No blogs available at the moment.</p>
+            <p className="text-gray-500 text-lg">
+              No blogs available at the moment.
+            </p>
           </div>
         ) : (
           // Show actual blogs with fade-in animation
@@ -144,21 +146,24 @@ export default function Blog() {
                 />
               </div>
               <div className="p-3">
-                <h3 className="text-base font-semibold mb-2 line-clamp-2 leading-tight">{blog.title}</h3>
+                <h3 className="text-base font-semibold mb-2 line-clamp-2 leading-tight">
+                  {blog.title}
+                </h3>
                 <p
                   className="text-xs text-gray-600 mb-2 line-clamp-2"
                   dangerouslySetInnerHTML={{
                     __html: blog.desc.slice(0, 100) + "...",
                   }}
                 />
-                <p className="text-xs text-gray-500 mb-1">By <span className="font-medium">{blog.authorName}</span></p>
+                <p className="text-xs text-gray-500 mb-1">
+                  By <span className="font-medium">{blog.authorName}</span>
+                </p>
                 <p className="text-xs text-gray-400">{blog.date}</p>
               </div>
             </motion.div>
           ))
         )}
       </div>
-
       {/* Modal */}
 
       <AnimatePresence>
@@ -232,15 +237,14 @@ export default function Blog() {
 
                 {/* Scrollable content (now part of the whole scroll) */}
                 <div className="p-4">
-                  <div className="flex flex-row gap-8 justify-between justify-items-center">
-                  <span>By <span className="underline">{selected.authorName}</span></span>
                   <h2 className={styles.title}>{selected.title}</h2>
-                  <span>on {selected.date}</span>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <span>By {selected.authorName}</span>
+                    <span>•</span>
+                    <span>{selected.authorRole}</span>
+                    <span>•</span>
+                    <p className={styles.date}>{selected.date}</p>
                   </div>
-                  {/* <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                    
-                   
-                  </div> */}
                   <div
                     className={styles.content}
                     dangerouslySetInnerHTML={{ __html: selected.desc }}
