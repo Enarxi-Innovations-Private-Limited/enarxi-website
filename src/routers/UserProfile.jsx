@@ -5,7 +5,7 @@ import { Eye, Calendar, Linkedin, MapPin } from "lucide-react";
 
 // TODO: Fetch user details by username from API
 const mockUser = {
-  name: "Syed Ahmed",
+  name: "Syed Ahmed Bin sulaiman bin sultann",
   email: "syed@enarxi.com",
   joinedDate: "2024-03-15",
   location: "Bangalore, India",
@@ -116,7 +116,7 @@ export default function UserProfile() {
     return (
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
         <div className="animate-pulse">
-          <div className="flex flex-col md:flex-row gap-8 mb-12">
+          <div className="flex flex-col lg:flex-row gap-8 mb-12">
             <div className="w-48 h-48 bg-gray-200 rounded-full"></div>
             <div className="flex-1 space-y-4">
               <div className="h-8 bg-gray-200 rounded w-1/3"></div>
@@ -148,7 +148,7 @@ export default function UserProfile() {
         transition={{ duration: 0.5 }}
         className="bg-gradient-to-b from-[#dff4ff] to-white rounded-xl shadow-sm p-8 mb-12"
       >
-        <div className="flex flex-col md:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           {/* Profile Image */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -168,7 +168,7 @@ export default function UserProfile() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="flex flex-col"
+            className="flex lg:min-w-[30vh] flex-col"
           >
             {/* Name */}
             <h1 className="text-4xl  md:text-5xl/12  font-bold font-oswald text-gray-900 mb-3">
@@ -221,41 +221,39 @@ export default function UserProfile() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            className="flex gap-12"
+            className="flex flex-col gap-5"
           >
-            <div className="flex flex-col">
-            <div>
-            <div className="text-center md:text-left">
-              <p className="text-4xl font-bold font-oswald text-gray-900">
-                {user.stats.blogs}
-              </p>
-              <p className="text-sm text-gray-600 font-poppins">Blogs</p>
+            {/* Blogs & Views Row */}
+            <div className="flex flex-row justify-evenly md:mb-5  gap-12 items-center">
+              <div className="flex flex-col items-center md:items-start">
+                <p className="text-4xl font-bold font-oswald text-gray-900">
+                  {user.stats.blogs}
+                </p>
+                <p className="text-sm text-gray-600 font-poppins">Blogs</p>
+              </div>
+              <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
+              <div className="flex flex-col items-center md:items-start">
+                <p className="text-4xl font-bold font-oswald text-gray-900">
+                  {user.stats.views.toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-600 font-poppins">Views</p>
+              </div>
             </div>
-            <div className="text-center pt-2 md:text-left">
-              <p className="text-4xl font-bold font-oswald text-gray-900">
-                {user.stats.views.toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-600 font-poppins">Views</p>
-            </div>
-            </div>
-            <div className="pt-5">
-            {/* Bio - Below everything */}
+
+            {/* Bio Below */}
             {user.bio && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className=" border-t border-gray-200"
+                className="border-t border-gray-200 pt-4"
               >
                 <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-4xl">
                   {user.bio}
                 </p>
               </motion.div>
             )}
-            </div>
-            </div>
-            
-          </motion.div>
+          </motion.div> 
         </div>
       </motion.div>
 
