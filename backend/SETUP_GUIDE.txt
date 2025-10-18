@@ -1,0 +1,266 @@
+=============================================================================
+ENARXI BACKEND - SETUP GUIDE
+=============================================================================
+
+This backend handles all critical security operations:
+- User management (delete, update email/password)
+- Cloudinary image deletion (secure server-side)
+- Blog deletion with image cleanup
+
+=============================================================================
+PREREQUISITES
+=============================================================================
+
+1. Node.js v20 or higher installed
+2. npm or pnpm package manager
+3. Firebase project with Admin SDK credentials
+4. Cloudinary account with API credentials
+
+=============================================================================
+STEP 1: INSTALL DEPENDENCIES
+=============================================================================
+
+Open terminal in the backend folder and run:
+
+    npm install
+
+Or if you use pnpm:
+
+    pnpm install
+
+This will install:
+- express (web framework)
+- cors (cross-origin requests)
+- dotenv (environment variables)
+- firebase-admin (Firebase Admin SDK)
+- cloudinary (image management)
+- helmet (security headers)
+- express-rate-limit (rate limiting)
+- express-validator (input validation)
+- morgan (logging)
+
+=============================================================================
+STEP 2: GET FIREBASE ADMIN SDK CREDENTIALS
+=============================================================================
+
+1. Go to Firebase Console: https://console.firebase.google.com/
+2. Select your project
+3. Click the gear icon → Project Settings
+4. Go to "Service Accounts" tab
+5. Click "Generate New Private Key"
+6. Download the JSON file (keep it secure!)
+7. Open the JSON file and extract these values:
+   - project_id
+   - private_key
+   - client_email
+
+=============================================================================
+STEP 3: CREATE .env FILE
+=============================================================================
+
+1. Copy .env.example to .env:
+   
+   cp .env.example .env
+
+2. Fill in the values:
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Firebase Admin SDK (from the JSON file you downloaded)
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour_Private_Key_Here\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3001
+
+# Security
+JWT_SECRET=generate_a_random_string_here
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+IMPORTANT NOTES:
+- The FIREBASE_PRIVATE_KEY must include the \n characters
+- Keep the quotes around the private key
+- Never commit the .env file to git (it's in .gitignore)
+
+=============================================================================
+STEP 4: UPDATE FRONTEND .env FILE
+=============================================================================
+
+In your frontend .env file, add:
+
+VITE_API_BASE_URL=http://localhost:5000/api
+
+For production, change to your production backend URL:
+
+VITE_API_BASE_URL=https://your-backend-domain.com/api
+
+=============================================================================
+STEP 5: START THE BACKEND SERVER
+=============================================================================
+
+Development mode (with auto-reload):
+
+    npm run dev
+
+Production mode:
+
+    npm start
+
+You should see:
+
+    ═══════════════════════════════════════════════════════════
+    🚀 Enarxi Backend API Server
+    ═══════════════════════════════════════════════════════════
+    📡 Server running on: http://localhost:5000
+    🌍 Environment: development
+    🔒 CORS enabled for: http://localhost:3001
+    ...
+
+=============================================================================
+STEP 6: TEST THE BACKEND
+=============================================================================
+
+1. Open browser and go to: http://localhost:5000/health
+
+   You should see:
+   {
+     "success": true,
+     "message": "Enarxi Backend API is running",
+     "timestamp": "...",
+     "environment": "development"
+   }
+
+2. Test with frontend:
+   - Start your frontend (npm run dev)
+   - Login as admin
+   - Try to delete a user or blog
+   - Check backend terminal for logs
+
+=============================================================================
+AVAILABLE API ENDPOINTS
+=============================================================================
+
+All endpoints require authentication (Bearer token in Authorization header)
+
+USER MANAGEMENT (Admin only):
+- DELETE /api/users/:uid                - Delete user
+- PUT    /api/users/:uid/email          - Update user email
+- PUT    /api/users/:uid/password       - Update user password
+- PUT    /api/users/:uid                - Update user profile
+
+CLOUDINARY (Admin only):
+- POST   /api/cloudinary/delete         - Delete image by public ID
+- POST   /api/cloudinary/delete-by-url  - Delete image by URL
+- POST   /api/cloudinary/delete-multiple - Delete multiple images
+
+BLOG MANAGEMENT (Admin only):
+- DELETE /api/blogs/:blogId             - Delete blog and images
+- PUT    /api/blogs/:blogId/approve     - Approve blog
+- PUT    /api/blogs/:blogId/reject      - Reject blog
+
+HEALTH CHECK (Public):
+- GET    /health                        - Check if server is running
+
+=============================================================================
+PRODUCTION DEPLOYMENT
+=============================================================================
+
+1. Set NODE_ENV=production in .env
+2. Update FRONTEND_URL to your production frontend URL
+3. Update CORS settings if needed
+4. Use a process manager like PM2:
+
+   npm install -g pm2
+   pm2 start server.js --name enarxi-backend
+   pm2 save
+   pm2 startup
+
+5. Set up reverse proxy (nginx/Apache) if needed
+6. Use HTTPS in production
+7. Set up monitoring and logging
+
+=============================================================================
+SECURITY BEST PRACTICES
+=============================================================================
+
+✅ NEVER commit .env file to git
+✅ Use strong JWT_SECRET (generate with: openssl rand -base64 32)
+✅ Keep Firebase Admin SDK credentials secure
+✅ Use HTTPS in production
+✅ Enable rate limiting (already configured)
+✅ Monitor logs for suspicious activity
+✅ Keep dependencies updated (npm audit)
+✅ Use environment-specific .env files
+✅ Implement proper error handling
+✅ Set up monitoring and alerting
+
+=============================================================================
+TROUBLESHOOTING
+=============================================================================
+
+Problem: "Missing required environment variables"
+Solution: Check your .env file has all required variables
+
+Problem: "Firebase Admin SDK initialization failed"
+Solution: Verify your Firebase credentials are correct
+         Make sure private key has \n characters
+
+Problem: "CORS error from frontend"
+Solution: Check FRONTEND_URL in .env matches your frontend URL
+         Restart backend after changing .env
+
+Problem: "Cloudinary deletion fails"
+Solution: Verify Cloudinary credentials in .env
+         Check public_id is correct
+
+Problem: "Port 5000 already in use"
+Solution: Change PORT in .env or kill process using port 5000:
+         Windows: netstat -ano | findstr :5000
+                 taskkill /PID <PID> /F
+         Linux/Mac: lsof -ti:5000 | xargs kill -9
+
+=============================================================================
+FOLDER STRUCTURE
+=============================================================================
+
+backend/
+├── config/
+│   ├── firebase.js       # Firebase Admin SDK setup
+│   └── cloudinary.js     # Cloudinary configuration
+├── middleware/
+│   └── auth.js           # Authentication middleware
+├── routes/
+│   ├── users.js          # User management routes
+│   ├── cloudinary.js     # Cloudinary routes
+│   └── blogs.js          # Blog management routes
+├── server.js             # Main server file
+├── package.json          # Dependencies
+├── .env.example          # Environment template
+├── .env                  # Your environment (create this)
+├── .gitignore            # Git ignore rules
+└── SETUP_GUIDE.txt       # This file
+
+=============================================================================
+SUPPORT
+=============================================================================
+
+For issues or questions:
+1. Check the logs in terminal
+2. Review the error messages
+3. Verify all environment variables are set correctly
+4. Check Firebase and Cloudinary dashboards for issues
+
+=============================================================================
+END OF SETUP GUIDE
+=============================================================================
