@@ -1,127 +1,84 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, Calendar, Linkedin, MapPin } from "lucide-react";
-
-// TODO: Fetch user details by username from API
-const mockUser = {
-  name: "Syed Ahmed",
-  email: "syed@enarxi.com",
-  joinedDate: "2024-03-15",
-  location: "Bangalore, India",
-  linkedin: "https://linkedin.com/in/syedahmed",
-  profileImage: "https://randomuser.me/api/portraits/men/32.jpg",
-  bio: "I am passionate about electronics and IoT. I love creating innovative projects that blend hardware and software to solve real-world problems. Whether it's a gift for family, a surprise for friends, or something useful for the community, I enjoy crafting things that bring joy and spark curiosity.",
-  stats: {
-    blogs: 28,
-    views: 20836,
-  },
-  blogs: [
-    {
-      id: 1,
-      title: "The Future of AI in Edge Devices",
-      thumbnail: "https://picsum.photos/seed/ai-edge/400/250",
-      description:
-        "Exploring how AI models are optimized for on-device performance and real-time inference.",
-      views: 320,
-      published: "June 14, 2024",
-    },
-    {
-      id: 2,
-      title: "Building a Smart Home with ESP32",
-      thumbnail: "https://picsum.photos/seed/smart-home/400/250",
-      description:
-        "A comprehensive guide to creating an IoT-based smart home automation system.",
-      views: 542,
-      published: "May 22, 2024",
-    },
-    {
-      id: 3,
-      title: "PCB Design Best Practices",
-      thumbnail: "https://picsum.photos/seed/pcb-design/400/250",
-      description:
-        "Learn the essential principles for designing efficient and reliable printed circuit boards.",
-      views: 789,
-      published: "April 18, 2024",
-    },
-    {
-      id: 4,
-      title: "3D Printing for Rapid Prototyping",
-      thumbnail: "https://picsum.photos/seed/3d-printing/400/250",
-      description:
-        "How to leverage 3D printing technology to accelerate your product development cycle.",
-      views: 456,
-      published: "March 30, 2024",
-    },
-    {
-      id: 5,
-      title: "Introduction to MQTT Protocol",
-      thumbnail: "https://picsum.photos/seed/mqtt-protocol/400/250",
-      description:
-        "Understanding the lightweight messaging protocol for IoT applications.",
-      views: 612,
-      published: "March 10, 2024",
-    },
-    {
-      id: 6,
-      title: "Wireless Sensor Networks Explained",
-      thumbnail: "https://picsum.photos/seed/sensor-networks/400/250",
-      description:
-        "Deep dive into the architecture and applications of wireless sensor networks.",
-      views: 398,
-      published: "February 25, 2024",
-    },
-    {
-      id: 7,
-      title: "Arduino vs Raspberry Pi: Which to Choose?",
-      thumbnail: "https://picsum.photos/seed/arduino-rpi/400/250",
-      description:
-        "A detailed comparison to help you choose the right platform for your project.",
-      views: 891,
-      published: "February 12, 2024",
-    },
-    {
-      id: 8,
-      title: "Battery Management Systems for IoT",
-      thumbnail: "https://picsum.photos/seed/battery-iot/400/250",
-      description:
-        "Essential techniques for optimizing battery life in IoT devices.",
-      views: 523,
-      published: "January 28, 2024",
-    },
-  ],
-};
+import { Eye, Calendar } from "lucide-react";
+import { db } from "@lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function UserProfile() {
-  const { username } = useParams(); // Get username from URL
+  const { username } = useParams();
   const [user, setUser] = useState(null);
+  const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    // const fetchUserData = async () => {
-    //   const response = await fetch(`/api/users/${username}`);
-    //   const data = await response.json();
-    //   setUser(data);
-    // };
+    const fetchUserData = async () => {
+      setLoading(true);
+      setUser(null);
+      setBlogs([]);
 
-    // Simulate API call
-    setTimeout(() => {
-      setUser(mockUser);
-      setLoading(false);
-    }, 500);
-  }, [username]);
+      const queryName = username.toLowerCase();
+
+      try {
+        // --- Part 1: Fetch the User and Profile Image ---
+        const userQuery = query(collection(db, "users"), where("name", ">=", queryName), where("name", "<", queryName + '\uf8ff'));
+        const userSnap = await getDocs(userQuery);
+
+        if (userSnap.empty) {
+          console.log(`User "${queryName}" not found.`);
+          setLoading(false); // Stop loading and show "User Not Found" page
+          return;
+        }
+
+        const userData = userSnap.docs[0].data();
+        const userId = userSnap.docs[0].id;
+
+        // Fetch team member image
+        let profileImageUrl = null;
+        const teamMemberQuery = query(collection(db, "teamMembers"), where("name", ">=", queryName), where("name", "<", queryName + '\uf8ff'));
+        const teamMemberSnap = await getDocs(teamMemberQuery);
+        if (!teamMemberSnap.empty) {
+          const teamMemberData = teamMemberSnap.docs[0].data();
+          profileImageUrl = teamMemberData.images?.[0]?.url;
+        }
+
+        // IMPORTANT: Set the user state immediately so the profile renders
+        setUser({
+          ...userData,
+          profileImage: profileImageUrl,
+        });
+
+        // --- Part 2: Fetch the Blogs ---
+        const blogsQuery = query(collection(db, "blogs"), where("userId", "==", userId));
+        const blogsSnap = await getDocs(blogsQuery);
+        const userBlogs = blogsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Now, set the blogs state
+        setBlogs(userBlogs);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // This will run regardless of success or failure
+      }
+    };
+    
+    if (username) {
+      fetchUserData();
+    }
+}, [username]);
 
   if (loading) {
     return (
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
+        {/* Loading Skeleton Here */}
         <div className="animate-pulse">
-          <div className="flex flex-col md:flex-row gap-8 mb-12">
-            <div className="w-48 h-48 bg-gray-200 rounded-full"></div>
-            <div className="flex-1 space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="flex flex-col md:flex-row gap-8 mb-12 items-start bg-gray-50 p-8 rounded-xl">
+            <div className="w-48 h-48 bg-gray-200 rounded-full flex-shrink-0"></div>
+            <div className="flex-1 space-y-4 pt-4">
+              <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-5 bg-gray-200 rounded w-1/4"></div>
             </div>
           </div>
         </div>
@@ -133,7 +90,8 @@ export default function UserProfile() {
     return (
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800">User not found</h2>
+          <h2 className="text-2xl font-bold text-gray-800">User Not Found</h2>
+          <p className="text-gray-500 mt-2">Could not find a user with the name "{username}".</p>
         </div>
       </section>
     );
@@ -141,7 +99,7 @@ export default function UserProfile() {
 
   return (
     <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
-      {/* Profile Section with Blue Gradient */}
+      {/* --- Profile Section --- */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -149,176 +107,91 @@ export default function UserProfile() {
         className="bg-gradient-to-b from-[#dff4ff] to-white rounded-xl shadow-sm p-8 mb-12"
       >
         <div className="flex flex-col md:flex-row gap-8 items-start">
-          {/* Profile Image */}
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-            className="flex-shrink-0"
-          >
-            <img
-              src={user.profileImage}
-              alt={user.name}
-              className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-md"
-            />
-          </motion.div>
-
-          {/* User Details Column */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="flex flex-col"
-          >
-            {/* Name */}
-            <h1 className="text-4xl  md:text-5xl/12  font-bold font-oswald text-gray-900 mb-3">
+          <img
+            src={user.profileImage || `https://ui-avatars.com/api/?name=${user.name}&background=random`}
+            alt={user.name}
+            className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-md flex-shrink-0"
+          />
+          <div className="flex-grow">
+            <h1 className="text-4xl md:text-5xl/12 font-bold font-oswald text-gray-900 mb-3 capitalize">
               {user.name}
             </h1>
-
-            {/* Email */}
-            <p className="text-base text-gray-600 mb-2 font-poppins">
+            <p className="text-base text-gray-600 mb-4 font-poppins">
               {user.email}
             </p>
-
-            {/* Location */}
-            {user.location && (
+            {user.createdAt && (
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                <MapPin size={16} />
-                <span className="font-poppins">{user.location}</span>
+                <Calendar size={16} />
+                <span className="font-poppins">
+                  Joined on {new Date(user.createdAt.toDate()).toLocaleDateString("en-US", {
+                    year: "numeric", month: "long", day: "numeric",
+                  })}
+                </span>
               </div>
             )}
-
-            {/* Joined Date */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-              <Calendar size={16} />
-              <span className="font-poppins">
-                Joined on{" "}
-                {new Date(user.joinedDate).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-
-            {/* LinkedIn Link */}
-            <a
-              href={user.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm"
-            >
-              <Linkedin size={18} />
-              <span className="font-poppins">Connect on LinkedIn</span>
-            </a>
-          </motion.div>
-
-          {/* Vertical Separator */}
-          <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
-
-          {/* Stats Column */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="flex gap-12"
-          >
-            <div className="flex flex-col">
-            <div>
-            <div className="text-center md:text-left">
-              <p className="text-4xl font-bold font-oswald text-gray-900">
-                {user.stats.blogs}
+            {user.description && (
+              <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-2xl mt-4 pt-4 border-t border-gray-200">
+                {user.description}
               </p>
-              <p className="text-sm text-gray-600 font-poppins">Blogs</p>
-            </div>
-            <div className="text-center pt-2 md:text-left">
-              <p className="text-4xl font-bold font-oswald text-gray-900">
-                {user.stats.views.toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-600 font-poppins">Views</p>
-            </div>
-            </div>
-            <div className="pt-5">
-            {/* Bio - Below everything */}
-            {user.bio && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className=" border-t border-gray-200"
-              >
-                <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-4xl">
-                  {user.bio}
-                </p>
-              </motion.div>
             )}
-            </div>
-            </div>
-            
-          </motion.div>
+          </div>
         </div>
       </motion.div>
 
-      {/* Blogs Section */}
+      {/* --- Blogs Section --- */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold font-oswald text-gray-900 mb-8">
-          Blogs by {user.name.split(" ")[0]}
+        <h2 className="text-3xl md:text-4xl font-bold font-oswald text-gray-900 mb-8 capitalize">
+          Blogs by {user.name}
         </h2>
 
-        {/* Blogs Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {user.blogs.map((blog, index) => (
-            <motion.div
-              key={blog.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + index * 0.05, duration: 0.4 }}
-              whileHover={{ scale: 1.03 }}
-              className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer group"
-            >
-              {/* Blog Thumbnail */}
-              <div className="w-full aspect-video overflow-hidden">
-                <img
-                  src={blog.thumbnail}
-                  alt={blog.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-
-              {/* Blog Content */}
-              <div className="p-4">
-                {/* Title */}
-                <h3 className="text-base font-semibold font-oswald text-gray-900 mb-2 line-clamp-2 leading-tight">
-                  {blog.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-xs text-gray-600 mb-3 line-clamp-2 font-poppins">
-                  {blog.description}
-                </p>
-
-                {/* Footer - Views and Date */}
-                <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                  <div className="flex items-center gap-1">
-                    <Eye size={14} />
-                    <span className="font-poppins">{blog.views}</span>
-                  </div>
-                  <span className="font-poppins">{blog.published}</span>
+        {blogs.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {blogs.map((blog, index) => (
+              <motion.div
+                key={blog.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.05, duration: 0.4 }}
+                className="bg-white rounded-lg shadow-sm overflow-hidden group transition hover:shadow-md cursor-pointer"
+              >
+                <div className="w-full aspect-video overflow-hidden">
+                  <img
+                    src={blog.images?.[0]?.url || 'https://picsum.photos/seed/fallback/400/250'}
+                    alt={blog.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {user.blogs.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg font-poppins">
-              No blogs published yet.
+                <div className="p-4 flex flex-col">
+                  <h3 className="text-base font-semibold font-oswald text-gray-900 mb-2 line-clamp-2 leading-tight flex-grow">
+                    {blog.title}
+                  </h3>
+                  <div
+                    className="text-xs text-gray-600 mb-3 line-clamp-2 font-poppins"
+                    dangerouslySetInnerHTML={{ __html: blog.content || "" }}
+                  />
+                  <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-1">
+                      <Eye size={14} />
+                      <span className="font-poppins">{blog.views || 0}</span>
+                    </div>
+                    {blog.createdAt && (
+                      <span className="font-poppins">
+                        {new Date(blog.createdAt.toDate()).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-gray-50 rounded-lg">
+            <p className="text-gray-500 text-lg font-poppins capitalize">
+              {user.name.split(" ")[0]} has not published any blogs yet.
             </p>
           </div>
         )}

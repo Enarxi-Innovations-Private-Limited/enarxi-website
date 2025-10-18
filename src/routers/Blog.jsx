@@ -5,6 +5,7 @@ import { db } from "@/lib/firebase";
 import styles from "./Blog.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 import BlogSkeleton from "@/components/shared/BlogSkeleton";
+import {Link} from "react-router-dom"
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
@@ -114,7 +115,7 @@ export default function Blog() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: (index % 4) * 0.1}}
+                // transition={{ delay: (index % 4) * 0.1}}
               >
                 <BlogSkeleton />
               </motion.div>
@@ -130,9 +131,9 @@ export default function Blog() {
           blogs.map((blog, index) => (
             <motion.div
               key={blog.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              // initial={{ opacity: 0, y: 20 }}
+              // animate={{ opacity: 1, y: 0 }}
+              // transition={{ delay: index * 0.1 }}
               className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer group"
               onClick={() => setSelected(blog)}
             >
@@ -233,14 +234,11 @@ export default function Blog() {
                 {/* Scrollable content (now part of the whole scroll) */}
                 <div className="p-4">
                   <div className="flex flex-row gap-8 justify-between justify-items-center">
-                  <span>By <span className="underline">{selected.authorName}</span></span>
+                  {/* <span>By <span className="underline">{selected.authorName}</span></span> */}
+                  <span>By <Link to={`/users/${selected.authorName}`}> {selected.authorName}</Link> </span>
                   <h2 className={styles.title}>{selected.title}</h2>
                   <span>on {selected.date}</span>
                   </div>
-                  {/* <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                    
-                   
-                  </div> */}
                   <div
                     className={styles.content}
                     dangerouslySetInnerHTML={{ __html: selected.desc }}
