@@ -52,10 +52,13 @@ export const requireAdmin = async (req, res, next) => {
       });
     }
 
-    // Get user document from Firestore
+    console.log('🔍 Checking admin status for user:', req.user.uid);
+
+    // Get user document from Firestore using Admin SDK (bypasses security rules)
     const userDoc = await db.collection('users').doc(req.user.uid).get();
 
     if (!userDoc.exists) {
+      console.error('❌ User document not found:', req.user.uid);
       return res.status(403).json({
         success: false,
         error: 'Forbidden',
@@ -64,8 +67,10 @@ export const requireAdmin = async (req, res, next) => {
     }
 
     const userData = userDoc.data();
+    console.log('✅ User data retrieved:', { uid: req.user.uid, role: userData.role });
 
     if (userData.role !== 'admin') {
+      console.error('❌ User is not admin:', { uid: req.user.uid, role: userData.role });
       return res.status(403).json({
         success: false,
         error: 'Forbidden',
@@ -76,13 +81,17 @@ export const requireAdmin = async (req, res, next) => {
     // Attach user data to request
     req.userData = userData;
 
+    console.log('✅ Admin verification successful');
     next();
   } catch (error) {
-    console.error('Admin verification error:', error.message);
+    console.error('❌ Admin verification error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error details:', error.details);
     return res.status(500).json({
       success: false,
       error: 'Internal Server Error',
-      message: 'Failed to verify admin status'
+      message: 'Failed to verify admin status',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

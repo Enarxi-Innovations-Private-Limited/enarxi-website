@@ -30,9 +30,11 @@ try {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     projectId: process.env.FIREBASE_PROJECT_ID,
+    databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
   });
   
   console.log('✅ Firebase Admin SDK initialized successfully');
+  console.log('📊 Project ID:', process.env.FIREBASE_PROJECT_ID);
 } catch (error) {
   console.error('❌ Failed to initialize Firebase Admin SDK:', error.message);
   throw error;
