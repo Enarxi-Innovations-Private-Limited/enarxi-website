@@ -104,7 +104,7 @@ const SortableRow = ({ member, onEdit, onDelete, onToggleVisibility }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           onClick={() => onToggleVisibility(member)}
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 cursor-pointer"
         >
           {member.visibility ? (
             <Eye className="h-5 w-5 text-green-600" />
@@ -126,7 +126,7 @@ const SortableRow = ({ member, onEdit, onDelete, onToggleVisibility }) => {
             onClick={() => onEdit(member)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="text-blue-600 hover:text-blue-900 flex items-center transition-colors duration-200"
+            className="text-blue-600 hover:text-blue-900 flex items-center transition-colors duration-200 cursor-pointer"
           >
             <Edit3 className="h-4 w-4 mr-1" />
             Edit
@@ -136,7 +136,7 @@ const SortableRow = ({ member, onEdit, onDelete, onToggleVisibility }) => {
             onClick={() => onDelete(member)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="text-red-600 hover:text-red-900 flex items-center transition-colors duration-200"
+            className="text-red-600 hover:text-red-900 flex items-center transition-colors duration-200 cursor-pointer"
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Delete
@@ -351,7 +351,7 @@ const TeamTable = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleAdd}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center cursor-pointer"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add New

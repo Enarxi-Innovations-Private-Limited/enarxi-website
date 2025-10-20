@@ -50,7 +50,7 @@ const BlogViewModal = ({ blog, isOpen, onClose, onApprove, onDelete }) => {
               {/* Fixed Close button - stays in place */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-white bg-black/75 hover:bg-black p-2 rounded-full z-20 transition-all duration-200 hover:scale-110"
+                className="absolute top-4 right-4 text-white bg-black/75 hover:bg-black p-2 rounded-full z-20 transition-all duration-200 hover:scale-110 cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -110,7 +110,7 @@ const BlogViewModal = ({ blog, isOpen, onClose, onApprove, onDelete }) => {
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer"
                 >
                   <CheckCircle className="h-5 w-5" />
                   <span>Accept Blog</span>
@@ -122,7 +122,7 @@ const BlogViewModal = ({ blog, isOpen, onClose, onApprove, onDelete }) => {
                   }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg cursor-pointer"
                 >
                   <Trash2 className="h-5 w-5" />
                   <span>Delete Blog</span>

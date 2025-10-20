@@ -74,7 +74,6 @@ function App() {
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/aboutus" element={<AboutUs1 />} />
               <Route path="/feedback" element={<FeedBack />} />
-              <Route path="/users" element={<UserProfile />} />
               <Route path="/users/:username" element={<UserProfile />} />
             </Route>
         
