@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, Calendar } from "lucide-react";
 import { db } from "@lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc } from "firebase/firestore";
 
 export default function UserProfile() {
   const { username } = useParams();
@@ -11,7 +11,7 @@ export default function UserProfile() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
       setUser(null);
@@ -21,28 +21,63 @@ export default function UserProfile() {
 
       try {
         // --- Part 1: Fetch the User and Profile Image ---
-        const userQuery = query(collection(db, "users"), where("searchableName", ">=", queryName), where("searchableName", "<", queryName + '\uf8ff'));
-        const userSnap = await getDocs(userQuery);
+        let userSnap;
 
+        // Step 1: Try the primary, case-insensitive search field first.
+        const userQueryPrimary = query(
+          collection(db, "users"),
+          where("searchableName", ">=", queryName),
+          where("searchableName", "<", queryName + '\uf8ff')
+        );
+        userSnap = await getDocs(userQueryPrimary);
+
+        // Step 2: If the primary search fails, try the legacy 'name' field as a fallback.
         if (userSnap.empty) {
-          console.log(`User "${queryName}" not found.`);
-          setLoading(false); // Stop loading and show "User Not Found" page
+          console.log(`No user found with 'searchableName'. Trying legacy 'name' field...`);
+          const userQueryLegacy = query(
+            collection(db, "users"),
+            where("name", ">=", queryName),
+            where("name", "<", queryName + '\uf8ff')
+          );
+          userSnap = await getDocs(userQueryLegacy);
+        }
+        
+        // If still not found after both attempts, exit.
+        if (userSnap.empty) {
+          console.log(`User matching "${queryName}" not found in either field.`);
+          setLoading(false);
           return;
         }
 
         const userData = userSnap.docs[0].data();
         const userId = userSnap.docs[0].id;
+        const actualName = userData.name; // Get the correctly cased name from the document
 
-        // Fetch team member image
+        // Fetch team member image using the same two-step query logic
         let profileImageUrl = null;
-        const teamMemberQuery = query(collection(db, "teamMembers"), where("name", ">=", queryName), where("name", "<", queryName + '\uf8ff'));
-        const teamMemberSnap = await getDocs(teamMemberQuery);
+        let teamMemberSnap;
+
+        const teamMemberQueryPrimary = query(
+          collection(db, "teamMembers"),
+          where("searchableName", ">=", queryName),
+          where("searchableName", "<", queryName + '\uf8ff')
+        );
+        teamMemberSnap = await getDocs(teamMemberQueryPrimary);
+
+        if (teamMemberSnap.empty) {
+          const teamMemberQueryLegacy = query(
+            collection(db, "teamMembers"),
+            where("name", ">=", queryName),
+            where("name", "<", queryName + '\uf8ff')
+          );
+          teamMemberSnap = await getDocs(teamMemberQueryLegacy);
+        }
+
         if (!teamMemberSnap.empty) {
           const teamMemberData = teamMemberSnap.docs[0].data();
           profileImageUrl = teamMemberData.images?.[0]?.url;
         }
 
-        // IMPORTANT: Set the user state immediately so the profile renders
         setUser({
           ...userData,
           profileImage: profileImageUrl,
@@ -53,13 +88,12 @@ export default function UserProfile() {
         const blogsSnap = await getDocs(blogsQuery);
         const userBlogs = blogsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        // Now, set the blogs state
         setBlogs(userBlogs);
 
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false); // This will run regardless of success or failure
+        setLoading(false);
       }
     };
     
