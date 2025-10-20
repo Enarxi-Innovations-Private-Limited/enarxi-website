@@ -50,7 +50,7 @@ const ModifyStaffModal = ({ isOpen, onClose, staffMember, onUpdate, onDelete }) 
           exit={{ opacity: 0, scale: 0.9 }}
           className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative"
         >
-          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer">
             <X size={24} />
           </button>
           <h2 className="text-2xl font-bold text-[#0A1524] mb-6">Modify Staff: {staffMember.name}</h2>
@@ -138,13 +138,13 @@ const ModifyStaffModal = ({ isOpen, onClose, staffMember, onUpdate, onDelete }) 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
                 >
                   Submit Changes
                 </button>

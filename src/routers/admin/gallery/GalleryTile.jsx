@@ -39,7 +39,7 @@ const GalleryTile = ({ post, onEdit, onDelete, onToggleVisibility }) => {
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="absolute top-2 left-2 bg-white bg-opacity-90 p-2 rounded-full shadow-md"
+          className="absolute top-2 left-2 bg-white bg-opacity-90 p-2 rounded-full shadow-md cursor-pointer"
         >
           {post.visibility ? (
             <Eye className="h-4 w-4 text-green-600" />
@@ -73,7 +73,7 @@ const GalleryTile = ({ post, onEdit, onDelete, onToggleVisibility }) => {
             onClick={() => onEdit(post)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1 cursor-pointer"
           >
             <Edit3 className="h-4 w-4" />
             <span>Edit</span>
@@ -83,7 +83,7 @@ const GalleryTile = ({ post, onEdit, onDelete, onToggleVisibility }) => {
             onClick={() => onDelete(post)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1 cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
             <span>Delete</span>

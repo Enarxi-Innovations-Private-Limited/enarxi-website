@@ -304,7 +304,7 @@ const BlogsTable = () => {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200"
+              className="flex items-center space-x-2 bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 cursor-pointer"
             >
               <span className="capitalize">{filterStatus}</span>
               <ChevronDown 
@@ -323,7 +323,7 @@ const BlogsTable = () => {
               >
                 <button
                   onClick={() => handleFilterChange('pending')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
                     filterStatus === 'pending' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
                   }`}
                 >
@@ -331,7 +331,7 @@ const BlogsTable = () => {
                 </button>
                 <button
                   onClick={() => handleFilterChange('approved')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
                     filterStatus === 'approved' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
                   }`}
                 >

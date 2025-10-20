@@ -21,7 +21,7 @@ export default function UserProfile() {
 
       try {
         // --- Part 1: Fetch the User and Profile Image ---
-        const userQuery = query(collection(db, "users"), where("name", ">=", queryName), where("name", "<", queryName + '\uf8ff'));
+        const userQuery = query(collection(db, "users"), where("searchableName", ">=", queryName), where("searchableName", "<", queryName + '\uf8ff'));
         const userSnap = await getDocs(userQuery);
 
         if (userSnap.empty) {

@@ -134,7 +134,7 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`flex-1 ${isVisible ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1`}
+              className={`flex-1 ${isVisible ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1 cursor-pointer`}
             >
               {isVisible ? (
                 <>
@@ -156,7 +156,7 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1 cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
               <span>Delete</span>
