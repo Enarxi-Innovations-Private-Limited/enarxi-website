@@ -385,7 +385,7 @@ export default function UserProfile() {
                 transition={{ delay: 0.55, duration: 0.5 }}
                 className="border-t border-gray-200 pt-4 w-full"
               >
-                <p className="text-sm text-gray-700 leading-relaxed font-poppins">
+                <p className="text-sm text-left text-gray-700 leading-relaxed font-poppins">
                   {bio}
                 </p>
               </motion.div>
