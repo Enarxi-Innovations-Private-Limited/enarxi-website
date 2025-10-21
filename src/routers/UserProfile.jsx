@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, Calendar, X } from "lucide-react";
+import { Eye, Calendar, Linkedin, MapPin, X } from "lucide-react";
+// Import firebase tools
 import { db } from "@lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+
+// Helper function for view count formatting
+const formatViews = (num) => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toString();
+};
 
 export default function UserProfile() {
   const { username } = useParams();
@@ -31,7 +40,7 @@ export default function UserProfile() {
         );
         userSnap = await getDocs(userQueryPrimary);
 
-        // Step 2: If that fails, fall back to the legacy 'name' field.
+        // Step 2: Fall back to the legacy 'name' field if primary fails.
         if (userSnap.empty) {
           console.log(`No user found with 'searchableName'. Trying legacy 'name' field...`);
           const userQueryLegacy = query(
@@ -41,8 +50,7 @@ export default function UserProfile() {
           );
           userSnap = await getDocs(userQueryLegacy);
         }
-        
-        // If still not found, exit.
+
         if (userSnap.empty) {
           console.log(`User matching "${queryName}" not found in either field.`);
           setLoading(false);
@@ -52,7 +60,7 @@ export default function UserProfile() {
         const userData = userSnap.docs[0].data();
         const userId = userSnap.docs[0].id;
 
-        // Fetch team member image using the same two-step logic
+        // --- Fetch Profile Image from teamMembers (like your new component) ---
         let profileImageUrl = null;
         let teamMemberSnap;
 
@@ -77,17 +85,27 @@ export default function UserProfile() {
           profileImageUrl = teamMemberData.images?.[0]?.url;
         }
 
-        // Set the user state so the profile renders immediately
-        setUser({
-          ...userData,
-          profileImage: profileImageUrl,
-        });
-
-        // --- Fetch Blogs ---
+        // --- Fetch Blogs and Calculate Stats ---
         const blogsQuery = query(collection(db, "blogs"), where("userId", "==", userId));
         const blogsSnap = await getDocs(blogsQuery);
         const userBlogs = blogsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
+
+        const totalViews = userBlogs.reduce((sum, blog) => sum + (blog.views || 0), 0);
+
+        // Finalize user data
+        setUser({
+          ...userData,
+          profileImage: profileImageUrl,
+          stats: {
+            blogs: userBlogs.length,
+            views: totalViews,
+          },
+          // Map to old field names for UI compatibility
+          joinedDate: userData.createdAt,
+          location: userData.location,
+          linkedin: userData.linkedin,
+          bio: userData.description,
+        });
         setBlogs(userBlogs);
 
       } catch (error) {
@@ -96,22 +114,23 @@ export default function UserProfile() {
         setLoading(false);
       }
     };
-    
+
     if (username) {
       fetchUserData();
     }
   }, [username]);
 
+  // Use the loading state from the old component's UI
   if (loading) {
     return (
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
         <div className="animate-pulse">
-          <div className="flex flex-col md:flex-row gap-8 mb-12 items-start bg-gray-50 p-8 rounded-xl">
-            <div className="w-48 h-48 bg-gray-200 rounded-full flex-shrink-0"></div>
-            <div className="flex-1 space-y-4 pt-4">
-              <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-              <div className="h-5 bg-gray-200 rounded w-1/2"></div>
-              <div className="h-5 bg-gray-200 rounded w-1/4"></div>
+          <div className="flex flex-col lg:flex-row gap-8 mb-12">
+            <div className="w-48 h-48 bg-gray-200 rounded-full"></div>
+            <div className="flex-1 space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
             </div>
           </div>
         </div>
@@ -119,6 +138,7 @@ export default function UserProfile() {
     );
   }
 
+  // Use the not-found state from the new component's logic
   if (!user) {
     return (
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
@@ -129,69 +149,159 @@ export default function UserProfile() {
       </section>
     );
   }
+  
+  // Destructure for cleaner access
+  const { name, email, joinedDate, location, linkedin, profileImage, bio, stats } = user;
+  const firstName = name.split(" ")[0];
 
   return (
     <>
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
-        {/* --- Profile Section --- */}
+        {/* Profile Section with Blue Gradient (from old component UI) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="bg-gradient-to-b from-[#dff4ff] to-white rounded-xl shadow-sm p-8 mb-12"
         >
-          <div className="flex flex-col md:flex-row gap-8 items-start">
-            <img
-              src={user.profileImage || `https://ui-avatars.com/api/?name=${user.name.split(' ').join('+')}&background=random`}
-              alt={user.name}
-              className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-md flex-shrink-0"
-            />
-            <div className="flex-grow">
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            {/* Profile Image (from old component UI) */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="flex-shrink-0"
+            >
+              <img
+                src={profileImage || `https://ui-avatars.com/api/?name=${name.split(' ').join('+')}&background=random`}
+                alt={name}
+                className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-md"
+              />
+            </motion.div>
+
+            {/* User Details Column (from old component UI) */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="flex lg:min-w-[30vh] flex-col"
+            >
+              {/* Name */}
               <h1 className="text-4xl md:text-5xl/12 font-bold font-oswald text-gray-900 mb-3 capitalize">
-                {user.name}
+                {name}
               </h1>
-              <p className="text-base text-gray-600 mb-4 font-poppins">
-                {user.email}
-              </p>
-              {user.createdAt && (
+
+              {/* Email */}
+              {email && (
+                <p className="text-base text-gray-600 mb-2 font-poppins">
+                  {email}
+                </p>
+              )}
+
+              {/* Location */}
+              {location && (
                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <MapPin size={16} />
+                  <span className="font-poppins capitalize">{location}</span>
+                </div>
+              )}
+
+              {/* Joined Date */}
+              {joinedDate && (
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                   <Calendar size={16} />
                   <span className="font-poppins">
-                    Joined on {new Date(user.createdAt.toDate()).toLocaleDateString("en-US", {
-                      year: "numeric", month: "long", day: "numeric",
+                    Joined on{" "}
+                    {new Date(joinedDate.toDate()).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </span>
                 </div>
               )}
-              {user.description && (
-                <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-2xl mt-4 pt-4 border-t border-gray-200">
-                  {user.description}
-                </p>
+
+              {/* LinkedIn Link */}
+              {linkedin && (
+                <a
+                  href={linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm"
+                >
+                  <Linkedin size={18} />
+                  <span className="font-poppins">Connect on LinkedIn</span>
+                </a>
               )}
-            </div>
+            </motion.div>
+
+            {/* Vertical Separator */}
+            <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
+
+            {/* Stats Column (from old component UI) */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex flex-col gap-5"
+            >
+              {/* Blogs & Views Row */}
+              <div className="flex flex-row justify-evenly md:mb-5 gap-12 items-center">
+                <div className="flex flex-col items-center md:items-start">
+                  <p className="text-4xl font-bold font-oswald text-gray-900">
+                    {stats.blogs}
+                  </p>
+                  <p className="text-sm text-gray-600 font-poppins">Blogs</p>
+                </div>
+                <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
+                <div className="flex flex-col items-center md:items-start">
+                  <p className="text-4xl font-bold font-oswald text-gray-900">
+                    {formatViews(stats.views)}
+                  </p>
+                  <p className="text-sm text-gray-600 font-poppins">Views</p>
+                </div>
+              </div>
+
+              {/* Bio Below */}
+              {bio && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="border-t border-gray-200 pt-4"
+                >
+                  <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-4xl">
+                    {bio}
+                  </p>
+                </motion.div>
+              )}
+            </motion.div>
           </div>
         </motion.div>
 
-        {/* --- Blogs Section --- */}
+        {/* --- Blogs Section (using new logic with a slight UI update) --- */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
           <h2 className="text-3xl md:text-4xl font-bold font-oswald text-gray-900 mb-8 capitalize">
-            Blogs by {user.name.split(" ")[0]}
+            Blogs by {firstName}
           </h2>
+          
           {blogs.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {blogs.map((blog) => (
+              {blogs.map((blog, index) => (
                 <motion.div
                   key={blog.id}
                   onClick={() => setSelectedBlog(blog)}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.4 }}
-                  className="bg-white rounded-lg shadow-sm overflow-hidden group transition hover:shadow-md cursor-pointer"
+                  transition={{ delay: 0.5 + index * 0.05, duration: 0.4 }}
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer group"
                 >
+                  {/* Blog Thumbnail */}
                   <div className="w-full aspect-video overflow-hidden">
                     <img
                       src={blog.images?.[0]?.url || 'https://picsum.photos/seed/fallback/400/250'}
@@ -199,10 +309,30 @@ export default function UserProfile() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <div className="p-4 flex flex-col">
+
+                  {/* Blog Content */}
+                  <div className="p-4">
+                    {/* Title */}
                     <h3 className="text-base font-semibold font-oswald text-gray-900 mb-2 line-clamp-2 leading-tight">
                       {blog.title}
                     </h3>
+                    
+                    {/* Footer - Views and Date (Using views and publishedAt from new data) */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+                      <div className="flex items-center gap-1">
+                        <Eye size={14} />
+                        <span className="font-poppins">{formatViews(blog.views || 0)}</span>
+                      </div>
+                      {blog.publishedAt && (
+                        <span className="font-poppins">
+                          {new Date(blog.publishedAt.toDate()).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -210,15 +340,15 @@ export default function UserProfile() {
           ) : (
             <div className="text-center py-16 bg-gray-50 rounded-lg">
               <p className="text-gray-500 text-lg font-poppins capitalize">
-                {user.name.split(" ")[0]} has not published any blogs yet.
+                {firstName} has not published any blogs yet.
               </p>
             </div>
           )}
         </motion.div>
       </section>
 
-      {/* --- MODAL --- */}
-    <AnimatePresence>
+      {/* --- MODAL (from new component) --- */}
+      <AnimatePresence>
         {selectedBlog && (
           <motion.div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
