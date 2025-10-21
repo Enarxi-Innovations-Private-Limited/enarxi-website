@@ -27,6 +27,11 @@ export default function UserProfile() {
       setUser(null);
       setBlogs([]);
 
+      if (!username) {
+        setLoading(false);
+        return;
+      }
+
       const queryName = username.toLowerCase();
 
       try {
@@ -152,73 +157,119 @@ export default function UserProfile() {
   
   // Destructure for cleaner access
   const { name, email, joinedDate, location, linkedin, profileImage, bio, stats } = user;
-  const firstName = name.split(" ")[0];
+  const firstName = name ? name.split(" ")[0] : "User";
 
   return (
     <>
       <section className="w-[90%] max-w-7xl mx-auto py-12 min-h-[60vh]">
-        {/* Profile Section with Blue Gradient (from old component UI) */}
+        {/* Profile Section with Blue Gradient - Responsive Layout */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gradient-to-b from-[#dff4ff] to-white rounded-xl shadow-sm p-8 mb-12"
+          className="bg-gradient-to-b from-[#dff4ff] to-white rounded-xl shadow-sm p-6 md:p-8 mb-12"
         >
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
-            {/* Profile Image (from old component UI) */}
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-              className="flex-shrink-0"
-            >
-              <img
-                src={profileImage || `https://ui-avatars.com/api/?name=${name.split(' ').join('+')}&background=random`}
-                alt={name}
-                className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-md"
-              />
-            </motion.div>
+          {/* MD and Above: Horizontal Layout */}
+          <div className="hidden md:flex gap-6 items-start">
+            {/* Left Section: Profile Image + Details */}
+            <div className="flex max-lg:items-center max-lg:min-w-[25vw] max-lg:flex-col gap-6 items-start">
+              
+              {/* Profile Image */}
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="flex-shrink-0"
+              >
+                <img
+                  src={profileImage || `https://ui-avatars.com/api/?name=${name.split(' ').join('+')}&background=random`}
+                  alt={name}
+                  className="w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-md"
+                />
+              </motion.div>
 
-            {/* User Details Column (from old component UI) */}
+              {/* User Details */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="flex max-lg:items-center relative top-6 max-lg:top-0 flex-col justify-center"
+              >
+                {/* Name */}
+                <h1 className="text-3xl lg:text-4xl font-bold font-oswald text-gray-900 mb-2 capitalize">
+                  {name}
+                </h1>
+
+                {/* Email */}
+                {email && (
+                  <p className="text-sm text-gray-600 mb-1 font-poppins">
+                    {email}
+                  </p>
+                )}
+
+                {/* Joined Date */}
+                {joinedDate && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                    <Calendar size={14} />
+                    <span className="font-poppins">
+                      Joined {new Date(joinedDate.toDate()).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
+
+                {/* Location */}
+                {location && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <MapPin size={14} />
+                    <span className="font-poppins capitalize">{location}</span>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Vertical Separator */}
+            <div className="w-px bg-gray-400 self-stretch mx-4"></div>
+
+            {/* Right Section: Stats + Bio */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="flex lg:min-w-[30vh] flex-col"
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="flex-1 flex flex-col"
             >
-              {/* Name */}
-              <h1 className="text-4xl md:text-5xl/12 font-bold font-oswald text-gray-900 mb-3 capitalize">
-                {name}
-              </h1>
-
-              {/* Email */}
-              {email && (
-                <p className="text-base text-gray-600 mb-2 font-poppins">
-                  {email}
-                </p>
-              )}
-
-              {/* Location */}
-              {location && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                  <MapPin size={16} />
-                  <span className="font-poppins capitalize">{location}</span>
+              {/* Stats Row */}
+              <div className="flex justify-around gap-8 mb-4">
+                <div className="flex flex-col items-center">
+                  <p className="text-3xl lg:text-4xl font-bold font-oswald text-gray-900">
+                    {formatViews(stats.views)}
+                  </p>
+                  <p className="text-sm text-gray-600 font-poppins">Views</p>
                 </div>
-              )}
-
-              {/* Joined Date */}
-              {joinedDate && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                  <Calendar size={16} />
-                  <span className="font-poppins">
-                    Joined on{" "}
-                    {new Date(joinedDate.toDate()).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
+                   <div className="w-px bg-gray-400 self-stretch mx-4"></div>
+                <div className="flex flex-col items-center">
+                  <p className="text-3xl lg:text-4xl font-bold font-oswald text-gray-900">
+                    {stats.blogs}
+                  </p>
+                  <p className="text-sm text-gray-600 font-poppins">Blogs</p>
                 </div>
+              </div>
+
+              {/* Bio */}
+              {bio && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="border-t border-gray-200 pt-4"
+                >
+                  <p className="text-sm text-gray-700 leading-relaxed font-poppins">
+                    {bio}
+                  </p>
+                </motion.div>
               )}
 
               {/* LinkedIn Link */}
@@ -227,55 +278,134 @@ export default function UserProfile() {
                   href={linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm mt-3 self-start"
                 >
-                  <Linkedin size={18} />
+                  <Linkedin size={16} />
                   <span className="font-poppins">Connect on LinkedIn</span>
                 </a>
               )}
             </motion.div>
+          </div>
 
-            {/* Vertical Separator */}
-            <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
-
-            {/* Stats Column (from old component UI) */}
+          {/* Below MD: Vertical Centered Layout */}
+          <div className="flex md:hidden flex-col items-center text-center gap-4">
+            {/* Profile Image */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="flex flex-col gap-5"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
             >
-              {/* Blogs & Views Row */}
-              <div className="flex flex-row justify-evenly md:mb-5 gap-12 items-center">
-                <div className="flex flex-col items-center md:items-start">
-                  <p className="text-4xl font-bold font-oswald text-gray-900">
-                    {stats.blogs}
-                  </p>
-                  <p className="text-sm text-gray-600 font-poppins">Blogs</p>
-                </div>
-                <div className="hidden md:block w-px bg-gray-300 self-stretch mx-4"></div>
-                <div className="flex flex-col items-center md:items-start">
-                  <p className="text-4xl font-bold font-oswald text-gray-900">
-                    {formatViews(stats.views)}
-                  </p>
-                  <p className="text-sm text-gray-600 font-poppins">Views</p>
-                </div>
-              </div>
-
-              {/* Bio Below */}
-              {bio && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                  className="border-t border-gray-200 pt-4"
-                >
-                  <p className="text-sm text-gray-700 leading-relaxed font-poppins max-w-4xl">
-                    {bio}
-                  </p>
-                </motion.div>
-              )}
+              <img
+                src={profileImage || `https://ui-avatars.com/api/?name=${name.split(' ').join('+')}&background=random`}
+                alt={name}
+                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+              />
             </motion.div>
+
+            {/* Name */}
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-3xl font-bold font-oswald text-gray-900 capitalize"
+            >
+              {name}
+            </motion.h1>
+
+            {/* Email */}
+            {email && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="text-sm text-gray-600 font-poppins"
+              >
+                {email}
+              </motion.p>
+            )}
+
+            {/* Joined Date */}
+            {joinedDate && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="flex items-center justify-center gap-2 text-sm text-gray-500"
+              >
+                <Calendar size={14} />
+                <span className="font-poppins">
+                  Joined {new Date(joinedDate.toDate()).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </motion.div>
+            )}
+
+            {/* Location */}
+            {location && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45, duration: 0.5 }}
+                className="flex items-center justify-center gap-2 text-sm text-gray-500"
+              >
+                <MapPin size={14} />
+                <span className="font-poppins capitalize">{location}</span>
+              </motion.div>
+            )}
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="flex gap-20 justify-center mt-2"
+            >
+              <div className="flex flex-col items-center">
+                <p className="text-3xl font-bold font-oswald text-gray-900">
+                  {formatViews(stats.views)}
+                </p>
+                <p className="text-xs text-gray-600 font-poppins">Views</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <p className="text-3xl font-bold font-oswald text-gray-900">
+                  {stats.blogs}
+                </p>
+                <p className="text-xs text-gray-600 font-poppins">Blogs</p>
+              </div>
+            </motion.div>
+
+            {/* Bio */}
+            {bio && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.5 }}
+                className="border-t border-gray-200 pt-4 w-full"
+              >
+                <p className="text-sm text-gray-700 leading-relaxed font-poppins">
+                  {bio}
+                </p>
+              </motion.div>
+            )}
+
+            {/* LinkedIn Link */}
+            {linkedin && (
+              <motion.a
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                href={linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition font-medium text-sm"
+              >
+                <Linkedin size={16} />
+                <span className="font-poppins">Connect on LinkedIn</span>
+              </motion.a>
+            )}
           </div>
         </motion.div>
 
@@ -305,7 +435,7 @@ export default function UserProfile() {
                   <div className="w-full aspect-video overflow-hidden">
                     <img
                       src={blog.images?.[0]?.url || 'https://picsum.photos/seed/fallback/400/250'}
-                      alt={blog.title}
+                      alt={blog.title || 'Blog thumbnail'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
@@ -314,7 +444,7 @@ export default function UserProfile() {
                   <div className="p-4">
                     {/* Title */}
                     <h3 className="text-base font-semibold font-oswald text-gray-900 mb-2 line-clamp-2 leading-tight">
-                      {blog.title}
+                      {blog.title || 'Untitled Blog'}
                     </h3>
                     
                     {/* Footer - Views and Date (Using views and publishedAt from new data) */}
@@ -377,7 +507,7 @@ export default function UserProfile() {
                 <div className="w-full flex justify-center rounded-xl items-center bg-gray-100 p-4 mb-4">
                   <img
                     src={selectedBlog.images?.[0]?.url || "/blogs/default.jpg"}
-                    alt={selectedBlog.title}
+                    alt={selectedBlog.title || 'Blog image'}
                     className="w-full max-h-[40vh] object-contain rounded-lg"
                   />
                 </div>
@@ -385,10 +515,10 @@ export default function UserProfile() {
                 <div className="p-4 w-full">
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 justify-between items-center text-gray-600 mb-4 pb-4 border-b">
                     <h2 className="text-2xl lg:text-3xl font-bold font-oswald text-black text-center sm:text-left">
-                      {selectedBlog.title}
+                      {selectedBlog.title || 'Untitled Blog'}
                     </h2>
                     <div className="flex items-center gap-4 text-sm whitespace-nowrap">
-                      <span>By <Link to={`/users/${user.name}`} className="font-semibold text-blue-600 hover:underline">{user.name}</Link></span>
+                      <span>By <Link to={`/users/${name || ''}`} className="font-semibold text-blue-600 hover:underline">{name || 'Unknown'}</Link></span>
                     </div>
                   </div>
                   <div

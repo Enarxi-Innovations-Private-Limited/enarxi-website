@@ -1,6 +1,9 @@
 import React from 'react'
 
 const Indicator = () => {
+  if(import.meta.env.PROD){
+    return null;
+  }
   return (
     <div className='fixed bottom-4 right-4 bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-700 px-3 py-1 rounded text-sm z-50 shadow-md'>
       <span className='sm:hidden'>default</span>
