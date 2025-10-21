@@ -144,7 +144,7 @@ const Footer = () => {
           {/* Bottom Section - Copyright and Links */}
           <div className="mt-8 md:mt-10 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center text-footer-muted text-xs">
             <p className="text-center md:text-left mb-4 md:mb-0">
-              © 2021 Enarxi Group. All Rights Reserved
+              © {new Date().getFullYear()} Enarxi Group. All Rights Reserved
             </p>
             <div className="flex items-center gap-4 md:gap-6">
               <a
