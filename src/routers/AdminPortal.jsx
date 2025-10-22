@@ -14,17 +14,18 @@ import { useAuth } from "@/AuthProvider";
 import Logout from "@/routers/admin/Logout";
 import BrandedLoader from "@/components/shared/BrandedLoader";
 import AccessDenied from "@/components/shared/AccessDenied";
+import OfflineIndicator from "@/components/shared/OfflineIndicator";
 
 const AdminPortal = () => {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const {user, firebaseUser, role, loading} = useAuth();
+  const {user, firebaseUser, role, loading, isOnline} = useAuth();
 
   // Show loader while checking auth
   if (loading) {
-    return <BrandedLoader message="Loading Admin Portal..." />;
+    return <BrandedLoader message="Loading Admin Portal..." isOffline={!isOnline} />;
   }
 
   // Show access denied if not admin
@@ -68,6 +69,10 @@ const AdminPortal = () => {
   };
 
   return (
+    <>
+      {/* Offline Indicator */}
+      <OfflineIndicator />
+      
     <div className="min-h-screen bg-white flex">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
@@ -151,6 +156,7 @@ const AdminPortal = () => {
         </main>
       </div>
     </div>
+    </>
   );
 };
 

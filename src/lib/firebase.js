@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -27,6 +27,17 @@ if (getApps().find((app) => app.name === secondaryAppName)) {
 // Primary auth and db for the main application
 export const auth = getAuth(primaryApp);
 export const db = getFirestore(primaryApp);
+
+// Enable offline persistence for Firestore
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('⚠️ Firestore persistence failed: Multiple tabs open. Only one tab can have persistence enabled.');
+  } else if (err.code === 'unimplemented') {
+    console.warn('⚠️ Firestore persistence not supported in this browser.');
+  } else {
+    console.warn('⚠️ Firestore persistence error:', err);
+  }
+});
 
 // Secondary auth specifically for creating new users in the background
 export const secondaryAuth = getAuth(secondaryApp);

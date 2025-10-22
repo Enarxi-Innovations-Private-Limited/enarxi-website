@@ -26,9 +26,9 @@ export const useStaff = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      
+
       const staffList = allUsers.filter((user) => user.role === 'employee' || user.role === 'intern');
-      
+
       setStaff(staffList);
     } catch (err) {
       console.error("❌ Error fetching staff:", err);
@@ -59,6 +59,7 @@ export const useStaff = () => {
       // Now create the user document in Firestore with the new UID
       await setDoc(doc(db, "users", newUser.uid), {
         name,
+        searchableName: name.toLowerCase(),
         email,
         role,
         status: "active",

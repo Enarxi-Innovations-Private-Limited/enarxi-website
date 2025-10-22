@@ -4,7 +4,7 @@ import { FileText, Loader2, ChevronDown } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
-import { extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinary';
+import { deleteBlog, approveBlog } from '@/lib/api';
 import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
 import BlogTile from './blogs/BlogTile';
@@ -74,28 +74,21 @@ const BlogsTable = () => {
 
   const handleApprove = async (blogId, blogTitle) => {
     try {
+      // Use backend API for approval
+      await approveBlog(blogId);
+      
+      // Also update visibility in Firestore (frontend operation)
       const blogRef = doc(db, 'blogs', blogId);
       await updateDoc(blogRef, {
         isAdminAccepted: true,
-        visibility: true, // Set visibility to true by default when approving
+        visibility: true,
       });
-      
-      // Log activity
-      if (firebaseUser) {
-        await logAdminActivity(
-          firebaseUser.uid,
-          firebaseUser.displayName || firebaseUser.email,
-          'approved_blog',
-          `Approved blog: "${blogTitle}"`,
-          { blogId, blogTitle }
-        );
-      }
       
       toast.success(`Blog "${blogTitle}" approved successfully!`);
       fetchBlogs(); // Refresh the list
     } catch (error) {
       console.error('Error approving blog:', error);
-      toast.error('Failed to approve blog');
+      toast.error(error.message || 'Failed to approve blog');
     }
   };
 
@@ -137,126 +130,37 @@ const BlogsTable = () => {
 
     const blogId = blog.id;
     const blogTitle = blog.title;
-    const blogImages = blog.images || [];
     
     setDeleteConfirm({ isOpen: false, blog: null });
     
-    const toastId = toast.loading('Starting deletion process...');
+    const toastId = toast.loading('Deleting blog and images...');
     
     try {
-      let deletedImagesCount = 0;
-      let failedImagesCount = 0;
-      const failedImages = [];
+      // Use backend API to delete blog and its images
+      // Backend handles Cloudinary deletion securely
+      const result = await deleteBlog(blogId);
       
-      // Step 1: Delete images from Cloudinary FIRST
-      if (blogImages && blogImages.length > 0) {
-        toast.loading(`Deleting ${blogImages.length} image(s) from Cloudinary...`, { id: toastId });
-        
-        for (let i = 0; i < blogImages.length; i++) {
-          const imageData = blogImages[i];
-          
-          try {
-            // Get public_id from stored data or extract from URL
-            const publicId = imageData.publicId || extractPublicId(imageData.url || imageData);
-            
-            if (!publicId) {
-              failedImagesCount++;
-              failedImages.push({ imageData, reason: 'Could not extract public_id' });
-              console.warn('⚠️ Could not extract public_id from:', imageData);
-              continue;
-            }
-            
-            toast.loading(`Deleting image ${i + 1}/${blogImages.length} from Cloudinary...`, { id: toastId });
-            
-            // Delete from Cloudinary using signed request
-            const result = await deleteFromCloudinary(publicId);
-            
-            if (result.success) {
-              deletedImagesCount++;
-              console.log(`✅ Deleted image from Cloudinary: ${publicId}`);
-            } else {
-              failedImagesCount++;
-              failedImages.push({ publicId, reason: result.message || 'Unknown error' });
-              console.warn(`⚠️ Failed to delete image: ${publicId}`, result);
-            }
-          } catch (imgError) {
-            failedImagesCount++;
-            failedImages.push({ imageData, reason: imgError.message });
-            console.error('❌ Error deleting image from Cloudinary:', imgError);
-          }
-        }
-        
-        // Check if all images were deleted successfully
-        if (failedImagesCount > 0 && deletedImagesCount === 0) {
-          // All images failed to delete - abort Firestore deletion
-          toast.dismiss(toastId);
-          toast.error(
-            `❌ Failed to delete ${failedImagesCount} image(s) from Cloudinary. Blog was NOT deleted from database to maintain data integrity.`,
-            { duration: 6000 }
-          );
-          console.error('Failed images:', failedImages);
-          return; // Exit without deleting from Firestore
-        }
-        
-        if (failedImagesCount > 0) {
-          // Some images failed - warn but continue
-          console.warn(`⚠️ ${failedImagesCount} image(s) failed to delete from Cloudinary:`, failedImages);
-        }
-      }
-      
-      // Step 2: Delete blog document from Firestore (only if Cloudinary deletion succeeded or no images)
-      toast.loading('Deleting blog from database...', { id: toastId });
-      await deleteDoc(doc(db, 'blogs', blogId));
-      console.log(`✅ Deleted blog from Firestore: ${blogId}`);
-      
-      // Log activity
-      if (firebaseUser) {
-        await logAdminActivity(
-          firebaseUser.uid,
-          firebaseUser.displayName || firebaseUser.email,
-          'deleted_blog',
-          `Deleted blog: "${blogTitle}"`,
-          { blogId, blogTitle, imagesDeleted: deletedImagesCount }
-        );
-      }
-      
-      // Step 3: Show success message based on results
       toast.dismiss(toastId);
       
-      if (imageCount > 0) {
-        if (failedImagesCount === 0) {
-          // Perfect success - all images and blog deleted
+      if (result.success) {
+        const { imagesDeleted, imagesFailed } = result.data;
+        
+        if (imagesFailed > 0) {
           toast.success(
-            `✅ Blog "${blogTitle}" and ${deletedImagesCount} image(s) deleted successfully from Cloudinary and database!`,
-            { duration: 4000 }
-          );
-        } else if (deletedImagesCount > 0) {
-          // Partial success - some images deleted
-          toast.success(
-            `✅ Blog deleted! ${deletedImagesCount} image(s) deleted from Cloudinary, ${failedImagesCount} failed. Check console for details.`,
+            `Blog "${blogTitle}" deleted! ${imagesDeleted} image(s) deleted, ${imagesFailed} failed.`,
             { duration: 5000 }
           );
         } else {
-          // This shouldn't happen due to early return, but just in case
-          toast.warning(
-            `⚠️ Blog deleted from database, but ${failedImagesCount} image(s) could not be deleted from Cloudinary. Manual cleanup may be required.`,
-            { duration: 6000 }
-          );
+          toast.success(`Blog "${blogTitle}" and all images deleted successfully!`);
         }
-      } else {
-        // No images to delete
-        toast.success(`✅ Blog "${blogTitle}" deleted successfully!`, { duration: 3000 });
+        
+        // Refresh the blog list
+        fetchBlogs();
       }
-      
-      // Refresh the blog list
-      fetchBlogs();
     } catch (error) {
-      console.error('Error during blog deletion:', error);
       toast.dismiss(toastId);
-      toast.error(
-        `❌ Failed to delete blog: ${error.message}. Please try again or contact support.`,
-        { duration: 5000 }
-      );
+      console.error('Error deleting blog:', error);
+      toast.error(error.message || 'Failed to delete blog', { duration: 5000 });
     }
   };
 
@@ -304,7 +208,7 @@ const BlogsTable = () => {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200"
+              className="flex items-center space-x-2 bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 cursor-pointer"
             >
               <span className="capitalize">{filterStatus}</span>
               <ChevronDown 
@@ -323,7 +227,7 @@ const BlogsTable = () => {
               >
                 <button
                   onClick={() => handleFilterChange('pending')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
                     filterStatus === 'pending' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
                   }`}
                 >
@@ -331,7 +235,7 @@ const BlogsTable = () => {
                 </button>
                 <button
                   onClick={() => handleFilterChange('approved')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
                     filterStatus === 'approved' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
                   }`}
                 >

@@ -9,16 +9,17 @@ import StaffBlogs from "./staff/StaffBlogs";
 import BrandedLoader from "@/components/shared/BrandedLoader";
 import AccessDenied from "@/components/shared/AccessDenied";
 import ConfirmModal from "@/components/shared/ConfirmModal";
+import OfflineIndicator from "@/components/shared/OfflineIndicator";
 
 const StaffPortal = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, isOnline } = useAuth();
 
   // Show loader while checking auth
   if (loading) {
-    return <BrandedLoader message="Loading Staff Portal..." />;
+    return <BrandedLoader message="Loading Staff Portal..." isOffline={!isOnline} />;
   }
 
   // Show access denied if not staff (employee or intern)
@@ -76,6 +77,10 @@ const StaffPortal = () => {
   };
 
   return (
+    <>
+      {/* Offline Indicator */}
+      <OfflineIndicator />
+      
     <div className="min-h-screen bg-white flex text-poppins">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
@@ -274,6 +279,7 @@ const StaffPortal = () => {
         variant="warning"
       />
     </div>
+    </>
   );
 };
 

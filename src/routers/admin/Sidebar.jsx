@@ -63,7 +63,7 @@ const Sidebar = ({
                 <motion.button
                   key={item.id}
                   onClick={() => handleMenuClick(item.id)}
-                  className={`group flex items-center px-2 py-2 text-sm text-poppins text-weight-500 rounded-md w-full text-left transition-colors duration-200 ${
+                  className={`group flex items-center px-2 py-2 text-sm text-poppins text-weight-500 rounded-md w-full text-left transition-colors duration-200 cursor-pointer ${
                     isActive
                       ? "bg-gray-800 text-white"
                       : "text-gray-300 hover:bg-gray-700 hover:text-white"

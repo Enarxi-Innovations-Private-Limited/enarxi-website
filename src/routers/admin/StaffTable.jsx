@@ -48,7 +48,7 @@ const StaffTable = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center cursor-pointer"
           >
             <Plus className="h-5 w-5 mr-2" />
             Add Staff
@@ -117,7 +117,7 @@ const StaffTable = () => {
                           <td className="px-4 py-3">
                             <button
                               onClick={() => handleModify(member)}
-                              className="text-blue-600 hover:text-blue-900 flex items-center transition-colors duration-200 font-medium"
+                              className="text-blue-600 hover:text-blue-900 flex items-center transition-colors duration-200 font-medium cursor-pointer"
                             >
                               <Edit3 className="h-4 w-4 mr-1" />
                               Modify
