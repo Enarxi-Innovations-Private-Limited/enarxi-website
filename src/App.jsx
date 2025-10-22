@@ -23,6 +23,7 @@ import UserProfile from "./routers/UserProfile"; // Import user profile page
 import AppLogger from "./AppLogger";
 import Logout from "./routers/admin/Logout";
 import ErrorBoundary from "./routers/ErrorBoundary";
+import OfflineIndicator from "./components/shared/OfflineIndicator";
 
 // Scroll to top component
 function ScrollToTop() {
@@ -64,6 +65,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <AppLogger/>
+          <OfflineIndicator />
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Hero />} />
