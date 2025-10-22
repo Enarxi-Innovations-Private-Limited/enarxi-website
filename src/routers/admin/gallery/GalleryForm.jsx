@@ -310,7 +310,7 @@ const GalleryForm = ({ isOpen, onClose, post }) => {
                 <button
                   onClick={handleClose}
                   disabled={uploading}
-                  className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+                  className="text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -345,10 +345,10 @@ const GalleryForm = ({ isOpen, onClose, post }) => {
                     id="visibility"
                     checked={visibility}
                     onChange={(e) => setVisibility(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
                     disabled={uploading}
                   />
-                  <label htmlFor="visibility" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="visibility" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Visible on website
                   </label>
                 </div>
@@ -403,7 +403,7 @@ const GalleryForm = ({ isOpen, onClose, post }) => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       disabled={uploading}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1 disabled:opacity-50"
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1 disabled:opacity-50 cursor-pointer"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Add Image</span>
@@ -547,7 +547,7 @@ const GalleryForm = ({ isOpen, onClose, post }) => {
                   disabled={uploading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </motion.button>
@@ -557,7 +557,7 @@ const GalleryForm = ({ isOpen, onClose, post }) => {
                   disabled={uploading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 cursor-pointer"
                 >
                   {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>{uploading ? 'Saving...' : (isEditMode ? 'Update Post' : 'Create Post')}</span>

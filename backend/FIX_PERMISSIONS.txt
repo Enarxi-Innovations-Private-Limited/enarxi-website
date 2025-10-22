@@ -1,0 +1,184 @@
+================================================================================
+FIX: Firebase Admin SDK Permission Denied Error
+================================================================================
+
+ERROR: "7 PERMISSION_DENIED: Missing or insufficient permissions"
+
+This error means your Firebase service account doesn't have the right permissions
+to access Firestore.
+
+================================================================================
+SOLUTION: Grant Proper IAM Roles
+================================================================================
+
+STEP 1: Go to Google Cloud Console IAM
+---------------------------------------
+
+1. Open: https://console.cloud.google.com/iam-admin/iam
+2. Select your Firebase project from the dropdown at the top
+3. You should see a list of service accounts
+
+STEP 2: Find Your Service Account
+----------------------------------
+
+Look for the email that matches your FIREBASE_CLIENT_EMAIL in backend/.env
+
+It will look like:
+firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+
+STEP 3: Edit Service Account Permissions
+-----------------------------------------
+
+1. Click the pencil icon (✏️) next to your service account
+2. You'll see a list of current roles
+3. Click "+ ADD ANOTHER ROLE"
+4. Add these roles one by one:
+
+   Required Roles:
+   ✅ Cloud Datastore User
+   ✅ Firebase Admin SDK Administrator Service Agent
+   ✅ Service Account Token Creator (optional, for better security)
+
+5. Click "SAVE"
+
+STEP 4: Wait for Changes to Propagate
+--------------------------------------
+
+IAM changes can take 1-2 minutes to take effect.
+Wait a moment before testing.
+
+STEP 5: Restart Your Backend
+-----------------------------
+
+Stop your backend server (Ctrl+C) and restart it:
+
+    cd backend
+    npm start
+
+STEP 6: Test the Connection
+----------------------------
+
+Run the test script:
+
+    node test-firebase.js
+
+You should see:
+✅ ALL TESTS PASSED! Firebase Admin SDK is working correctly.
+
+================================================================================
+ALTERNATIVE SOLUTION: Use Firebase Console Method
+================================================================================
+
+If the above doesn't work, try this simpler method:
+
+STEP 1: Generate a NEW Service Account Key
+-------------------------------------------
+
+1. Go to: https://console.firebase.google.com/
+2. Select your project
+3. Click gear icon → Project Settings
+4. Go to "Service Accounts" tab
+5. Click "Generate New Private Key"
+6. Download the NEW JSON file
+
+STEP 2: Update Your .env File
+------------------------------
+
+Open the NEW JSON file and update backend/.env with:
+- project_id → FIREBASE_PROJECT_ID
+- private_key → FIREBASE_PRIVATE_KEY (keep the \n characters!)
+- client_email → FIREBASE_CLIENT_EMAIL
+
+STEP 3: Restart Backend
+------------------------
+
+    cd backend
+    npm start
+
+================================================================================
+VERIFY YOUR .env FILE
+================================================================================
+
+Make sure your backend/.env file looks like this:
+
+PORT=5000
+NODE_ENV=development
+
+FIREBASE_PROJECT_ID=your-actual-project-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQE...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+FRONTEND_URL=http://localhost:3001
+
+IMPORTANT NOTES:
+✅ FIREBASE_PRIVATE_KEY must have quotes around it
+✅ FIREBASE_PRIVATE_KEY must include \n characters (don't remove them!)
+✅ No spaces before or after the = sign
+✅ No comments on the same line as values
+
+================================================================================
+COMMON MISTAKES
+================================================================================
+
+❌ MISTAKE 1: Private key doesn't have \n characters
+   FIX: Copy the private_key exactly from the JSON file
+
+❌ MISTAKE 2: Private key doesn't have quotes
+   FIX: Add quotes: FIREBASE_PRIVATE_KEY="-----BEGIN..."
+
+❌ MISTAKE 3: Wrong project ID
+   FIX: Check Firebase Console → Project Settings
+
+❌ MISTAKE 4: Service account doesn't have permissions
+   FIX: Follow STEP 3 above to add IAM roles
+
+❌ MISTAKE 5: Using old/revoked service account key
+   FIX: Generate a new key from Firebase Console
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+After making changes, test these:
+
+[ ] Run: node test-firebase.js
+    Should show: ✅ ALL TESTS PASSED!
+
+[ ] Start backend: npm start
+    Should show: ✅ Firebase Admin SDK initialized successfully
+
+[ ] Try to update password from frontend
+    Should work without errors
+
+[ ] Check backend logs
+    Should show: ✅ Admin verification successful
+
+================================================================================
+STILL NOT WORKING?
+================================================================================
+
+If you still get permission errors:
+
+1. Double-check your .env file has NO syntax errors
+2. Make sure you're using the BACKEND .env file (not frontend)
+3. Verify the service account email matches in IAM console
+4. Try generating a completely NEW service account key
+5. Check Firebase Console → Project Settings → Service Accounts
+   - Make sure "Firebase Admin SDK" is enabled
+6. Restart your computer (sometimes IAM changes need a full restart)
+
+================================================================================
+SECURITY NOTE
+================================================================================
+
+⚠️ NEVER commit your service account key to git!
+⚠️ NEVER share your .env file!
+⚠️ Keep your Firebase Admin SDK credentials secure!
+
+The backend/.gitignore already excludes .env files, but be careful!
+
+================================================================================

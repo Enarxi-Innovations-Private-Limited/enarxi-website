@@ -19,9 +19,11 @@ import StaffProtectedRoute from "././routers/admin/StaffProtectedRoute"; // Impo
 import Login from "././routers/admin/Login";
 import StaffLogin from "././routers/admin/StaffLogin"; // Import the new login page
 import StaffPortal from "./routers/StaffPortal"; // Import the new portal
+import UserProfile from "./routers/UserProfile"; // Import user profile page
 import AppLogger from "./AppLogger";
 import Logout from "./routers/admin/Logout";
 import ErrorBoundary from "./routers/ErrorBoundary";
+import OfflineIndicator from "./components/shared/OfflineIndicator";
 
 // Scroll to top component
 function ScrollToTop() {
@@ -63,6 +65,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <AppLogger/>
+          <OfflineIndicator />
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Hero />} />
@@ -73,6 +76,7 @@ function App() {
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/aboutus" element={<AboutUs1 />} />
               <Route path="/feedback" element={<FeedBack />} />
+              <Route path="/users/:username" element={<UserProfile />} />
             </Route>
         
             <Route element={<AdminLayout />}>

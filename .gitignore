@@ -29,3 +29,6 @@ dist-ssr
 
 !README.md
 *.md
+
+# user ignored files
+src/utils/BreakpointLogger.jsx
