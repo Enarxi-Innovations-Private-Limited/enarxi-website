@@ -19,7 +19,7 @@ const Logout = () => {
   return (
     <>
       <button onClick={() => setShowLogoutModal(true)}>
-        <img src={logout} alt="logout" className="w-10 h-10 rounded-full" />
+        <img src={logout} alt="logout" className="w-10 h-10 rounded-full cursor-pointer" />
       </button>
 
       <ConfirmModal

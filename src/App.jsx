@@ -85,7 +85,6 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/stafflogin" element={<StaffLogin />} />
               <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
-              <Route path="/logout" element={<Logout/>} />
             </Route>
           </Routes>
         </Router>

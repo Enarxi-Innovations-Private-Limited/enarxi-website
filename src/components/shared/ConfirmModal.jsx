@@ -97,7 +97,7 @@ const ConfirmModal = ({
                     onClick={onClose}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-poppins"
+                    className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-poppins cursor-pointer"
                   >
                     {cancelText}
                   </motion.button>
@@ -105,7 +105,7 @@ const ConfirmModal = ({
                     onClick={handleConfirm}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`flex-1 px-4 py-3 ${styles.button} text-white font-medium rounded-lg transition-colors shadow-lg text-poppins`}
+                    className={`flex-1 px-4 py-3 ${styles.button} text-white font-medium rounded-lg transition-colors shadow-lg text-poppins cursor-pointer`}
                   >
                     {confirmText}
                   </motion.button>
