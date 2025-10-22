@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FileText, Loader2, ChevronDown } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -8,13 +9,13 @@ import { deleteBlog, approveBlog } from '@/lib/api';
 import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
 import BlogTile from './blogs/BlogTile';
-import BlogViewModal from './blogs/BlogViewModal';
 import ConfirmModal from '@/components/shared/ConfirmModal';
+import { createFullSlug } from '@/utils/slugUtils';
 
 const BlogsTable = () => {
+  const navigate = useNavigate();
   const { firebaseUser } = useAuth();
   const [blogs, setBlogs] = useState([]);
-  const [selectedBlog, setSelectedBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('pending'); // 'pending' or 'approved'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -192,6 +193,11 @@ const BlogsTable = () => {
     setIsDropdownOpen(false);
   };
 
+  const handleViewBlog = (blog) => {
+    const slug = createFullSlug(blog.title, blog.id);
+    navigate(`/admin/blog/${slug}`);
+  };
+
   return (
     <>
       <Toaster position="top-right" />
@@ -268,7 +274,7 @@ const BlogsTable = () => {
               <motion.div key={blog.id} variants={tileVariants}>
                 <BlogTile
                   blog={blog}
-                  onView={setSelectedBlog}
+                  onView={handleViewBlog}
                   onApprove={filterStatus === 'pending' ? (blog) => handleApprove(blog.id, blog.title) : null}
                   onDelete={handleDeleteClick}
                   onToggleVisibility={filterStatus === 'approved' ? (blog) => handleToggleVisibility(blog.id, blog.title, blog.visibility) : null}
@@ -306,15 +312,6 @@ const BlogsTable = () => {
           )}
         </motion.div>
       </div>
-
-      {/* Blog View Modal */}
-      <BlogViewModal
-        blog={selectedBlog}
-        isOpen={!!selectedBlog}
-        onClose={() => setSelectedBlog(null)}
-        onApprove={handleApprove}
-        onDelete={() => handleDeleteClick(selectedBlog)}
-      />
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

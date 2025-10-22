@@ -7,12 +7,16 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
+import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
+import { Youtube } from "lucide-react";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import BulletList from "@tiptap/extension-bullet-list";
+import Link from "@tiptap/extension-link";
+import { YouTubeLink } from "@/extensions/YouTubeLink";
 
 // --- Import the CSS file ---
 import "./tiptap.css";
@@ -32,12 +36,31 @@ const MenuBar = memo(({ editor }) => {
 
   if (!editor) return null;
 
+  const handleYouTubeLink = () => {
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to, '');
+    
+    if (!selectedText) {
+      alert('Please select a YouTube URL first');
+      return;
+    }
+    
+    if (!isYouTubeUrl(selectedText.trim())) {
+      alert('Selected text is not a valid YouTube URL');
+      return;
+    }
+    
+    // Mark the selected text as a YouTube link
+    editor.chain().focus().setYouTubeLink(selectedText.trim()).run();
+  };
+
   return (
     <div className="menu-bar">
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={editor.isActive("bold") ? "is-active" : ""}
+        title="Bold"
       >
         Bold
       </button>
@@ -45,6 +68,7 @@ const MenuBar = memo(({ editor }) => {
         type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={editor.isActive("italic") ? "is-active" : ""}
+        title="Italic"
       >
         Italic
       </button>
@@ -52,6 +76,7 @@ const MenuBar = memo(({ editor }) => {
         type="button"
         onClick={() => editor.chain().focus().setParagraph().run()}
         className={editor.isActive("paragraph") ? "is-active" : ""}
+        title="Paragraph"
       >
         Paragraph
       </button>
@@ -59,6 +84,7 @@ const MenuBar = memo(({ editor }) => {
         type="button"
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         className={editor.isActive("heading", { level: 1 }) ? "is-active" : ""}
+        title="Heading 1"
       >
         H1
       </button>
@@ -66,6 +92,7 @@ const MenuBar = memo(({ editor }) => {
         type="button"
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         className={editor.isActive("heading", { level: 2 }) ? "is-active" : ""}
+        title="Heading 2"
       >
         H2
       </button>
@@ -73,8 +100,19 @@ const MenuBar = memo(({ editor }) => {
         type="button"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         className={editor.isActive("bulletList") ? "is-active" : ""}
+        title="Bullet List"
       >
         List
+      </button>
+      <button
+        type="button"
+        onClick={handleYouTubeLink}
+        className={editor.isActive("youtubeLink") ? "is-active" : ""}
+        title="Mark as YouTube Link"
+        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+      >
+        <Youtube size={16} />
+        YouTube
       </button>
     </div>
   );
@@ -164,6 +202,10 @@ const StaffBlogs = () => {
       OrderedList,
       BulletList,
       ListItem.extend({ keepOnSplit: true }),
+      Link.configure({
+        openOnClick: false,
+      }),
+      YouTubeLink,
     ],
     content: "",
     onUpdate: ({ editor }) => setBlogContent(editor.getHTML()),
@@ -271,7 +313,11 @@ const StaffBlogs = () => {
       }
   
       try {
-        // Step 1: Upload image to Cloudinary if present
+        // Step 1: Extract YouTube links from content
+        const youtubeLinks = extractYouTubeLinks(finalHtmlContent);
+        console.log('📺 Extracted YouTube links:', youtubeLinks);
+        
+        // Step 2: Upload image to Cloudinary if present
         let uploadedImages = [];
         
         if (imageFile) {
@@ -301,7 +347,7 @@ const StaffBlogs = () => {
           }
         }
 
-        // Step 2: Save blog to Firestore with Cloudinary URL
+        // Step 3: Save blog to Firestore with Cloudinary URL and YouTube links
         setMessage("💾 Saving blog to database...");
         
         await addDoc(collection(db, "blogs"), {
@@ -312,13 +358,15 @@ const StaffBlogs = () => {
           authorRole: formData.authorRole,
           content: finalHtmlContent,
           images: uploadedImages, // Store Cloudinary URL and metadata
+          ytlinks: youtubeLinks, // Store YouTube links array
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
   
         // ✅ Success message
         const imageMsg = uploadedImages.length > 0 ? ` Image uploaded to Cloudinary.` : '';
-        setMessage(`✅ Blog saved successfully!${imageMsg}`);
+        const ytMsg = youtubeLinks.length > 0 ? ` ${youtubeLinks.length} YouTube link(s) detected.` : '';
+        setMessage(`✅ Blog saved successfully!${imageMsg}${ytMsg}`);
   
         // Reset form after success
         setTimeout(() => {
