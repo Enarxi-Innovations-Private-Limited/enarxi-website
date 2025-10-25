@@ -19,31 +19,31 @@ const SERVICES_DATA = [
   {
     id: "01",
     title: "PCB Design & Fabrication",
-    desc: "ENARXI’s team of qualified PCB designers and fabricators perform swift and dense multilayer layouts for your printed circuit boards. We understand the complex demands of the design, which inspires us to provide you with top-notch designs linking to the best standards of practice and quality.",
+    desc: "At Enarxi, we turn your “crazy circuit ideas” into real, working PCBs. Multi-layer, high-speed, or just a tiny IoT board — we handle the design, fabrication, and testing so you can focus on what really matters: making cool stuff (and maybe bragging a little).",
     img: service_1,
   },
   {
     id: "02",
     title: "OEM Manufacturing",
-    desc: "ENARXI’s OEM services deliver high-quality manufacturing solutions tailored to client specifications, ensuring scalability and reliability.",
+    desc: "Got a product idea? We make it happen, start to finish. From sourcing components to SMT/THT assembly, wiring, and final QA - we scale from a one-off prototype to full production runs. You dream it, we build it, and yes, we promise to handle the chaos.",
     img: service_2,
   },
   {
     id: "03",
     title: "Microcontroller and Processor Firmware",
-    desc: "We specialize in embedded software development, delivering efficient and optimized firmware for a wide range of devices.",
+    desc: "The brains behind your hardware. We speak fluent C, C++, and occasionally “why isn’t this compiling?” STM32, ESP32, Arduino, ARM - sensors, actuators, communication protocols (CAN, Modbus, I²C, SPI, UART) - we code it so your devices run smarter, faster, and sometimes even cooler than you imagined.",
     img: service_3,
   },
   {
     id: "04",
     title: "3D Printing",
-    desc: "Rapid prototyping and product development with precision 3D printing technologies, helping you iterate faster.",
+    desc: "Your ideas, printed into reality. From quick concept models to functional prototypes, we deliver precise, clean, and ready-to-use 3D prints. It’s the perfect way to test, tweak, and bring your designs to life — one layer at a time.",
     img: service_4,
   },
   {
     id: "05",
     title: "Technical Workshop & Training",
-    desc: "Hands-on training sessions and workshops led by industry experts to upskill teams in electronics and IoT.",
+    desc: "We don’t just build tech - we teach it, hands-on. PCB design, embedded systems, IoT, microcontroller programming - our workshops turn curious minds into confident creators. Bring your curiosity; leave with working prototypes (and maybe a few bragging rights).",
     img: service_5,
   },
 ];
