@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Loader2, Eye, EyeOff, CheckCircle, Trash2 } from 'lucide-react';
-import YouTubePlayer from '@/components/shared/YouTubePlayer';
+import { injectYouTubePlayers } from '@/utils/injectYouTubePlayers';
 import { toast, Toaster } from 'react-hot-toast';
 import { deleteBlog, approveBlog } from '@/lib/api';
 import { useAuth } from '@/AuthProvider';
@@ -276,22 +276,23 @@ const AdminBlogDetail = () => {
                 )}
               </div>
 
-              {/* Blog Content */}
+              {/* Blog Content with Embedded YouTube Videos */}
               <div
                 className="prose prose-lg max-w-none mb-8"
-                dangerouslySetInnerHTML={{ __html: blog.content }}
+                dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
               />
 
-              {/* YouTube Videos */}
+              {/* YouTube Links Info (for admin reference) */}
               {blog.ytlinks && blog.ytlinks.length > 0 && (
-                <div className="mt-12 space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">YouTube Videos ({blog.ytlinks.length})</h2>
-                  {blog.ytlinks.map((url, index) => (
-                    <div key={index} className="mb-8">
-                      <p className="text-sm text-gray-600 mb-2">Video {index + 1}: {url}</p>
-                      <YouTubePlayer url={url} title={`${blog.title} - Video ${index + 1}`} />
-                    </div>
-                  ))}
+                <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-2">YouTube Videos in Content ({blog.ytlinks.length})</h3>
+                  <ul className="text-xs text-blue-700 space-y-1">
+                    {blog.ytlinks.map((url, index) => (
+                      <li key={index}>
+                        <span className="font-mono">yt{index}</span>: {url}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 

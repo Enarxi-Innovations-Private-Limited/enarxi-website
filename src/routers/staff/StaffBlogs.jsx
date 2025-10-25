@@ -317,6 +317,32 @@ const StaffBlogs = () => {
         const youtubeLinks = extractYouTubeLinks(finalHtmlContent);
         console.log('📺 Extracted YouTube links:', youtubeLinks);
         
+        // Step 2: Replace YouTube links with div placeholders
+        let cleanedContent = finalHtmlContent;
+        youtubeLinks.forEach((url, index) => {
+          // Escape special regex characters in the URL
+          const escapedUrl = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          
+          // Match both <a> tags and <span> tags with data-youtube-url attribute
+          const patterns = [
+            // Match <a> tags with href
+            new RegExp(`<a[^>]*href=["']${escapedUrl}["'][^>]*>.*?</a>`, 'gi'),
+            // Match <span> tags with data-youtube-url (from YouTubeLink extension)
+            new RegExp(`<span[^>]*data-youtube-url=["']${escapedUrl}["'][^>]*>.*?</span>`, 'gi'),
+            // Match plain text URLs that might not be wrapped
+            new RegExp(`(?<!["'>])${escapedUrl}(?!["'<])`, 'gi')
+          ];
+          
+          // Replace with div placeholder
+          const placeholder = `<div id="yt${index}"></div>`;
+          
+          patterns.forEach(pattern => {
+            cleanedContent = cleanedContent.replace(pattern, placeholder);
+          });
+        });
+        
+        console.log('💾 Cleaned content with placeholders:', cleanedContent);
+        
         // Step 2: Upload image to Cloudinary if present
         let uploadedImages = [];
         
@@ -356,7 +382,7 @@ const StaffBlogs = () => {
           title: formData.title,
           authorName: formData.authorName,
           authorRole: formData.authorRole,
-          content: finalHtmlContent,
+          content: cleanedContent, // Store cleaned content without YouTube links
           images: uploadedImages, // Store Cloudinary URL and metadata
           ytlinks: youtubeLinks, // Store YouTube links array
           createdAt: serverTimestamp(),

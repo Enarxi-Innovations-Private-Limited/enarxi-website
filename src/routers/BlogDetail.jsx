@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Loader2 } from 'lucide-react';
-import YouTubePlayer from '@/components/shared/YouTubePlayer';
+import { injectYouTubePlayers } from '@/utils/injectYouTubePlayers';
 import styles from './Blog.module.css';
 
 const BlogDetail = () => {
@@ -160,23 +160,11 @@ const BlogDetail = () => {
               </div>
             </div>
 
-            {/* Blog Content */}
+            {/* Blog Content with Embedded YouTube Videos */}
             <div
               className={`${styles.content} prose prose-lg max-w-none`}
-              dangerouslySetInnerHTML={{ __html: blog.content }}
+              dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
             />
-
-            {/* YouTube Videos */}
-            {blog.ytlinks && blog.ytlinks.length > 0 && (
-              <div className="mt-12 space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Videos</h2>
-                {blog.ytlinks.map((url, index) => (
-                  <div key={index} className="mb-8">
-                    <YouTubePlayer url={url} title={`${blog.title} - Video ${index + 1}`} />
-                  </div>
-                ))}
-              </div>
-            )}
 
             {/* Additional Images */}
             {blog.images && blog.images.length > 1 && (
