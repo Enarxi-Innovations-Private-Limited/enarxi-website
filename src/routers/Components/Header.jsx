@@ -42,9 +42,9 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="mx-auto flex w-[90%] flex-wrap items-center justify-between gap-4 py-4 md:flex-nowrap md:gap-6">
+      <div className="mx-auto flex w-[90%] flex-wrap items-center justify-between gap-4 py-4 lg:flex-nowrap lg:gap-6">
         {/* Logo + Hamburger */}
-        <div className="flex w-full items-center justify-between gap-4 md:w-auto md:gap-6">
+        <div className="flex w-full items-center justify-between gap-4 lg:w-auto lg:gap-6">
           <a href="/" aria-label="Go to Enarxi homepage">
             <img
               src={enarxiLogo}
@@ -57,7 +57,7 @@ export default function Header() {
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#09B8DC] rounded"
+            className="lg:hidden text-gray-800  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#09B8DC] rounded"
             aria-controls="primary-navigation"
             aria-expanded={isMenuOpen}
             aria-label="Toggle navigation menu"
@@ -79,7 +79,7 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav
           id="primary-navigation"
-          className="hidden md:flex md:items-center md:justify-center md:space-x-10 text-center md:text-left"
+          className="hidden lg:flex lg:items-center lg:justify-center lg:space-x-10 text-center lg:text-left"
           aria-label="Primary"
         >
           <ul className="flex items-center space-x-10 text-[#4f4f4f] uppercase tracking-wide text-sm lg:text-base xl:text-lg">
@@ -105,7 +105,7 @@ export default function Header() {
         {/* Desktop CTA Button */}
         <div
           type="button"
-          className="hidden relative top-[-2px] w-auto rounded-3xl bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] md:block"
+          className="hidden relative top-[-2px] w-auto rounded-3xl bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] lg:block"
           aria-label="Lets connect button"
         >
           Let’s Connect
@@ -118,7 +118,7 @@ export default function Header() {
           <>
             {/* Overlay */}
             <motion.div
-              className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 md:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 lg:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -129,7 +129,7 @@ export default function Header() {
             {/* Sliding Nav Menu */}
             <motion.nav
               id="mobile-navigation"
-              className="fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white z-50 md:hidden shadow-2xl"
+              className="fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white z-50 lg:hidden shadow-2xl"
               initial="hidden"
               animate="visible"
               exit="exit"

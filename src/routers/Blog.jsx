@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import styles from "./Blog.module.css";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import BlogSkeleton from "@/components/shared/BlogSkeleton";
+import { createFullSlug } from "@/utils/slugUtils";
 
 export default function Blog() {
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
-  const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function Blog() {
           })
           // Filter to show only visible blogs (visibility === true OR visibility field doesn't exist)
           .filter((blog) => blog.visibility !== false);
-
+        
         setBlogs(blogData);
       } catch (error) {
         console.error("Error fetching blogs:", error);
@@ -86,15 +86,10 @@ export default function Blog() {
     fetchBlogs();
   }, []);
 
-  useEffect(() => {
-    console.log("This is the: ", selected?.desc);
-    if (selected) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => (document.body.style.overflow = "auto");
-  }, [selected]);
+  const handleBlogClick = (blog) => {
+    const slug = createFullSlug(blog.title, blog.id);
+    navigate(`/blog/${slug}`);
+  };
 
   return (
     <section className="w-[90%] mx-auto py-12 min-h-[60vh]">
@@ -114,7 +109,7 @@ export default function Blog() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: (index % 4) * 0.1 }}
+                // transition={{ delay: (index % 4) * 0.1}}
               >
                 <BlogSkeleton />
               </motion.div>
@@ -123,20 +118,18 @@ export default function Blog() {
         ) : blogs.length === 0 ? (
           // Show empty state
           <div className="col-span-full text-center py-12">
-            <p className="text-gray-500 text-lg">
-              No blogs available at the moment.
-            </p>
+            <p className="text-gray-500 text-lg">No blogs available at the moment.</p>
           </div>
         ) : (
           // Show actual blogs with fade-in animation
           blogs.map((blog, index) => (
             <motion.div
               key={blog.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              // initial={{ opacity: 0, y: 20 }}
+              // animate={{ opacity: 1, y: 0 }}
+              // transition={{ delay: index * 0.1 }}
               className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition cursor-pointer group"
-              onClick={() => setSelected(blog)}
+              onClick={() => handleBlogClick(blog)}
             >
               <div className="w-full aspect-video overflow-hidden">
                 <img
@@ -146,115 +139,20 @@ export default function Blog() {
                 />
               </div>
               <div className="p-3">
-                <h3 className="text-base font-semibold mb-2 line-clamp-2 leading-tight">
-                  {blog.title}
-                </h3>
+                <h3 className="text-base font-semibold mb-2 line-clamp-2 leading-tight">{blog.title}</h3>
                 <p
                   className="text-xs text-gray-600 mb-2 line-clamp-2"
                   dangerouslySetInnerHTML={{
                     __html: blog.desc.slice(0, 100) + "...",
                   }}
                 />
-                <p className="text-xs text-gray-500 mb-1">
-                  By <span className="font-medium">{blog.authorName}</span>
-                </p>
+                <p className="text-xs text-gray-500 mb-1">By <span className="font-medium">{blog.authorName}</span></p>
                 <p className="text-xs text-gray-400">{blog.date}</p>
               </div>
             </motion.div>
           ))
         )}
       </div>
-      {/* Modal */}
-
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-            onClick={() => setSelected(null)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          >
-            {/* Modal container */}
-            <motion.div
-              className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] relative flex flex-col items-center"
-              onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{
-                type: "spring",
-                stiffness: 120,
-                damping: 15,
-                duration: 0.4,
-              }}
-            >
-              {/* Close button */}
-              <button
-                onClick={() => setSelected(null)}
-                className="absolute top-3 right-3 text-white bg-black/75 p-2 cursor-pointer rounded-full z-10 float-right"
-              >
-                <X size={20} />
-              </button>
-
-              {/* Everything inside scrolls together */}
-              <div className="p-4 flex flex-col items-center rounded-xl overflow-y-auto">
-                {/* Image */}
-                <div className="w-full flex justify-center rounded-xl items-center bg-gray-100 p-4">
-                  <img
-                    src={selected.img}
-                    alt={selected.title}
-                    className="w-full max-h-[35vh] object-contain rounded-lg"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.src = "/blogs/default.jpg";
-                    }}
-                  />
-                </div>
-
-                {/* Additional images */}
-                {selected.images && selected.images.length > 1 && (
-                  <div className="px-4 pb-4 flex gap-2 overflow-x-auto">
-                    {selected.images.slice(1).map((imgData, idx) => {
-                      const imgUrl =
-                        typeof imgData === "object" ? imgData.url : imgData;
-                      return (
-                        <img
-                          key={idx}
-                          src={imgUrl}
-                          alt={`${selected.title} - ${idx + 2}`}
-                          className="h-20 w-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Scrollable content (now part of the whole scroll) */}
-                <div className="p-4">
-                  <h2 className={styles.title}>{selected.title}</h2>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                    <span>By {selected.authorName}</span>
-                    <span>•</span>
-                    <span>{selected.authorRole}</span>
-                    <span>•</span>
-                    <p className={styles.date}>{selected.date}</p>
-                  </div>
-                  <div
-                    className={styles.content}
-                    dangerouslySetInnerHTML={{ __html: selected.desc }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
