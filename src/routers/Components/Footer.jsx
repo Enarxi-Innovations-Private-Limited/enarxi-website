@@ -39,9 +39,9 @@ const Footer = () => {
               </h3>
               <address className="not-italic shrink text-footer-foreground space-y-1 text-sm md:text-lg leading-relaxed text-center md:text-left">
                 <p>Enarxi Innovations Pvt Ltd,</p>
-                <p>18/2, 2nd floor, Valluvan St,</p>
-                <p>Purasaiwakkam,</p>
-                <p>Chennai, Tamil Nadu 600007</p>
+                <p>No 23 sripuram colony,vairalur,</p>
+                <p>St.thomas mount,</p>
+                <p>Chennai, Tamil Nadu 600016</p>
               </address>
             </div>
 

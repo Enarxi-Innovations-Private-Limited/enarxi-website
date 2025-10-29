@@ -256,23 +256,21 @@ export default function AboutUs() {
             {/* Mission */}
             <motion.div
               className="bg-card/80 backdrop-blur-sm rounded-3xl p-8 md:p-10 shadow-xl border border-border/50 hover:shadow-2xl transition-all duration-300"
-              initial={{ opacity: 0, x: -60, scale: 0.9 }}
+              initial={{ opacity: 0, x: -50, scale: 0.95 }}
               whileInView={{ opacity: 1, x: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.8, type: "spring", stiffness: 80 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ type: "spring", stiffness: 120, damping: 15 }}
               whileHover={{ scale: 1.02, y: -5 }}
             >
               <motion.div
                 className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 mx-auto"
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.1 }}
               >
                 <div className="w-8 h-8 bg-white rounded-lg">
                   <img src={mission} alt="mission" className="w-8 h-8" />
                 </div>
               </motion.div>
-              <motion.h3
-                className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-primary"
-              >
+              <motion.h3 className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-primary">
                 Our Mission
               </motion.h3>
               <motion.p
@@ -294,10 +292,10 @@ export default function AboutUs() {
               whileInView={{ opacity: 1, x: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{
-                duration: 0.8,
+                duration: 0.1,
                 type: "spring",
                 stiffness: 80,
-                delay: 0.2,
+                delay: 0,
               }}
               whileHover={{ scale: 1.02, y: -5 }}
             >
@@ -309,16 +307,14 @@ export default function AboutUs() {
                   <img src={vision} alt="vision" className="w-8 h-8" />
                 </div>
               </motion.div>
-              <motion.h3
-                className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-secondary-foreground"
-              >
+              <motion.h3 className="text-2xl md:text-3xl font-bold font-oswald mb-6 text-center text-secondary-foreground">
                 Our Vision
               </motion.h3>
               <motion.p
                 className="text-base md:text-lg leading-relaxed text-center text-muted-foreground"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.1 }}
               >
                 To Be The Leading Technology Partner That Transforms Ideas Into
                 Revolutionary Products, Creating A World Where Innovation Knows
