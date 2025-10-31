@@ -1,7 +1,9 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config();
+// explicitly load the .env file from backend folder
+dotenv.config({ path: path.resolve('/root/apps/enarxi-website/backend/.env') });
 
 // Validate required environment variables
 const requiredEnvVars = [
