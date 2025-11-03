@@ -1,49 +1,59 @@
 import React, { useState, useCallback } from 'react';
 import { X, Upload, Trash2, GripVertical, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 
 /**
  * MultiImageUploadModal Component
- * Modal for uploading, previewing, reordering, and managing multiple images
+ * Modal for selecting, previewing, reordering, and managing multiple images
+ * Images are staged locally (not uploaded to Cloudinary until blog submission)
  * 
  * @param {Object} props
  * @param {boolean} props.isOpen - Modal open state
- * @param {Function} props.onSave - Callback with { id, images } when saved
+ * @param {Function} props.onSave - Callback with { id, stagedItems } when saved
  * @param {Function} props.onCancel - Callback when user cancels
  * @param {Object} props.existingBlock - Optional existing block data for editing
  */
 const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null }) => {
-  const [images, setImages] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState('');
+  const [stagedItems, setStagedItems] = useState([]);
+  const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
 
-  // Reset images when modal opens with existing block
+  // Reset staged items when modal opens with existing block
   React.useEffect(() => {
     if (isOpen) {
-      setImages(existingBlock?.images || []);
+      setStagedItems(existingBlock?.stagedItems || []);
       setError('');
     }
   }, [isOpen, existingBlock]);
 
+  // Cleanup object URLs when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      // Cleanup any temporary object URLs that weren't saved
+      return () => {
+        stagedItems.forEach((item) => {
+          if (item.previewUrl && item.previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(item.previewUrl);
+          }
+        });
+      };
+    }
+  }, [isOpen, stagedItems]);
+
   /**
-   * Handle file selection and upload to Cloudinary
+   * Handle file selection and stage locally (no upload yet)
    */
   const handleFileSelect = useCallback(async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
     setError('');
-    setUploading(true);
-    setUploadProgress(`Uploading 0/${files.length} images...`);
+    setProcessing(true);
 
-    const uploadedImages = [];
-    let successCount = 0;
+    const newStagedItems = [];
+    let validCount = 0;
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
+    for (const file of files) {
       // Validate file
       if (!file.type.startsWith('image/')) {
         setError(`"${file.name}" is not an image file`);
@@ -56,59 +66,94 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
       }
 
       try {
-        setUploadProgress(`Uploading ${i + 1}/${files.length} images...`);
-        const result = await uploadToCloudinary(file);
-        uploadedImages.push({
-          url: result.url,
-          publicId: result.publicId,
-          format: result.format,
-          width: result.width,
-          height: result.height,
+        // Create preview URL and get dimensions
+        const previewUrl = URL.createObjectURL(file);
+        const dimensions = await getImageDimensions(file);
+
+        newStagedItems.push({
+          id: `staged-${Date.now()}-${Math.random()}`,
+          file,
+          previewUrl,
+          status: 'staged',
+          format: file.type.split('/')[1] || 'unknown',
+          width: dimensions.width,
+          height: dimensions.height,
+          fileName: file.name,
         });
-        successCount++;
+        validCount++;
       } catch (err) {
-        console.error(`Failed to upload ${file.name}:`, err);
-        setError(`Failed to upload "${file.name}"`);
+        console.error(`Failed to process ${file.name}:`, err);
+        setError(`Failed to process "${file.name}"`);
       }
     }
 
-    setImages((prev) => [...prev, ...uploadedImages]);
-    setUploading(false);
-    setUploadProgress('');
+    setStagedItems((prev) => [...prev, ...newStagedItems]);
+    setProcessing(false);
 
     // Clear file input
     e.target.value = '';
 
-    if (successCount > 0) {
+    if (validCount > 0) {
       setError('');
     }
   }, []);
 
   /**
-   * Remove an image from the list
+   * Helper to get image dimensions from file
    */
-  const handleRemoveImage = useCallback((publicId) => {
-    setImages((prev) => prev.filter((img) => img.publicId !== publicId));
+  const getImageDimensions = (file) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve({ width: img.width, height: img.height });
+      };
+      
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = url;
+    });
+  };
+
+  /**
+   * Remove a staged item from the list
+   */
+  const handleRemoveImage = useCallback((itemId) => {
+    setStagedItems((prev) => {
+      const itemToRemove = prev.find((item) => item.id === itemId);
+      
+      // Cleanup object URL if it's a blob
+      if (itemToRemove?.previewUrl && itemToRemove.previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(itemToRemove.previewUrl);
+      }
+      
+      return prev.filter((item) => item.id !== itemId);
+    });
   }, []);
 
   /**
    * Handle save
    */
   const handleSave = useCallback(() => {
-    if (images.length === 0) {
-      setError('Please upload at least one image');
+    if (stagedItems.length === 0) {
+      setError('Please select at least one image');
       return;
     }
 
     const blockId = existingBlock?.id || `image-block-${Date.now()}`;
-    onSave({ id: blockId, images });
-  }, [images, existingBlock, onSave]);
+    onSave({ id: blockId, stagedItems });
+  }, [stagedItems, existingBlock, onSave]);
 
   /**
    * Handle reorder
    */
   const handleReorder = useCallback((newOrder) => {
-    setImages(newOrder);
+    setStagedItems(newOrder);
   }, []);
 
   if (!isOpen) return null;
@@ -147,7 +192,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
               <button
                 onClick={onCancel}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                disabled={uploading}
+                disabled={processing}
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -164,10 +209,10 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Upload className="w-10 h-10 text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600 font-medium">
-                      Click to upload images
+                      Click to select images
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      PNG, JPG, GIF up to 5MB each
+                      PNG, JPG, GIF up to 5MB each (will upload on blog submission)
                     </p>
                   </div>
                   <input
@@ -176,18 +221,18 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                     multiple
                     accept="image/*"
                     onChange={handleFileSelect}
-                    disabled={uploading}
+                    disabled={processing}
                     className="hidden"
                   />
                 </label>
               </div>
 
-              {/* Upload Progress */}
-              {uploading && (
+              {/* Processing Indicator */}
+              {processing && (
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm text-blue-800 font-medium">{uploadProgress}</span>
+                    <span className="text-sm text-blue-800 font-medium">Processing images...</span>
                   </div>
                 </div>
               )}
@@ -200,44 +245,47 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
               )}
 
               {/* Image List */}
-              {images.length > 0 ? (
+              {stagedItems.length > 0 ? (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-gray-700">
-                      Uploaded Images ({images.length})
+                      Selected Images ({stagedItems.length})
                     </h3>
                     <p className="text-xs text-gray-500">Drag to reorder</p>
                   </div>
                   <Reorder.Group
                     axis="y"
-                    values={images}
+                    values={stagedItems}
                     onReorder={handleReorder}
                     className="space-y-2"
                   >
-                    {images.map((img) => (
+                    {stagedItems.map((item) => (
                       <Reorder.Item
-                        key={img.publicId}
-                        value={img}
+                        key={item.id}
+                        value={item}
                         className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors cursor-move"
                       >
                         <GripVertical className="w-5 h-5 text-gray-400 shrink-0" />
                         <img
-                          src={img.url}
+                          src={item.previewUrl}
                           alt="Preview"
                           className="w-16 h-16 object-cover rounded-md shrink-0"
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-700 truncate">
-                            {img.publicId.split('/').pop()}
+                            {item.fileName}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {img.width} × {img.height} • {img.format.toUpperCase()}
+                            {item.width} × {item.height} • {item.format.toUpperCase()}
+                          </p>
+                          <p className="text-xs text-indigo-600 font-medium mt-0.5">
+                            Staged (will upload on submit)
                           </p>
                         </div>
                         <button
-                          onClick={() => handleRemoveImage(img.publicId)}
+                          onClick={() => handleRemoveImage(item.id)}
                           className="p-2 hover:bg-red-100 rounded-lg transition-colors shrink-0"
-                          disabled={uploading}
+                          disabled={processing}
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </button>
@@ -248,7 +296,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
               ) : (
                 <div className="text-center py-8">
                   <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-gray-500">No images uploaded yet</p>
+                  <p className="text-sm text-gray-500">No images selected yet</p>
                 </div>
               )}
             </div>
@@ -258,13 +306,13 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
               <button
                 onClick={onCancel}
                 className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                disabled={uploading}
+                disabled={processing}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                disabled={uploading || images.length === 0}
+                disabled={processing || stagedItems.length === 0}
                 className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {existingBlock ? 'Update Block' : 'Insert Block'}

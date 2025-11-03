@@ -9,6 +9,7 @@ import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/util
 import CropImageModal from "@/components/CropImageModal";
 import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
+import { useMediaStaging } from "@/hooks/useMediaStaging";
 import { Youtube, Image } from "lucide-react";
 
 // --- Import all required Tiptap extensions for customization ---
@@ -197,9 +198,9 @@ const StaffBlogs = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const [originalFileName, setOriginalFileName] = useState("");
   
-  // Multi-image blocks state
-  const [imageBlocks, setImageBlocks] = useState({});
+  // Multi-image blocks state with staging
   const [showMultiImageModal, setShowMultiImageModal] = useState(false);
+  const mediaStaging = useMediaStaging();
 
   const editor = useEditor({
     extensions: [
@@ -208,6 +209,7 @@ const StaffBlogs = () => {
         listItem: false,
         orderedList: false,
         bulletList: false,
+        link: false, // Disable link from StarterKit to avoid duplicate
       }),
       Heading.extend({
         addKeyboardShortcuts() {
@@ -323,27 +325,24 @@ const StaffBlogs = () => {
   /**
    * Handle multi-image modal save
    */
-  const handleMultiImageSave = useCallback(({ id, images }) => {
-    // Store images in state
-    setImageBlocks((prev) => ({
-      ...prev,
-      [id]: images,
-    }));
+  const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
+    // Store staged files in media staging
+    mediaStaging.updateStagedFiles(id, stagedItems);
 
-    // Insert ImageBlock node in editor
+    // Insert ImageBlock node in editor with staged items
     if (editor) {
       editor
         .chain()
         .focus()
         .insertContent({
           type: 'imageBlock',
-          attrs: { id, images },
+          attrs: { id, stagedItems },
         })
         .run();
     }
 
     setShowMultiImageModal(false);
-  }, [editor]);
+  }, [editor, mediaStaging]);
 
   /**
    * Handle multi-image modal cancel
@@ -371,14 +370,14 @@ const StaffBlogs = () => {
         // Step 1: Extract YouTube embeds and image blocks from editor JSON
         const editorJson = editor.getJSON();
         const youtubeLinks = [];
-        const extractedImageBlocks = {};
+        const imageBlockIds = [];
         
         // Traverse the editor JSON to extract YouTube embeds and image blocks
         const traverseNodes = (node) => {
           if (node.type === 'youtubeEmbed') {
             youtubeLinks.push(node.attrs.url);
           } else if (node.type === 'imageBlock') {
-            extractedImageBlocks[node.attrs.id] = node.attrs.images;
+            imageBlockIds.push(node.attrs.id);
           }
           
           if (node.content) {
@@ -389,26 +388,9 @@ const StaffBlogs = () => {
         editorJson.content?.forEach(traverseNodes);
         
         console.log('📺 Extracted YouTube links:', youtubeLinks);
-        console.log('🖼️ Extracted image blocks:', extractedImageBlocks);
+        console.log('🖼️ Extracted image block IDs:', imageBlockIds);
         
-        // Step 2: Replace YouTube embeds and image blocks with div placeholders in HTML
-        let cleanedContent = finalHtmlContent;
-        
-        // Replace YouTube embed divs with simple placeholders
-        youtubeLinks.forEach((url, index) => {
-          const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
-          cleanedContent = cleanedContent.replace(ytPattern, `<div id="yt${index}"></div>`);
-        });
-        
-        // Replace image block divs with simple placeholders
-        Object.keys(extractedImageBlocks).forEach((blockId) => {
-          const imgPattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?<\/div>`, 'gi');
-          cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
-        });
-        
-        console.log('💾 Cleaned content with placeholders:', cleanedContent);
-        
-        // Step 2: Upload image to Cloudinary if present
+        // Step 2: Upload featured image to Cloudinary if present
         let uploadedImages = [];
         
         if (imageFile) {
@@ -419,7 +401,7 @@ const StaffBlogs = () => {
             return;
           }
           
-          setMessage("📤 Uploading image to Cloudinary...");
+          setMessage("📤 Uploading featured image to Cloudinary...");
           
           try {
             const uploadResult = await uploadToCloudinary(imageFile);
@@ -438,7 +420,45 @@ const StaffBlogs = () => {
           }
         }
 
-        // Step 3: Save blog to Firestore with Cloudinary URL and YouTube links
+        // Step 3: Upload all staged image block files to Cloudinary
+        setMessage("📤 Uploading image blocks to Cloudinary...");
+        
+        let uploadedImageBlocks = {};
+        
+        try {
+          uploadedImageBlocks = await mediaStaging.flushUploads(
+            uploadToCloudinary,
+            ({ current, total, fileName }) => {
+              setMessage(`📤 Uploading image ${current}/${total}: ${fileName}...`);
+            }
+          );
+          
+          console.log('✅ All image blocks uploaded:', uploadedImageBlocks);
+        } catch (uploadError) {
+          console.error('Error uploading image blocks:', uploadError);
+          setMessage(`❌ ${uploadError.message}`);
+          setLoading(false);
+          return;
+        }
+        
+        // Step 4: Replace YouTube embeds and image blocks with div placeholders in HTML
+        let cleanedContent = finalHtmlContent;
+        
+        // Replace YouTube embed divs with simple placeholders
+        youtubeLinks.forEach((url, index) => {
+          const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
+          cleanedContent = cleanedContent.replace(ytPattern, `<div id="yt${index}"></div>`);
+        });
+        
+        // Replace image block divs with simple placeholders
+        imageBlockIds.forEach((blockId) => {
+          const imgPattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?<\/div>`, 'gi');
+          cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
+        });
+        
+        console.log('💾 Cleaned content with placeholders:', cleanedContent);
+
+        // Step 5: Save blog to Firestore with Cloudinary URLs and YouTube links
         setMessage("💾 Saving blog to database...");
         
         await addDoc(collection(db, "blogs"), {
@@ -448,22 +468,23 @@ const StaffBlogs = () => {
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: cleanedContent, // Store cleaned content without YouTube links
-          images: uploadedImages, // Store Cloudinary URL and metadata
+          images: uploadedImages, // Store featured image Cloudinary URL and metadata
           ytlinks: youtubeLinks, // Store YouTube links array
-          imageBlocks: extractedImageBlocks, // Store multi-image blocks
+          imageBlocks: uploadedImageBlocks, // Store uploaded multi-image blocks
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
   
         // ✅ Success message
-        const imageMsg = uploadedImages.length > 0 ? ` Image uploaded to Cloudinary.` : '';
+        const imageMsg = uploadedImages.length > 0 ? ` Featured image uploaded.` : '';
+        const blockMsg = Object.keys(uploadedImageBlocks).length > 0 ? ` ${Object.keys(uploadedImageBlocks).length} image block(s) uploaded.` : '';
         const ytMsg = youtubeLinks.length > 0 ? ` ${youtubeLinks.length} YouTube link(s) detected.` : '';
-        setMessage(`✅ Blog saved successfully!${imageMsg}${ytMsg}`);
+        setMessage(`✅ Blog saved successfully!${imageMsg}${blockMsg}${ytMsg}`);
   
         // Reset form after success
         setTimeout(() => {
           setImageFile(null);
-          setImageBlocks({});
+          mediaStaging.clearAll();
           editor.commands.clearContent(true);
           setBlogContent("");
           setFormData(prev => ({ ...prev, title: '' }));
@@ -480,7 +501,7 @@ const StaffBlogs = () => {
         setLoading(false);
       }
     },
-    [editor, user, formData, imageFile, imageBlocks]
+    [editor, user, formData, imageFile, mediaStaging]
   );
   
 

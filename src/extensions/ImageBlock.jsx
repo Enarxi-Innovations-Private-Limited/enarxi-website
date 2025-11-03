@@ -17,6 +17,9 @@ export const ImageBlock = Node.create({
       images: {
         default: [],
       },
+      stagedItems: {
+        default: [],
+      },
     };
   },
 
@@ -27,9 +30,11 @@ export const ImageBlock = Node.create({
         getAttrs: (dom) => {
           const id = dom.getAttribute('data-id');
           const imagesJson = dom.getAttribute('data-images');
+          const stagedItemsJson = dom.getAttribute('data-staged-items');
           return {
             id,
             images: imagesJson ? JSON.parse(imagesJson) : [],
+            stagedItems: stagedItemsJson ? JSON.parse(stagedItemsJson) : [],
           };
         },
       },
@@ -42,7 +47,8 @@ export const ImageBlock = Node.create({
       mergeAttributes(HTMLAttributes, {
         'data-type': 'image-block',
         'data-id': HTMLAttributes.id,
-        'data-images': JSON.stringify(HTMLAttributes.images),
+        'data-images': JSON.stringify(HTMLAttributes.images || []),
+        'data-staged-items': JSON.stringify(HTMLAttributes.stagedItems || []),
         class: 'image-block',
       }),
     ];
