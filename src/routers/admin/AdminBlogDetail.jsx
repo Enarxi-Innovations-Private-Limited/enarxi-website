@@ -3,12 +3,173 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, User, Loader2, Eye, EyeOff, CheckCircle, Trash2 } from 'lucide-react';
-import { injectYouTubePlayers } from '@/utils/injectYouTubePlayers';
+import { ArrowLeft, Calendar, User, Loader2, Eye, EyeOff, CheckCircle, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast, Toaster } from 'react-hot-toast';
 import { deleteBlog, approveBlog } from '@/lib/api';
 import { useAuth } from '@/AuthProvider';
 import ConfirmModal from '@/components/shared/ConfirmModal';
+import parse from 'html-react-parser';
+
+// Helper function to extract YouTube video ID
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*$/;
+  const match = url.match(regExp);
+  return match && match[7].length === 11 ? match[7] : null;
+};
+
+// ImageBlock Carousel Component
+const ImageBlockCarousel = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!images || images.length === 0) {
+    return <div className="text-red-500 text-center py-4">No images available</div>;
+  }
+
+  // Helper function to get the image URL
+  const getImageUrl = (img) => {
+    if (!img) return '';
+    // If it's already a URL, return it
+    if (typeof img === 'string') return img;
+    // If it's an object with a url property
+    if (img.url) return img.url;
+    // If it's an object with a publicId (Cloudinary)
+    if (img.publicId) return `https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/${img.publicId}`;
+    return '';
+  };
+
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+  };
+
+  const currentImage = images[currentIndex];
+  const imageUrl = getImageUrl(currentImage);
+  const altText = currentImage?.publicId || `Image ${currentIndex + 1}`;
+
+  return (
+    <div className="relative w-full my-8">
+      <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={altText}
+            className="w-full h-full object-contain"
+            onError={(e) => {
+              e.target.onerror = null; // Prevent infinite loop
+              e.target.src = '/blogs/default.jpg';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <span className="text-gray-500">Image not available</span>
+          </div>
+        )}
+        
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={goToPrevious}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all z-10"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-800" />
+            </button>
+            
+            <button
+              onClick={goToNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all z-10"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-800" />
+            </button>
+            
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentIndex ? 'bg-white w-8' : 'bg-white/50'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      
+      {images.length > 1 && (
+        <p className="text-center text-sm text-gray-500 mt-2">
+          {currentIndex + 1} / {images.length}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// YouTube Embed Component
+const YouTubeEmbed = ({ url }) => {
+  const videoId = getYouTubeId(url);
+  
+  if (!videoId) {
+    return <p className="text-red-500 text-center py-4">Invalid YouTube URL</p>;
+  }
+
+  return (
+    <div className="relative w-full my-8" style={{ paddingTop: '56.25%' }}>
+      <iframe
+        className="absolute top-0 left-0 w-full h-full rounded-lg"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
+};
+
+// Blog Content Renderer Component
+const BlogContentRenderer = ({ content, imageBlocks, ytlinks }) => {
+  const options = {
+    replace: (domNode) => {
+      if (domNode.type === 'tag' && domNode.attribs) {
+        // Handle image-block divs
+        if (domNode.name === 'div' && domNode.attribs.class === 'image-block') {
+          const blockId = domNode.attribs.id;
+          const images = imageBlocks?.[blockId];
+          
+          if (images && images.length > 0) {
+            return <ImageBlockCarousel images={images} />;
+          }
+          return <div className="text-gray-400 text-center py-4">Image block not found</div>;
+        }
+        
+        // Handle YouTube divs
+        if (domNode.name === 'div' && domNode.attribs.id && domNode.attribs.id.startsWith('yt')) {
+          const index = parseInt(domNode.attribs.id.replace('yt', ''), 10);
+          const url = ytlinks?.[index];
+          
+          if (url) {
+            return <YouTubeEmbed url={url} />;
+          }
+          return <div className="text-gray-400 text-center py-4">Video not found</div>;
+        }
+      }
+    },
+  };
+
+  return (
+    <div className="prose prose-lg max-w-none mb-8">
+      {parse(content, options)}
+    </div>
+  );
+};
 
 const AdminBlogDetail = () => {
   const { slug } = useParams();
@@ -70,6 +231,7 @@ const AdminBlogDetail = () => {
           authorName: data.authorName || 'Anonymous',
           authorRole: data.authorRole || 'Staff',
           ytlinks: data.ytlinks || [],
+          imageBlocks: data.imageBlocks || {},
           isAdminAccepted: data.isAdminAccepted || false,
           visibility: data.visibility !== false,
           status: data.status || 'pending',
@@ -238,17 +400,6 @@ const AdminBlogDetail = () => {
             transition={{ delay: 0.1 }}
             className="bg-white rounded-2xl shadow-lg overflow-hidden"
           >
-            {/* Featured Image */}
-            <div className="w-full aspect-video overflow-hidden bg-gray-100">
-              <img
-                src={blog.img}
-                alt={blog.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = '/blogs/default.jpg';
-                }}
-              />
-            </div>
 
             {/* Blog Header */}
             <div className="p-8">
@@ -276,64 +427,18 @@ const AdminBlogDetail = () => {
                 )}
               </div>
 
-              {/* Blog Content with Embedded YouTube Videos */}
-              <div
-                className="prose prose-lg max-w-none mb-8"
-                dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
+              {/* Blog Content with Image Blocks and YouTube Embeds */}
+              <BlogContentRenderer
+                content={blog.content}
+                imageBlocks={blog.imageBlocks}
+                ytlinks={blog.ytlinks}
               />
-
-              {/* YouTube Links Info (for admin reference) */}
-              {blog.ytlinks && blog.ytlinks.length > 0 && (
-                <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                  <h3 className="text-sm font-semibold text-blue-900 mb-2">YouTube Videos in Content ({blog.ytlinks.length})</h3>
-                  <ul className="text-xs text-blue-700 space-y-1">
-                    {blog.ytlinks.map((url, index) => (
-                      <li key={index}>
-                        <span className="font-mono">yt{index}</span>: {url}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Additional Images */}
-              {blog.images && blog.images.length > 1 && (
-                <div className="mt-12">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Additional Images ({blog.images.length - 1})</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {blog.images.slice(1).map((imgData, idx) => {
-                      const imgUrl = typeof imgData === 'object' ? imgData.url : imgData;
-                      return (
-                        <img
-                          key={idx}
-                          src={imgUrl}
-                          alt={`${blog.title} - ${idx + 2}`}
-                          className="w-full h-48 object-cover rounded-lg shadow-md"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
           </motion.article>
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={deleteConfirm}
-        onClose={() => setDeleteConfirm(false)}
-        onConfirm={handleDelete}
-        title="Delete Blog"
-        message={`Are you sure you want to delete "${blog?.title}"? ${blog?.images?.length > 0 ? `This will permanently delete ${blog.images.length} image(s) from Cloudinary and the blog from the database.` : 'This action cannot be undone.'}`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-      />
+     
     </>
   );
 };
