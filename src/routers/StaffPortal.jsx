@@ -4,6 +4,7 @@ import { LayoutDashboard, PenSquare, LogOut, User, Menu, X } from "lucide-react"
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/AuthProvider";
+import { usePortalPersistence } from "@/hooks/usePortalPersistence";
 import StaffDashboard from "./staff/StaffDashboard";
 import StaffBlogs from "./staff/StaffBlogs";
 import BrandedLoader from "@/components/shared/BrandedLoader";
@@ -12,7 +13,7 @@ import ConfirmModal from "@/components/shared/ConfirmModal";
 import OfflineIndicator from "@/components/shared/OfflineIndicator";
 
 const StaffPortal = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const { activeSection: activeTab, setActiveSection: setActiveTab, clearPersistedState } = usePortalPersistence('staff-portal', 'dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { user, role, loading, isOnline } = useAuth();
@@ -51,6 +52,8 @@ const StaffPortal = () => {
 
   const logoutStaff = async () => {
     try {
+      // Clear persisted state before logout
+      clearPersistedState();
       await signOut(auth);
       console.log("Staff logged out successfully.");
     } catch (error) {
