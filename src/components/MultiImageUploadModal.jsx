@@ -14,10 +14,18 @@ import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
  * @param {Object} props.existingBlock - Optional existing block data for editing
  */
 const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null }) => {
-  const [images, setImages] = useState(existingBlock?.images || []);
+  const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
   const [error, setError] = useState('');
+
+  // Reset images when modal opens with existing block
+  React.useEffect(() => {
+    if (isOpen) {
+      setImages(existingBlock?.images || []);
+      setError('');
+    }
+  }, [isOpen, existingBlock]);
 
   /**
    * Handle file selection and upload to Cloudinary

@@ -17,7 +17,8 @@ import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import BulletList from "@tiptap/extension-bullet-list";
 import Link from "@tiptap/extension-link";
-import { YouTubeLink } from "@/extensions/YouTubeLink";
+import { ImageBlock } from "@/extensions/ImageBlock";
+import { YouTubeEmbed } from "@/extensions/YouTubeEmbed";
 
 // --- Import the CSS file ---
 import "./tiptap.css";
@@ -37,7 +38,7 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
 
   if (!editor) return null;
 
-  const handleYouTubeLink = () => {
+  const handleYouTubeEmbed = () => {
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to, '');
     
@@ -51,8 +52,8 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
       return;
     }
     
-    // Mark the selected text as a YouTube link
-    editor.chain().focus().setYouTubeLink(selectedText.trim()).run();
+    // Delete the selected text and insert YouTube embed
+    editor.chain().focus().deleteSelection().setYouTubeEmbed(selectedText.trim()).run();
   };
 
   return (
@@ -107,9 +108,9 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
       </button>
       <button
         type="button"
-        onClick={handleYouTubeLink}
-        className={editor.isActive("youtubeLink") ? "is-active" : ""}
-        title="Mark as YouTube Link"
+        onClick={handleYouTubeEmbed}
+        className={editor.isActive("youtubeEmbed") ? "is-active" : ""}
+        title="Insert YouTube Embed"
         style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
       >
         <Youtube size={16} />
@@ -219,7 +220,8 @@ const StaffBlogs = () => {
       Link.configure({
         openOnClick: false,
       }),
-      YouTubeLink,
+      ImageBlock,
+      YouTubeEmbed,
     ],
     content: "",
     onUpdate: ({ editor }) => setBlogContent(editor.getHTML()),
@@ -328,12 +330,15 @@ const StaffBlogs = () => {
       [id]: images,
     }));
 
-    // Insert placeholder div in editor
+    // Insert ImageBlock node in editor
     if (editor) {
       editor
         .chain()
         .focus()
-        .insertContent(`<div class="image-block" id="${id}"></div>`)
+        .insertContent({
+          type: 'imageBlock',
+          attrs: { id, images },
+        })
         .run();
     }
 
@@ -363,32 +368,42 @@ const StaffBlogs = () => {
       }
   
       try {
-        // Step 1: Extract YouTube links from content
-        const youtubeLinks = extractYouTubeLinks(finalHtmlContent);
-        console.log('📺 Extracted YouTube links:', youtubeLinks);
+        // Step 1: Extract YouTube embeds and image blocks from editor JSON
+        const editorJson = editor.getJSON();
+        const youtubeLinks = [];
+        const extractedImageBlocks = {};
         
-        // Step 2: Replace YouTube links with div placeholders
+        // Traverse the editor JSON to extract YouTube embeds and image blocks
+        const traverseNodes = (node) => {
+          if (node.type === 'youtubeEmbed') {
+            youtubeLinks.push(node.attrs.url);
+          } else if (node.type === 'imageBlock') {
+            extractedImageBlocks[node.attrs.id] = node.attrs.images;
+          }
+          
+          if (node.content) {
+            node.content.forEach(traverseNodes);
+          }
+        };
+        
+        editorJson.content?.forEach(traverseNodes);
+        
+        console.log('📺 Extracted YouTube links:', youtubeLinks);
+        console.log('🖼️ Extracted image blocks:', extractedImageBlocks);
+        
+        // Step 2: Replace YouTube embeds and image blocks with div placeholders in HTML
         let cleanedContent = finalHtmlContent;
+        
+        // Replace YouTube embed divs with simple placeholders
         youtubeLinks.forEach((url, index) => {
-          // Escape special regex characters in the URL
-          const escapedUrl = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          
-          // Match both <a> tags and <span> tags with data-youtube-url attribute
-          const patterns = [
-            // Match <a> tags with href
-            new RegExp(`<a[^>]*href=["']${escapedUrl}["'][^>]*>.*?</a>`, 'gi'),
-            // Match <span> tags with data-youtube-url (from YouTubeLink extension)
-            new RegExp(`<span[^>]*data-youtube-url=["']${escapedUrl}["'][^>]*>.*?</span>`, 'gi'),
-            // Match plain text URLs that might not be wrapped
-            new RegExp(`(?<!["'>])${escapedUrl}(?!["'<])`, 'gi')
-          ];
-          
-          // Replace with div placeholder
-          const placeholder = `<div id="yt${index}"></div>`;
-          
-          patterns.forEach(pattern => {
-            cleanedContent = cleanedContent.replace(pattern, placeholder);
-          });
+          const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
+          cleanedContent = cleanedContent.replace(ytPattern, `<div id="yt${index}"></div>`);
+        });
+        
+        // Replace image block divs with simple placeholders
+        Object.keys(extractedImageBlocks).forEach((blockId) => {
+          const imgPattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?<\/div>`, 'gi');
+          cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
         });
         
         console.log('💾 Cleaned content with placeholders:', cleanedContent);
@@ -435,7 +450,7 @@ const StaffBlogs = () => {
           content: cleanedContent, // Store cleaned content without YouTube links
           images: uploadedImages, // Store Cloudinary URL and metadata
           ytlinks: youtubeLinks, // Store YouTube links array
-          imageBlocks: imageBlocks, // Store multi-image blocks
+          imageBlocks: extractedImageBlocks, // Store multi-image blocks
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
