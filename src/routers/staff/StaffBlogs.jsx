@@ -7,8 +7,9 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
+import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
-import { Youtube } from "lucide-react";
+import { Youtube, Image } from "lucide-react";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -24,7 +25,7 @@ import "./tiptap.css";
 //======================================================================
 //  FINAL MEMOIZED MENU BAR COMPONENT
 //======================================================================
-const MenuBar = memo(({ editor }) => {
+const MenuBar = memo(({ editor, onInsertImageBlock }) => {
   const [_, setForceUpdate] = useState(0);
 
   useEffect(() => {
@@ -114,6 +115,15 @@ const MenuBar = memo(({ editor }) => {
         <Youtube size={16} />
         YouTube
       </button>
+      <button
+        type="button"
+        onClick={onInsertImageBlock}
+        title="Insert Image Block"
+        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+      >
+        <Image size={16} />
+        Images
+      </button>
     </div>
   );
 });
@@ -185,6 +195,10 @@ const StaffBlogs = () => {
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [originalFileName, setOriginalFileName] = useState("");
+  
+  // Multi-image blocks state
+  const [imageBlocks, setImageBlocks] = useState({});
+  const [showMultiImageModal, setShowMultiImageModal] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -297,6 +311,42 @@ const StaffBlogs = () => {
     setImageFile(null);
   }, []);
 
+  /**
+   * Handle insert image block button click
+   */
+  const handleInsertImageBlock = useCallback(() => {
+    setShowMultiImageModal(true);
+  }, []);
+
+  /**
+   * Handle multi-image modal save
+   */
+  const handleMultiImageSave = useCallback(({ id, images }) => {
+    // Store images in state
+    setImageBlocks((prev) => ({
+      ...prev,
+      [id]: images,
+    }));
+
+    // Insert placeholder div in editor
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .insertContent(`<div class="image-block" id="${id}"></div>`)
+        .run();
+    }
+
+    setShowMultiImageModal(false);
+  }, [editor]);
+
+  /**
+   * Handle multi-image modal cancel
+   */
+  const handleMultiImageCancel = useCallback(() => {
+    setShowMultiImageModal(false);
+  }, []);
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -385,6 +435,7 @@ const StaffBlogs = () => {
           content: cleanedContent, // Store cleaned content without YouTube links
           images: uploadedImages, // Store Cloudinary URL and metadata
           ytlinks: youtubeLinks, // Store YouTube links array
+          imageBlocks: imageBlocks, // Store multi-image blocks
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
@@ -397,6 +448,7 @@ const StaffBlogs = () => {
         // Reset form after success
         setTimeout(() => {
           setImageFile(null);
+          setImageBlocks({});
           editor.commands.clearContent(true);
           setBlogContent("");
           setFormData(prev => ({ ...prev, title: '' }));
@@ -413,7 +465,7 @@ const StaffBlogs = () => {
         setLoading(false);
       }
     },
-    [editor, user, formData, imageFile]
+    [editor, user, formData, imageFile, imageBlocks]
   );
   
 
@@ -457,7 +509,7 @@ const StaffBlogs = () => {
               Blog Content
             </label>
             <div className="editor-container">
-              <MenuBar editor={editor} />
+              <MenuBar editor={editor} onInsertImageBlock={handleInsertImageBlock} />
               <EditorContent editor={editor} />
             </div>
           </div>
@@ -530,6 +582,13 @@ const StaffBlogs = () => {
         fileName={originalFileName}
         onCropComplete={handleCropComplete}
         onCancel={handleCropCancel}
+      />
+
+      {/* Multi-Image Upload Modal */}
+      <MultiImageUploadModal
+        isOpen={showMultiImageModal}
+        onSave={handleMultiImageSave}
+        onCancel={handleMultiImageCancel}
       />
     </div>
   );
