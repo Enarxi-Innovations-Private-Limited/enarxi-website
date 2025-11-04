@@ -74,11 +74,6 @@ const CTA = () => {
             <div className="order-1 md:order-2 mt-6 md:mt-0 flex flex-col items-center gap-2">
               <div className="flex -space-x-3">
                 <img
-                  src={avatar1}
-                  alt="Team member 1"
-                  className="h-10 w-10 rounded-full ring-2 ring-white object-cover"
-                />
-                <img
                   src={avatar2}
                   alt="Team member 2"
                   className="h-10 w-10 rounded-full ring-2 ring-white object-cover"

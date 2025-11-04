@@ -3,7 +3,7 @@ import { useState } from "react";
 import { href, NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Menu } from "lucide-react";
-import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
+import enarxiLogo from "../../assets/images/enarxi-front-logo-black.png";
 
 // Navigation items
 const navItems = [
