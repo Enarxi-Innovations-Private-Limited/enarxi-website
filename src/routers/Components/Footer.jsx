@@ -8,7 +8,7 @@ import whatsapp from "../../assets/footer/whatsapp.png"
 const Footer = () => {
   return (
     <>
-      <footer className="w-full bg-footer-background text-footer-foreground mt-12 md:mt-28">
+      <footer className="w-full bg-footer-background text-footer-foreground mt-28">
         <div className="max-w-7xl text-poppins mx-auto px-6 sm:px-8 lg:px-12 py-10 md:py-12">
           {/* Grid Layout - 3 columns x 3 rows */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-8 md:gap-y-5 md:justify-items-center">

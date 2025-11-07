@@ -3,8 +3,8 @@ import "../../index.css";
 
 // 🧩 import all logos (as in your code)
 import tp1 from "../../assets/trustedBy/tp1.svg";
-import tp2 from "../../assets/trustedBy/tp2.svg";
-import tp5 from "../../assets/trustedBy/tp5.svg";
+import tp2 from "../../assets/trustedBy/tp2.png";
+import tp5 from "../../assets/trustedBy/tp5.png";
 import prystin from "../../assets/trustedBy/pristynLogo.png";
 import unova from "../../assets/trustedBy/unova.png";
 import aditya from "../../assets/trustedBy/aditya.jpg";
@@ -44,7 +44,7 @@ const TrustedBy = () => {
   const secondRow = logos.slice(Math.ceil(logos.length / 2));
 
   return (
-    <section className="padding-y w-full flex flex-col justify-center items-center overflow-hidden">
+    <section className="mt-20 w-full flex flex-col justify-center items-center overflow-hidden">
       <h2 className="text-center mb-6 text-40 text-oswald-bold pb-2 md:pb-4">Trusted By</h2>
 
       <div className="w-full flex flex-col gap-10">

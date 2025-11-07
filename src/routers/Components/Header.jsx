@@ -464,7 +464,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Menu, AlertCircle, CheckCircle } from "lucide-react";
-import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
+import enarxiLogo from "../../assets/images/enarxi-front-logo-black.png";
 import { useForm } from "react-hook-form";
 import emailjs from "@emailjs/browser";
 

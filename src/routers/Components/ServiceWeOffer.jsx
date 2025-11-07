@@ -2,9 +2,9 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { ArrowRight } from "lucide-react";
 
-import IconProduct from "../../assets/images/product-design.svg";
-import IconMCFirmware from "../../assets/images/mc-firmware.svg";
-import IconPCB from "../../assets/images/pcb-design.svg";
+import IconProduct from "../../assets/images/product-proto.jpg";
+import IconMCFirmware from "../../assets/images/mc-programming.jpg";
+import IconPCB from "../../assets/images/pcb-fab.jpg";
 
 const services = [
   { icon: IconProduct, title: "Product Design & Prototyping", text: "Perfect balance of functionality, transformation, and innovation in electronics." },
