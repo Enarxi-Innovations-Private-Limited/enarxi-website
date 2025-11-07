@@ -2,12 +2,13 @@ import enarxiLogoWhite from "../../assets/images/logo-white.svg";
 import whatsappFooterSVG from "../../assets/icons/whatsappFooterSVG.svg";
 
 
-import { Mail, Phone, Instagram, Facebook, Linkedin,MessageCircle } from "lucide-react";
+import { Mail, Phone, Instagram, Facebook, Linkedin, MessageCircleMore } from "lucide-react";
+import whatsapp from "../../assets/footer/whatsapp.png"
 
 const Footer = () => {
   return (
     <>
-      <footer className="w-full bg-footer-background text-footer-foreground mt-12 md:mt-16">
+      <footer className="w-full bg-footer-background text-footer-foreground mt-12 md:mt-28">
         <div className="max-w-7xl text-poppins mx-auto px-6 sm:px-8 lg:px-12 py-10 md:py-12">
           {/* Grid Layout - 3 columns x 3 rows */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-8 md:gap-y-5 md:justify-items-center">
@@ -38,10 +39,10 @@ const Footer = () => {
                 OFFICE
               </h3>
               <address className="not-italic shrink text-footer-foreground space-y-1 text-sm md:text-lg leading-relaxed text-center md:text-left">
-                <p>Enarxi Innovations Pvt Ltd,</p>
-                <p>No 23 sripuram colony,vairalur,</p>
-                <p>St.thomas mount,</p>
-                <p>Chennai, Tamil Nadu 600016</p>
+                <p>Enarxi Innovations Pvt Ltd</p>
+                <p>No. 23, Sripuram Colony, Vairalur,</p>
+                <p>St. Thomas Mount,</p>
+                <p>Chennai, Tamil Nadu – 600016</p>
               </address>
             </div>
 
@@ -61,7 +62,7 @@ const Footer = () => {
                   +91-9600676639
                 </a>
                 <a
-                  href="mailto:info@enarxi.com"
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=info@enarxi.com&su=Product%20%26%20Service%20Enquiry&body=Hi%20Enarxi%20Team,%0A%0AI%20have%20a%20question%20about%20your%20hardware%20and%20software%20solutions.%0A%0APlease%20let%20me%20know%20how%20we%20can%20proceed.%0A%0ABest%20regards,%0A"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-footer-foreground hover:text-footer-brand transition-colors hover:underline"
@@ -85,14 +86,15 @@ const Footer = () => {
                   className="text-footer-foreground hover:text-footer-brand transition-colors"
                   aria-label="Contact us on WhatsApp"
                 >
-                  <MessageCircle className="w-5 h-5 md:w-6 md:h-6" />
+                  {/* <img src={whatsapp} alt="whatsapp Logo" className="w-5 h-5 md:w-6 md:h-6" /> */}
+                  <MessageCircleMore className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
                 <a
-                  href="mailto:contact@enarxi.com"
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=info@enarxi.com&su=Product%20%26%20Service%20Enquiry&body=Hi%20Enarxi%20Team,%0A%0AI%20have%20a%20question%20about%20your%20hardware%20and%20software%20solutions.%0A%0APlease%20let%20me%20know%20how%20we%20can%20proceed.%0A%0ABest%20regards,%0A"
                   rel="noopener noreferrer"
                   target="_blank"
                   className="text-footer-foreground hover:text-footer-brand transition-colors"
-                  aria-label="Send us an email"
+                  aria-label="Compose an email to info@enarxi.com in Gmail"
                 >
                   <Mail className="w-5 h-5 md:w-6 md:h-6" />
                 </a>

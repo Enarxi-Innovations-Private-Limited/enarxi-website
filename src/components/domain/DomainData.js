@@ -2,6 +2,7 @@ import iot from "@assets/Domain/iot.svg"
 import drone from "@assets/Domain/drone.svg"
 import wearables from "@assets/Domain/wearables.svg"
 import robot from "@assets/Domain/robot.svg"
+import automation from "@assets/Domain/automation.svg"
 import security from "@assets/Domain/security.svg"
 import ai from "@assets/Domain/ai.svg"
 import home from "@assets/Domain/home.svg"
@@ -75,7 +76,7 @@ export const domains = [
     },
     { 
       title: "Industrial Automation", 
-      icon: robot,
+      icon: automation,
       description: "Industrial automation at Enarxi Innovations Private Limited integrates IoT, control systems, and intelligent software to optimize manufacturing processes. Enarxi designs and develops custom automation hardware and embedded systems that enhance productivity, reduce manual intervention, and ensure operational safety, empowering industries to achieve smarter, more efficient production."
     },
   ];

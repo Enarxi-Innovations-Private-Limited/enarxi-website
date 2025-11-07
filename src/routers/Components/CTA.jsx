@@ -4,12 +4,13 @@ import { X, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import emailjs from "@emailjs/browser";
 
-import avatar1 from "../../assets/images/avatar-1.png";
+// import avatar1 from "../../assets/images/avatar-1.png";
 import avatar2 from "../../assets/images/avatar-2.png";
 import avatar3 from "../../assets/images/avatar-3.png";
 
 const CTA = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [connectPopup, setConnectPopup] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const {
@@ -18,7 +19,7 @@ const CTA = () => {
     reset,
     formState: { errors },
   } = useForm({
-    mode: "onBlur", // validate on blur
+    mode: "onBlur",
   });
 
   const onSubmit = async (data) => {
@@ -39,32 +40,30 @@ const CTA = () => {
       setTimeout(() => setShowSuccess(false), 3000);
 
       const result = await emailjs.send(
-        "service_9kqymv2", 
-        "template_by1gtll", 
+        "service_9kqymv2",
+        "template_by1gtll",
         payload,
-        "DrjvKCy8rORVEmghe" 
+        "DrjvKCy8rORVEmghe"
       );
 
       console.log(result.text);
-      toast.success("Thanks! We'll reach out to you soon 🚀");
-      methods.reset();
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-6 padding-y">
+    <section className="mx-auto max-w-7xl px-6 mt-28">
       {/* CTA card */}
       <div className="rounded-3xl bg-[#0B1A27] text-white shadow-xl ring-1 ring-black/5 p-8 md:p-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
           {/* Left: Headline */}
           <div className="md:pr-6">
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight md:whitespace-nowrap ">
-              Let's get started on your ideas💡
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight md:whitespace-nowrap">
+              Let's get started on your ideas 💡
             </h2>
-            <p className="mt-5 text-slate-300 leading-relaxed ">
-              Stay home, stay safe, and save lives. Connect with us digitally -
+            <p className="mt-5 text-slate-300 leading-relaxed">
+              Stay home, stay safe, and save lives. Connect with us digitally —
               we’re all ears!
             </p>
           </div>
@@ -91,25 +90,66 @@ const CTA = () => {
 
             <div className="order-2 md:order-1 mt-6 md:mt-0 md:pb-4">
               <button
-                onClick={() => setIsOpen(true)}
+                onClick={() => setConnectPopup(true)}
                 className="inline-flex items-center justify-center rounded-full bg-[#09B8DC] px-8 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#09B8DC] focus:ring-offset-[#0B1A27] cursor-pointer"
               >
-                Let’s Connect
+                Schedule Meet
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Connect Popup */}
+      {connectPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-80 text-center shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Choose an Option</h2>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setConnectPopup(false);
+                  setIsOpen(true);
+                }}
+                className="bg-gray-200 py-2 rounded-lg hover:bg-gray-300 cursor-pointer"
+              >
+                Get Enquiry
+              </button>
+              <button
+                onClick={() => {
+                  const eventTitle = encodeURIComponent("Meeting with Enarxi");
+                  const eventDetails = encodeURIComponent("Discuss collaboration and project details.");
+                  const eventLocation = encodeURIComponent("Google Meet");
+                  const startTime = new Date().toISOString().replace(/-|:|\.\d\d\d/g, "");
+                  const endTime = new Date(Date.now() + 30 * 60000).toISOString().replace(/-|:|\.\d\d\d/g, "");
+                  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
+                  window.open(calendarUrl, "_blank");
+                  setConnectPopup(false);
+                }}
+                className="bg-[#09B8DC] text-white py-2 rounded-lg hover:bg-[#08A0C6] cursor-pointer"
+              >
+                Schedule Meet
+              </button>
+              <button
+                onClick={() => setConnectPopup(false)}
+                className="text-gray-500 text-sm mt-2 hover:underline cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal (Enquiry Form) */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 ">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 p-1 text-slate-500 hover:text-slate-700 cursor-pointer hover:bg-slate-300 hover:rounded-full "
+              className="absolute top-4 right-4 p-1 text-slate-500 hover:text-slate-700 cursor-pointer hover:bg-slate-300 hover:rounded-full"
             >
-              <X className="h-6 w-6 " />
+              <X className="h-6 w-6" />
             </button>
 
             <h3 className="text-xl font-bold text-slate-900 mb-4">
@@ -127,11 +167,11 @@ const CTA = () => {
                   {...register("name", {
                     required: "Name is required",
                     minLength: { value: 3, message: "Minimum 3 characters" },
-                    setValueAs: (v) => v.replace(/[^a-zA-Z\s]/g, "").trim(), // remove anything not letters or space
+                    setValueAs: (v) => v.replace(/[^a-zA-Z\s]/g, "").trim(),
                   })}
-                  onInput={(e) => {
-                    e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, ""); // block typing numbers
-                  }}
+                  onInput={(e) =>
+                    (e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, ""))
+                  }
                   className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
                     errors.name
                       ? "border-red-500 focus:ring-red-400"
@@ -234,17 +274,17 @@ const CTA = () => {
                   {...register("service", {
                     required: "Please select a service",
                   })}
-                  className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer transition-all duration-300 ease-in-out bg-white hover:border-[#09B8DC]/50 hover:shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 ${
+                  className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer bg-white ${
                     errors.service
-                      ? "border-red-500 focus:ring-red-400 focus:border-red-500"
-                      : "border-slate-300 focus:ring-[#09B8DC] focus:border-[#09B8DC]"
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-slate-300 focus:ring-[#09B8DC]"
                   }`}
                 >
-                  <option value="" className="text-slate-400">Select a service</option>
-                  <option className="py-2 hover:bg-[#09B8DC]/10">Product Design & Prototyping</option>
-                  <option className="py-2 hover:bg-[#09B8DC]/10">Micro Controller & Processor Coding</option>
-                  <option className="py-2 hover:bg-[#09B8DC]/10">PCB Design & Fabrication</option>
-                  <option className="py-2 hover:bg-[#09B8DC]/10">Custom Software Development</option>
+                  <option value="">Select a service</option>
+                  <option>Product Design & Prototyping</option>
+                  <option>Micro Controller & Processor Coding</option>
+                  <option>PCB Design & Fabrication</option>
+                  <option>Custom Software Development</option>
                 </select>
                 {errors.service && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -258,30 +298,26 @@ const CTA = () => {
                 <label className="block text-sm font-medium text-slate-700">
                   When can we reach out to you?
                 </label>
-
                 <select
                   {...register("reachout", {
                     required: "Please select a time",
                   })}
-                  className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer transition-all duration-300 ease-in-out bg-white hover:border-[#09B8DC]/50 hover:shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10 ${
+                  className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer bg-white ${
                     errors.reachout
-                      ? "border-red-500 focus:ring-red-400 focus:border-red-500"
-                      : "border-slate-300 focus:ring-[#09B8DC] focus:border-[#09B8DC]"
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-slate-300 focus:ring-[#09B8DC]"
                   }`}
                 >
-                  <option value="" className="text-slate-400">
-                    Select a convenient time
-                  </option>
-                  <option value="Weekdays after 6 PM" className="py-2 hover:bg-[#09B8DC]/10">
+                  <option value="">Select a convenient time</option>
+                  <option value="Weekdays after 6 PM">
                     Weekdays after 6 PM
                   </option>
-                  <option value="Weekend after 4 PM" className="py-2 hover:bg-[#09B8DC]/10">Weekend after 4 PM</option>
-                  <option value="Anytime this week" className="py-2 hover:bg-[#09B8DC]/10">Anytime this week</option>
+                  <option value="Weekend after 4 PM">Weekend after 4 PM</option>
+                  <option value="Anytime this week">Anytime this week</option>
                 </select>
-
                 {errors.reachout && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="h-4 w-4" />
+                    <AlertCircle className="h-4 w-4" />{" "}
                     {errors.reachout.message}
                   </p>
                 )}
@@ -326,4 +362,5 @@ const CTA = () => {
     </section>
   );
 };
+
 export default CTA;

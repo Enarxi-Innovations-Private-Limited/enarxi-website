@@ -58,9 +58,7 @@
 
 /* Utilities */
 @layer utilities {
-  .padding-y {
-    @apply py-12 md:py-16
-  }
+
 
   .text-oswald-bold {
     font-family: var(--font-oswald), sans-serif;
@@ -81,25 +79,32 @@
     font-family: var(--font-poppins), sans-serif;
     font-weight: 600;
   }
-  .text-weight-300{
-    font-weight:300;
+
+  .text-weight-300 {
+    font-weight: 300;
   }
-  .text-weight-500{
-    font-weight:500;
+
+  .text-weight-500 {
+    font-weight: 500;
   }
-  .text-weight-600{
-    font-weight:600;
+
+  .text-weight-600 {
+    font-weight: 600;
   }
-  .text-weight-700{
-    font-weight:700;
+
+  .text-weight-700 {
+    font-weight: 700;
   }
+
   .text-45 {
-    font-size:  clamp(1.563rem, 1.116rem + 1.19vw, 2.188rem);
+    font-size: clamp(1.875rem, 1rem + 1.5vw, 2.55rem);
   }
+
 
   .text-40 {
     font-size: clamp(1.625rem, 1rem + 1.667vw, 2.5rem);
   }
+
   .text-35 {
     font-size: clamp(1.25rem, 0.58rem + 1.786vw, 2.188rem);
   }
@@ -124,10 +129,11 @@
     font-family: "Oswald", sans-serif;
     font-size: clamp(1.875rem, 1.429rem + 1.19vw, 2.5rem);
   }
+
   .placeholder-poppins-weight-300::placeholder {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 300;
-}
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+  }
 
 
 }

@@ -138,7 +138,7 @@ const WhyUs = () => {
   };
 
   return (
-    <div className="padding-y flex flex-col items-center w-full px-4">
+    <div className="mt-20 flex flex-col items-center w-full px-4">
       {/* Why Us Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
