@@ -2,10 +2,9 @@ import React, { memo, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 // ASSET IMPORTS
-// Make sure the paths to your assets are correct
 import service_1 from "../assets/images/service_1.svg";
 import service_2 from "../assets/images/service_2.svg";
 import service_3 from "../assets/images/service_3.svg";
@@ -13,37 +12,35 @@ import service_4 from "../assets/images/service_4.svg";
 import service_5 from "../assets/images/service_5.svg";
 import service_bottom_girl from "../assets/images/service-bottom-girl.svg";
 
-// --- DATA CONSTANTS ---
-
 const SERVICES_DATA = [
   {
     id: "01",
     title: "PCB Design & Fabrication",
-    desc: "At Enarxi, we turn your “crazy circuit ideas” into real, working PCBs. Multi-layer, high-speed, or just a tiny IoT board — we handle the design, fabrication, and testing so you can focus on what really matters: making cool stuff (and maybe bragging a little).",
+    desc: "At Enarxi, we turn your “crazy circuit ideas” into real, working PCBs. Multi-layer, high-speed, or just a tiny IoT board — we handle the design, fabrication, and testing so you can focus on what really matters: making cool stuff (and maybe bragging a little).",
     img: service_1,
   },
   {
     id: "02",
     title: "OEM Manufacturing",
-    desc: "Got a product idea? We make it happen, start to finish. From sourcing components to SMT/THT assembly, wiring, and final QA - we scale from a one-off prototype to full production runs. You dream it, we build it, and yes, we promise to handle the chaos.",
+    desc: "Got a product idea? We make it happen, start to finish. From sourcing components to SMT/THT assembly, wiring, and final QA - we scale from a one-off prototype to full production runs. You dream it, we build it, and yes, we promise to handle the chaos.",
     img: service_2,
   },
   {
     id: "03",
     title: "Microcontroller and Processor Firmware",
-    desc: "The brains behind your hardware. We speak fluent C, C++, and occasionally “why isn’t this compiling?” STM32, ESP32, Arduino, ARM - sensors, actuators, communication protocols (CAN, Modbus, I²C, SPI, UART) - we code it so your devices run smarter, faster, and sometimes even cooler than you imagined.",
+    desc: "The brains behind your hardware. We speak fluent C, C++, and occasionally “why isn’t this compiling?” STM32, ESP32, Arduino, ARM - sensors, actuators, communication protocols (CAN, Modbus, I²C, SPI, UART) - we code it so your devices run smarter, faster, and sometimes even cooler than you imagined.",
     img: service_3,
   },
   {
     id: "04",
     title: "3D Printing",
-    desc: "Your ideas, printed into reality. From quick concept models to functional prototypes, we deliver precise, clean, and ready-to-use 3D prints. It’s the perfect way to test, tweak, and bring your designs to life — one layer at a time.",
+    desc: "Your ideas, printed into reality. From quick concept models to functional prototypes, we deliver precise, clean, and ready-to-use 3D prints. It’s the perfect way to test, tweak, and bring your designs to life — one layer at a time.",
     img: service_4,
   },
   {
     id: "05",
     title: "Technical Workshop & Training",
-    desc: "We don’t just build tech - we teach it, hands-on. PCB design, embedded systems, IoT, microcontroller programming - our workshops turn curious minds into confident creators. Bring your curiosity; leave with working prototypes (and maybe a few bragging rights).",
+    desc: "We don’t just build tech - we teach it, hands-on. PCB design, embedded systems, IoT, microcontroller programming - our workshops turn curious minds into confident creators. Bring your curiosity; leave with working prototypes (and maybe a few bragging rights).",
     img: service_5,
   },
 ];
@@ -57,8 +54,6 @@ const FORM_OPTIONS = {
   ],
   types: ["Business", "Personal", "Partnership"],
 };
-
-// --- REUSABLE & ACCESSIBLE FORM COMPONENTS ---
 
 const InputField = ({ register, name, label, error, ...props }) => (
   <div>
@@ -131,30 +126,36 @@ const TextareaField = ({ register, name, label, error, ...props }) => (
   </div>
 );
 
-// --- FORM VALIDATION SCHEMA (ZOD) ---
-
-// --- FORM VALIDATION SCHEMA (ZOD) ---
-
-const contactSchema = z.object({
-  firstName: z.string()
-    // This rule was added
-    .regex(/^[a-zA-Z -]*$/, "Name can only contain letters, spaces, and hyphens")
-    .optional(),
-  lastName: z.string()
-    .min(1, "Last name is required")
-    // This rule was added
-    .regex(/^[a-zA-Z -]+$/, "Name can only contain letters, spaces, and hyphens"),
-  mobile: z
-    .string()
-    .min(10, "Please enter a valid 10-digit mobile number")
-    .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
-  email: z.string().email("Please enter a valid email address"),
-  service: z.string().min(1, "Please select a service"),
-  type: z.string().min(1, "Please select a type"),
-  message: z.string().min(10, "Message must be at least 10 characters long"),
-});
-
-// --- UI COMPONENTS ---
+// Validation: message is optional generally. If service === "Other" then message must be >= 10.
+const contactSchema = z
+  .object({
+    firstName: z
+      .string()
+      .regex(/^[a-zA-Z -]*$/, "Name can only contain letters, spaces, and hyphens")
+      .optional(),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .regex(/^[a-zA-Z -]+$/, "Name can only contain letters, spaces, and hyphens"),
+    mobile: z
+      .string()
+      .min(10, "Please enter a valid 10-digit mobile number")
+      .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
+    email: z.string().email("Please enter a valid email address"),
+    service: z.string().min(1, "Please select a service"),
+    type: z.string().min(1, "Please select a type"),
+    // make optional here; conditional enforcement below
+    message: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      data.service !== "Other" ||
+      (typeof data.message === "string" && data.message.trim().length >= 10),
+    {
+      path: ["message"],
+      message: "Message must be at least 10 characters when service is Other",
+    }
+  );
 
 const ServiceCard = memo(({ service, reverse, index }) => {
   const flexDirection = useMemo(
@@ -167,16 +168,16 @@ const ServiceCard = memo(({ service, reverse, index }) => {
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
-      transition={{ 
-        duration: 0.6, 
+      transition={{
+        duration: 0.6,
         delay: index * 0.1,
-        ease: [0.25, 0.46, 0.45, 0.94]
+        ease: [0.25, 0.46, 0.45, 0.94],
       }}
       whileHover={{ y: -8 }}
       className={`flex flex-col items-center bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 md:p-10 gap-6 ${flexDirection} overflow-hidden group`}
       aria-labelledby={`service-${service.id}`}
     >
-      <motion.div 
+      <motion.div
         className="w-full md:w-1/2 flex justify-center"
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.3 }}
@@ -205,7 +206,7 @@ const ServiceCard = memo(({ service, reverse, index }) => {
             {service.title}
           </h3>
         </motion.div>
-        <motion.p 
+        <motion.p
           className="text-gray-600 leading-relaxed font-poppins"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -214,7 +215,7 @@ const ServiceCard = memo(({ service, reverse, index }) => {
         >
           {service.desc}
         </motion.p>
-        <motion.div 
+        <motion.div
           className="flex gap-4 flex-wrap"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -227,13 +228,14 @@ const ServiceCard = memo(({ service, reverse, index }) => {
   );
 });
 
-const ContactForm = () => {
+const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
   const [serverStatus, setServerStatus] = useState({ message: "", type: "" });
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(contactSchema),
@@ -248,13 +250,13 @@ const ContactForm = () => {
     },
   });
 
+  const serviceValue = watch("service");
+
   const onSubmit = async (data) => {
     setServerStatus({ message: "", type: "" });
     try {
       console.log("Submitting data:", data);
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      // throw new Error("Simulated server failure!"); // Uncomment to test an error
-
       setServerStatus({
         message: "Your message has been sent successfully!",
         type: "success",
@@ -274,7 +276,7 @@ const ContactForm = () => {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="bg-white shadow-2xl rounded-xl p-8 space-y-5 border border-gray-100"
+      className="bg-white shadow-xl rounded-xl p-8 space-y-5 border border-gray-100 mb-32"
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Contact form"
       noValidate
@@ -356,16 +358,19 @@ const ContactForm = () => {
         ))}
       </SelectField>
 
-      <TextareaField
-        register={register}
-        name="message"
-        label="Message"
-        placeholder="Message *"
-        rows="2"
-        error={errors.message}
-      />
+      {/* Render message textarea only when 'Other' is selected */}
+      {serviceValue === "Other" && (
+        <TextareaField
+          register={register}
+          name="message"
+          label="Message"
+          placeholder="Message *"
+          rows="4"
+          error={errors.message}
+        />
+      )}
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3">
         <motion.button
           type="submit"
           whileHover={{ scale: 1.02 }}
@@ -373,27 +378,32 @@ const ContactForm = () => {
           className="flex-1 bg-[#09B8DC] text-white py-3 rounded-md font-medium hover:bg-sky-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Submitting..." : "Enquiry"}
+          {isSubmitting ? "Submitting..." : "Submit"}
         </motion.button>
+        <p className="flex justify-center">Or</p>
         <motion.button
           type="button"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="flex-1 border border-[#09B8DC] text-[#09B8DC] py-3 rounded-md font-medium bg-white transition hover:bg-[#E6F9FC] shadow-md hover:shadow-lg cursor-pointer"
           onClick={() => {
-            const eventTitle = encodeURIComponent("Meeting with Enarxi");
-            const eventDetails = encodeURIComponent(
-              "Discuss collaboration and project details."
-            );
-            const eventLocation = encodeURIComponent("Google Meet");
-            const startTime = new Date()
-              .toISOString()
-              .replace(/-|:|\.\d\d\d/g, "");
-            const endTime = new Date(Date.now() + 30 * 60000)
-              .toISOString()
-              .replace(/-|:|\.\d\d\d/g, "");
-            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
-            window.open(calendarUrl, "_blank");
+            setShowMeetLoader(true);
+            setTimeout(() => {
+              const eventTitle = encodeURIComponent("Meeting with Enarxi");
+              const eventDetails = encodeURIComponent(
+                "Discuss collaboration and project details."
+              );
+              const eventLocation = encodeURIComponent("Google Meet");
+              const startTime = new Date()
+                .toISOString()
+                .replace(/-|:|\.\d\d\d/g, "");
+              const endTime = new Date(Date.now() + 30 * 60000)
+                .toISOString()
+                .replace(/-|:|\.\d\d\d/g, "");
+              const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
+              window.open(calendarUrl, "_blank");
+              setShowMeetLoader(false);
+            }, 1500);
           }}
         >
           Schedule Meet
@@ -403,13 +413,13 @@ const ContactForm = () => {
   );
 };
 
-// --- MAIN PAGE COMPONENT ---
-
 export default function Services() {
+  const [showMeetLoader, setShowMeetLoader] = useState(false);
+
   return (
     <section className="bg-gradient-to-b from-[#F5FBFF] via-white to-[#F5FBFF] overflow-hidden">
       <div className="w-[90%] max-w-7xl mx-auto mt-10">
-        <motion.header 
+        <motion.header
           className="text-center mb-16"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -439,15 +449,17 @@ export default function Services() {
             />
           ))}
         </div>
-        <motion.hr 
+
+        <motion.hr
           className="my-14 border-t-2 border-gray-200"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         />
+
         <section className="flex flex-col md:flex-row gap-12">
-          <motion.div 
+          <motion.div
             className="flex-1 flex flex-col gap-6"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -469,6 +481,7 @@ export default function Services() {
                 Fill out our contact form
               </p>
             </motion.div>
+
             <motion.ul
               className="text-gray-700 space-y-3 font-poppins"
               aria-label="Company strengths"
@@ -481,7 +494,7 @@ export default function Services() {
                 "Proven track record delivering diverse electronic products, from gadgets to industrial systems.",
                 "Proficient in circuit design, collaboration with cross-functional teams, and validation.",
                 "Expertise in embedded systems, FPGA programming, and advanced devices.",
-                "Experienced in testing, compliance, and sustainable designs."
+                "Experienced in testing, compliance, and sustainable designs.",
               ].map((item, idx) => (
                 <motion.li
                   key={idx}
@@ -493,14 +506,19 @@ export default function Services() {
                 >
                   <span className="text-blue-500 mt-1 flex-shrink-0">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </span>
                   <span>{item}</span>
                 </motion.li>
               ))}
             </motion.ul>
-            <motion.div 
+
+            <motion.div
               className="mt-8 flex justify-center md:justify-start"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -517,11 +535,40 @@ export default function Services() {
               />
             </motion.div>
           </motion.div>
+
           <div className="flex-1">
-            <ContactForm />
+            <ContactForm
+              showMeetLoader={showMeetLoader}
+              setShowMeetLoader={setShowMeetLoader}
+            />
           </div>
         </section>
       </div>
+
+      <AnimatePresence>
+        {showMeetLoader && (
+          <motion.div
+            className="fixed inset-0 flex flex-col items-center justify-center bg-black/50 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="w-16 h-16 border-4 border-[#09B8DC] border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            />
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 text-white text-lg font-medium"
+            >
+              Redirecting to Google Meet...
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

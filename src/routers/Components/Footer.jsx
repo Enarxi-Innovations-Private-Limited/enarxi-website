@@ -1,14 +1,17 @@
 import enarxiLogoWhite from "../../assets/images/logo-white.svg";
-import whatsappFooterSVG from "../../assets/icons/whatsappFooterSVG.svg";
+// import whatsappFooterSVG from "../../assets/icons/whatsappFooterSVG.svg";
+// import whatsapp from "../../assets/footer/whatsapp.png"
+import { useLocation } from "react-router-dom";
 
 
 import { Mail, Phone, Instagram, Facebook, Linkedin, MessageCircleMore } from "lucide-react";
-import whatsapp from "../../assets/footer/whatsapp.png"
 
 const Footer = () => {
+  const {pathname}  = useLocation();
+  const marginTop = pathname === "/services" ? "mt-0" : "mt-12 md:mt-28"
   return (
     <>
-      <footer className="w-full bg-footer-background text-footer-foreground mt-12 md:mt-28">
+      <footer className={`w-full bg-footer-background text-footer-foreground ${marginTop} `}>
         <div className="max-w-7xl text-poppins mx-auto px-6 sm:px-8 lg:px-12 py-10 md:py-12">
           {/* Grid Layout - 3 columns x 3 rows */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-8 md:gap-y-5 md:justify-items-center">
