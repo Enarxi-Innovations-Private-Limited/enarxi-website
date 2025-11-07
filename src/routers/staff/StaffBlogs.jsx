@@ -7,8 +7,10 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
+import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
-import { Youtube } from "lucide-react";
+import { useMediaStaging } from "@/hooks/useMediaStaging";
+import { Youtube, Image } from "lucide-react";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -16,7 +18,8 @@ import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import BulletList from "@tiptap/extension-bullet-list";
 import Link from "@tiptap/extension-link";
-import { YouTubeLink } from "@/extensions/YouTubeLink";
+import { ImageBlock } from "@/extensions/ImageBlock";
+import { YouTubeEmbed } from "@/extensions/YouTubeEmbed";
 
 // --- Import the CSS file ---
 import "./tiptap.css";
@@ -24,7 +27,7 @@ import "./tiptap.css";
 //======================================================================
 //  FINAL MEMOIZED MENU BAR COMPONENT
 //======================================================================
-const MenuBar = memo(({ editor }) => {
+const MenuBar = memo(({ editor, onInsertImageBlock }) => {
   const [_, setForceUpdate] = useState(0);
 
   useEffect(() => {
@@ -36,7 +39,7 @@ const MenuBar = memo(({ editor }) => {
 
   if (!editor) return null;
 
-  const handleYouTubeLink = () => {
+  const handleYouTubeEmbed = () => {
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to, '');
     
@@ -50,8 +53,8 @@ const MenuBar = memo(({ editor }) => {
       return;
     }
     
-    // Mark the selected text as a YouTube link
-    editor.chain().focus().setYouTubeLink(selectedText.trim()).run();
+    // Delete the selected text and insert YouTube embed
+    editor.chain().focus().deleteSelection().setYouTubeEmbed(selectedText.trim()).run();
   };
 
   return (
@@ -106,13 +109,22 @@ const MenuBar = memo(({ editor }) => {
       </button>
       <button
         type="button"
-        onClick={handleYouTubeLink}
-        className={editor.isActive("youtubeLink") ? "is-active" : ""}
-        title="Mark as YouTube Link"
+        onClick={handleYouTubeEmbed}
+        className={editor.isActive("youtubeEmbed") ? "is-active" : ""}
+        title="Insert YouTube Embed"
         style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
       >
         <Youtube size={16} />
         YouTube
+      </button>
+      <button
+        type="button"
+        onClick={onInsertImageBlock}
+        title="Insert Image Block"
+        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+      >
+        <Image size={16} />
+        Images
       </button>
     </div>
   );
@@ -185,6 +197,10 @@ const StaffBlogs = () => {
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [originalFileName, setOriginalFileName] = useState("");
+  
+  // Multi-image blocks state with staging
+  const [showMultiImageModal, setShowMultiImageModal] = useState(false);
+  const mediaStaging = useMediaStaging();
 
   const editor = useEditor({
     extensions: [
@@ -193,6 +209,7 @@ const StaffBlogs = () => {
         listItem: false,
         orderedList: false,
         bulletList: false,
+        link: false, // Disable link from StarterKit to avoid duplicate
       }),
       Heading.extend({
         addKeyboardShortcuts() {
@@ -205,7 +222,8 @@ const StaffBlogs = () => {
       Link.configure({
         openOnClick: false,
       }),
-      YouTubeLink,
+      ImageBlock,
+      YouTubeEmbed,
     ],
     content: "",
     onUpdate: ({ editor }) => setBlogContent(editor.getHTML()),
@@ -297,6 +315,42 @@ const StaffBlogs = () => {
     setImageFile(null);
   }, []);
 
+  /**
+   * Handle insert image block button click
+   */
+  const handleInsertImageBlock = useCallback(() => {
+    setShowMultiImageModal(true);
+  }, []);
+
+  /**
+   * Handle multi-image modal save
+   */
+  const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
+    // Store staged files in media staging
+    mediaStaging.updateStagedFiles(id, stagedItems);
+
+    // Insert ImageBlock node in editor with staged items
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'imageBlock',
+          attrs: { id, stagedItems },
+        })
+        .run();
+    }
+
+    setShowMultiImageModal(false);
+  }, [editor, mediaStaging]);
+
+  /**
+   * Handle multi-image modal cancel
+   */
+  const handleMultiImageCancel = useCallback(() => {
+    setShowMultiImageModal(false);
+  }, []);
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -313,37 +367,30 @@ const StaffBlogs = () => {
       }
   
       try {
-        // Step 1: Extract YouTube links from content
-        const youtubeLinks = extractYouTubeLinks(finalHtmlContent);
+        // Step 1: Extract YouTube embeds and image blocks from editor JSON
+        const editorJson = editor.getJSON();
+        const youtubeLinks = [];
+        const imageBlockIds = [];
+        
+        // Traverse the editor JSON to extract YouTube embeds and image blocks
+        const traverseNodes = (node) => {
+          if (node.type === 'youtubeEmbed') {
+            youtubeLinks.push(node.attrs.url);
+          } else if (node.type === 'imageBlock') {
+            imageBlockIds.push(node.attrs.id);
+          }
+          
+          if (node.content) {
+            node.content.forEach(traverseNodes);
+          }
+        };
+        
+        editorJson.content?.forEach(traverseNodes);
+        
         console.log('📺 Extracted YouTube links:', youtubeLinks);
+        console.log('🖼️ Extracted image block IDs:', imageBlockIds);
         
-        // Step 2: Replace YouTube links with div placeholders
-        let cleanedContent = finalHtmlContent;
-        youtubeLinks.forEach((url, index) => {
-          // Escape special regex characters in the URL
-          const escapedUrl = url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          
-          // Match both <a> tags and <span> tags with data-youtube-url attribute
-          const patterns = [
-            // Match <a> tags with href
-            new RegExp(`<a[^>]*href=["']${escapedUrl}["'][^>]*>.*?</a>`, 'gi'),
-            // Match <span> tags with data-youtube-url (from YouTubeLink extension)
-            new RegExp(`<span[^>]*data-youtube-url=["']${escapedUrl}["'][^>]*>.*?</span>`, 'gi'),
-            // Match plain text URLs that might not be wrapped
-            new RegExp(`(?<!["'>])${escapedUrl}(?!["'<])`, 'gi')
-          ];
-          
-          // Replace with div placeholder
-          const placeholder = `<div id="yt${index}"></div>`;
-          
-          patterns.forEach(pattern => {
-            cleanedContent = cleanedContent.replace(pattern, placeholder);
-          });
-        });
-        
-        console.log('💾 Cleaned content with placeholders:', cleanedContent);
-        
-        // Step 2: Upload image to Cloudinary if present
+        // Step 2: Upload featured image to Cloudinary if present
         let uploadedImages = [];
         
         if (imageFile) {
@@ -354,7 +401,7 @@ const StaffBlogs = () => {
             return;
           }
           
-          setMessage("📤 Uploading image to Cloudinary...");
+          setMessage("📤 Uploading featured image to Cloudinary...");
           
           try {
             const uploadResult = await uploadToCloudinary(imageFile);
@@ -373,7 +420,45 @@ const StaffBlogs = () => {
           }
         }
 
-        // Step 3: Save blog to Firestore with Cloudinary URL and YouTube links
+        // Step 3: Upload all staged image block files to Cloudinary
+        setMessage("📤 Uploading image blocks to Cloudinary...");
+        
+        let uploadedImageBlocks = {};
+        
+        try {
+          uploadedImageBlocks = await mediaStaging.flushUploads(
+            uploadToCloudinary,
+            ({ current, total, fileName }) => {
+              setMessage(`📤 Uploading image ${current}/${total}: ${fileName}...`);
+            }
+          );
+          
+          console.log('✅ All image blocks uploaded:', uploadedImageBlocks);
+        } catch (uploadError) {
+          console.error('Error uploading image blocks:', uploadError);
+          setMessage(`❌ ${uploadError.message}`);
+          setLoading(false);
+          return;
+        }
+        
+        // Step 4: Replace YouTube embeds and image blocks with div placeholders in HTML
+        let cleanedContent = finalHtmlContent;
+        
+        // Replace YouTube embed divs with simple placeholders
+        youtubeLinks.forEach((url, index) => {
+          const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
+          cleanedContent = cleanedContent.replace(ytPattern, `<div id="yt${index}"></div>`);
+        });
+        
+        // Replace image block divs with simple placeholders
+        imageBlockIds.forEach((blockId) => {
+          const imgPattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?<\/div>`, 'gi');
+          cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
+        });
+        
+        console.log('💾 Cleaned content with placeholders:', cleanedContent);
+
+        // Step 5: Save blog to Firestore with Cloudinary URLs and YouTube links
         setMessage("💾 Saving blog to database...");
         
         await addDoc(collection(db, "blogs"), {
@@ -383,20 +468,23 @@ const StaffBlogs = () => {
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: cleanedContent, // Store cleaned content without YouTube links
-          images: uploadedImages, // Store Cloudinary URL and metadata
+          images: uploadedImages, // Store featured image Cloudinary URL and metadata
           ytlinks: youtubeLinks, // Store YouTube links array
+          imageBlocks: uploadedImageBlocks, // Store uploaded multi-image blocks
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
   
         // ✅ Success message
-        const imageMsg = uploadedImages.length > 0 ? ` Image uploaded to Cloudinary.` : '';
+        const imageMsg = uploadedImages.length > 0 ? ` Featured image uploaded.` : '';
+        const blockMsg = Object.keys(uploadedImageBlocks).length > 0 ? ` ${Object.keys(uploadedImageBlocks).length} image block(s) uploaded.` : '';
         const ytMsg = youtubeLinks.length > 0 ? ` ${youtubeLinks.length} YouTube link(s) detected.` : '';
-        setMessage(`✅ Blog saved successfully!${imageMsg}${ytMsg}`);
+        setMessage(`✅ Blog saved successfully!${imageMsg}${blockMsg}${ytMsg}`);
   
         // Reset form after success
         setTimeout(() => {
           setImageFile(null);
+          mediaStaging.clearAll();
           editor.commands.clearContent(true);
           setBlogContent("");
           setFormData(prev => ({ ...prev, title: '' }));
@@ -413,7 +501,7 @@ const StaffBlogs = () => {
         setLoading(false);
       }
     },
-    [editor, user, formData, imageFile]
+    [editor, user, formData, imageFile, mediaStaging]
   );
   
 
@@ -457,7 +545,7 @@ const StaffBlogs = () => {
               Blog Content
             </label>
             <div className="editor-container">
-              <MenuBar editor={editor} />
+              <MenuBar editor={editor} onInsertImageBlock={handleInsertImageBlock} />
               <EditorContent editor={editor} />
             </div>
           </div>
@@ -530,6 +618,13 @@ const StaffBlogs = () => {
         fileName={originalFileName}
         onCropComplete={handleCropComplete}
         onCancel={handleCropCancel}
+      />
+
+      {/* Multi-Image Upload Modal */}
+      <MultiImageUploadModal
+        isOpen={showMultiImageModal}
+        onSave={handleMultiImageSave}
+        onCancel={handleMultiImageCancel}
       />
     </div>
   );

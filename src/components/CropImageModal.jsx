@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
 import { X, Crop, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,9 +19,31 @@ import { getCroppedImg } from '@/utils/imageCropUtils';
 const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropComplete, onCancel }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [minZoom, setMinZoom] = useState(1);
+  const [maxZoom, setMaxZoom] = useState(3);
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Calculate minZoom to fit entire image in crop area
+  useEffect(() => {
+    if (!imageSrc) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const imgW = img.width;
+      const imgH = img.height;
+      let minZoomCalc = 1;
+      if ((imgW / imgH) > aspect) {
+        minZoomCalc = (aspect * imgH) / imgW;
+      } else {
+        minZoomCalc = imgW / (imgH * aspect);
+      }
+      minZoomCalc = Math.max(minZoomCalc, 1e-6);
+      setMinZoom(minZoomCalc);
+      setZoom(minZoomCalc);
+    };
+    img.src = imageSrc;
+  }, [imageSrc, aspect]);
 
   /**
    * Handle crop area change
@@ -41,6 +63,8 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
    * Handle crop complete
    */
   const onCropCompleteCallback = useCallback((croppedArea, croppedAreaPixels) => {
+    console.log('Crop complete - croppedArea:', croppedArea);
+    console.log('Crop complete - croppedAreaPixels:', croppedAreaPixels);
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -143,15 +167,17 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
                 image={imageSrc}
                 crop={crop}
                 zoom={zoom}
+                minZoom={minZoom}
+                maxZoom={maxZoom}
                 rotation={rotation}
                 aspect={aspect}
                 onCropChange={onCropChange}
                 onZoomChange={onZoomChange}
                 onCropComplete={onCropCompleteCallback}
-                objectFit="vertical-cover"
+                objectFit="contain"
                 showGrid={true}
                 cropShape="rect"
-                restrictPosition={false}
+                restrictPosition={true}
                 style={{
                   containerStyle: {
                     backgroundColor: '#111827',

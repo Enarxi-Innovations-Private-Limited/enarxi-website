@@ -3,9 +3,154 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, User, Loader2 } from 'lucide-react';
-import { injectYouTubePlayers } from '@/utils/injectYouTubePlayers';
+import { ArrowLeft, Calendar, User, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import parse from 'html-react-parser';
 import styles from './Blog.module.css';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+
+// Helper function to extract YouTube video ID
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*$/;
+  const match = url.match(regExp);
+  return match && match[7].length === 11 ? match[7] : null;
+};
+
+// ImageBlock Carousel Component
+const ImageBlockCarousel = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!images || images.length === 0) {
+    return <div className="text-red-500 text-center py-4">No images available</div>;
+  }
+
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+  };
+
+  return (
+    <div className="relative w-full my-8">
+      <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+        <img
+          src={images[currentIndex].url}
+          alt={images[currentIndex].publicId || `Image ${currentIndex + 1}`}
+          className="w-full h-full object-contain"
+        />
+        
+        {images.length > 1 && (
+          <>
+            {/* Previous Button */}
+            <button
+              onClick={goToPrevious}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all cursor-pointer"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-800" />
+            </button>
+            
+            {/* Next Button */}
+            <button
+              onClick={goToNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all cursor-pointer"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-800" />
+            </button>
+            
+            {/* Indicators */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentIndex ? 'bg-white w-8' : 'bg-white/50'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      
+      {images.length > 1 && (
+        <p className="text-center text-sm text-gray-500 mt-2">
+          {currentIndex + 1} / {images.length}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// YouTube Embed Component
+const YouTubeEmbed = ({ url }) => {
+  const videoId = getYouTubeId(url);
+  
+  if (!videoId) {
+    return <p className="text-red-500 text-center py-4">Invalid YouTube URL</p>;
+  }
+
+  return (
+    <div className="relative w-full my-8" style={{ paddingTop: '56.25%' }}>
+      <iframe
+        className="absolute top-0 left-0 w-full h-full rounded-lg"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
+};
+
+// Blog Content Renderer Component
+const BlogContentRenderer = ({ content, imageBlocks, ytlinks }) => {
+  const options = {
+    replace: (domNode) => {
+      if (domNode.type === 'tag' && domNode.attribs) {
+        // Handle image-block divs
+        if (domNode.name === 'div' && domNode.attribs.class === 'image-block') {
+          const blockId = domNode.attribs.id;
+          const images = imageBlocks?.[blockId];
+          
+          if (images && images.length > 0) {
+            return <ImageBlockCarousel images={images} />;
+          }
+          return <div className="text-gray-400 text-center py-4">Image block not found</div>;
+        }
+        
+        // Handle YouTube divs
+        if (domNode.name === 'div' && domNode.attribs.id && domNode.attribs.id.startsWith('yt')) {
+          const index = parseInt(domNode.attribs.id.replace('yt', ''), 10);
+          const url = ytlinks?.[index];
+          
+          if (url) {
+            return <YouTubeEmbed url={url} />;
+          }
+          return <div className="text-gray-400 text-center py-4">Video not found</div>;
+        }
+      }
+    },
+  };
+
+  return (
+    <div className={`${styles.content} prose prose-lg max-w-none`}>
+      {parse(content, options)}
+    </div>
+  );
+};
 
 const BlogDetail = () => {
   const { slug } = useParams();
@@ -67,6 +212,7 @@ const BlogDetail = () => {
           authorName: data.authorName || 'Anonymous',
           authorRole: data.authorRole || 'Staff',
           ytlinks: data.ytlinks || [],
+          imageBlocks: data.imageBlocks || {},
         });
       } catch (err) {
         console.error('Error fetching blog:', err);
@@ -110,7 +256,7 @@ const BlogDetail = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => navigate('/blogs')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors cursor-pointer"
         >
           <ArrowLeft size={20} />
           Back to Blogs
@@ -123,18 +269,6 @@ const BlogDetail = () => {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-2xl shadow-lg overflow-hidden"
         >
-          {/* Featured Image */}
-          <div className="w-full aspect-video overflow-hidden bg-gray-100">
-            <img
-              src={blog.img}
-              alt={blog.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.src = '/blogs/default.jpg';
-              }}
-            />
-          </div>
-
           {/* Blog Header */}
           <div className="p-8">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-oswald">
@@ -160,34 +294,12 @@ const BlogDetail = () => {
               </div>
             </div>
 
-            {/* Blog Content with Embedded YouTube Videos */}
-            <div
-              className={`${styles.content} prose prose-lg max-w-none`}
-              dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
+            {/* Blog Content with Image Blocks and YouTube Embeds */}
+            <BlogContentRenderer
+              content={blog.content}
+              imageBlocks={blog.imageBlocks}
+              ytlinks={blog.ytlinks}
             />
-
-            {/* Additional Images */}
-            {blog.images && blog.images.length > 1 && (
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">More Images</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {blog.images.slice(1).map((imgData, idx) => {
-                    const imgUrl = typeof imgData === 'object' ? imgData.url : imgData;
-                    return (
-                      <img
-                        key={idx}
-                        src={imgUrl}
-                        alt={`${blog.title} - ${idx + 2}`}
-                        className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         </motion.article>
 
@@ -200,7 +312,7 @@ const BlogDetail = () => {
         >
           <button
             onClick={() => navigate('/blogs')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#09B8DC] text-white rounded-lg hover:bg-[#08A0C6] transition-colors font-medium cursor-pointer"
           >
             <ArrowLeft size={20} />
             Back to All Blogs

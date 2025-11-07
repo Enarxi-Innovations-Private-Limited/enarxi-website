@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import logout from "@/assets/logout.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import { usePortalPersistence } from "@/hooks/usePortalPersistence";
 import Sidebar from "./admin/Sidebar";
 import DashboardStats from "./admin/DashboardStats";
 import StaffTable from "./admin/StaffTable";
@@ -18,7 +19,7 @@ import OfflineIndicator from "@/components/shared/OfflineIndicator";
 
 const AdminPortal = () => {
   const location = useLocation();
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const { activeSection, setActiveSection, clearPersistedState } = usePortalPersistence('admin-portal', 'dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const {user, firebaseUser, role, loading, isOnline} = useAuth();
@@ -47,7 +48,7 @@ const AdminPortal = () => {
       // Clear the state after using it
       window.history.replaceState({}, document.title);
     }
-  }, [location]);
+  }, [location, setActiveSection]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -135,7 +136,7 @@ const AdminPortal = () => {
                 </span>
               )}
               <div className="text-sm text-poppins text-weight-500 text-gray-500">Admin Portal</div> 
-              {user && <Logout/>}
+              {user && <Logout onLogout={clearPersistedState} />}
             </div>
           </div>
         </header>

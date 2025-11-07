@@ -146,41 +146,33 @@
 
 /* Scroll Animation - Seamless Infinite Marquee */
 @keyframes scroll {
-  0% {
+  from {
     transform: translateX(0);
   }
-
-  100% {
-    transform: translateX(-50%);
+  to {
+    transform: translateX(-146%);
   }
+}
+
+.animate-scroll {
+  display: inline-flex;
+  animation: scroll 15s linear infinite;
 }
 
 @keyframes scroll-rev {
-  0% {
-    transform: translateX(-50%);
+  from {
+    transform: translateX(-137%);
   }
-
-  100% {
+  to {
     transform: translateX(0);
   }
 }
 
-.scroll,
-.scroll-rev {
-  display: flex;
-  gap: 5rem;
-  white-space: nowrap;
-  width: max-content;
-  will-change: transform;
+.animate-scroll-rev {
+  display: inline-flex;
+  animation: scroll-rev 15s linear infinite;
 }
 
-.scroll {
-  animation: scroll 80s linear infinite;
-}
-
-.scroll-rev {
-  animation: scroll-rev 80s linear infinite;
-}
 
 /* SVG Icon Hover Animations */
 .icon,
