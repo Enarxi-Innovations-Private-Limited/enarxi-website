@@ -365,15 +365,40 @@ const ContactForm = () => {
         error={errors.message}
       />
 
-      <motion.button
-        type="submit"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-full bg-[#09B8DC] text-white py-3 rounded-md font-medium hover:bg-sky-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Submitting..." : "Enquiry"}
-      </motion.button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <motion.button
+          type="submit"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex-1 bg-[#09B8DC] text-white py-3 rounded-md font-medium hover:bg-sky-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Submitting..." : "Enquiry"}
+        </motion.button>
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex-1 border border-[#09B8DC] text-[#09B8DC] py-3 rounded-md font-medium bg-white transition hover:bg-[#E6F9FC] shadow-md hover:shadow-lg cursor-pointer"
+          onClick={() => {
+            const eventTitle = encodeURIComponent("Meeting with Enarxi");
+            const eventDetails = encodeURIComponent(
+              "Discuss collaboration and project details."
+            );
+            const eventLocation = encodeURIComponent("Google Meet");
+            const startTime = new Date()
+              .toISOString()
+              .replace(/-|:|\.\d\d\d/g, "");
+            const endTime = new Date(Date.now() + 30 * 60000)
+              .toISOString()
+              .replace(/-|:|\.\d\d\d/g, "");
+            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
+            window.open(calendarUrl, "_blank");
+          }}
+        >
+          Schedule Meet
+        </motion.button>
+      </div>
     </motion.form>
   );
 };
@@ -382,8 +407,8 @@ const ContactForm = () => {
 
 export default function Services() {
   return (
-    <section className="bg-gradient-to-b from-[#F5FBFF] via-white to-[#F5FBFF] padding-y overflow-hidden">
-      <div className="w-[90%] max-w-7xl mx-auto">
+    <section className="bg-gradient-to-b from-[#F5FBFF] via-white to-[#F5FBFF] overflow-hidden">
+      <div className="w-[90%] max-w-7xl mx-auto mt-10">
         <motion.header 
           className="text-center mb-16"
           initial={{ opacity: 0, y: -30 }}

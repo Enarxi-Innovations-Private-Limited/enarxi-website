@@ -53,7 +53,7 @@ const CTA = () => {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-6 padding-y">
+    <section className="mx-auto max-w-7xl px-6 mt-28">
       {/* CTA card */}
       <div className="rounded-3xl bg-[#0B1A27] text-white shadow-xl ring-1 ring-black/5 p-8 md:p-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
@@ -93,7 +93,7 @@ const CTA = () => {
                 onClick={() => setConnectPopup(true)}
                 className="inline-flex items-center justify-center rounded-full bg-[#09B8DC] px-8 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#09B8DC] focus:ring-offset-[#0B1A27] cursor-pointer"
               >
-                Let’s Connect
+                Schedule Meet
               </button>
             </div>
           </div>

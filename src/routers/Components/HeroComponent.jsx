@@ -2,11 +2,11 @@ import heroVideo from "../../assets/Videos/chroma-keyed-video.webm";
 
 const HeroComponent = () => {
   return (
-    <section className="w-full min-h-[98dvh] bg-gradient-to-b from-[#DEF4FF] to-white flex flex-col items-center justify-between text-center px-4 py-8">
+    <section className="w-full h-[100dvh] bg-gradient-to-b from-[#DEF4FF] to-white flex flex-col items-center justify-center text-center px-4 ">
       
       {/* Text content */}
-      <div className="space-y-4 max-w-4xl pt-55 sm:pt-50  md:pt-40 lg:pt-20   ">
-        <p className="font-oswald font-semibold leading-tight tracking-[0.78px] text-[#1840A7] text-45 capitalize">
+      <div className="max-w-4xl">
+        <p className="font-oswald font-semibold leading-tight tracking-[0.78px] text-[#1840A7] text-45 capitalize ">
           Don’t just dream <span className="font-sans"> — </span>build it
         </p>
 

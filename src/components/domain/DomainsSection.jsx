@@ -20,10 +20,6 @@ const DomainsSection = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Arrange domains in honeycomb pattern matching reference image
-  // Row 1: 4 cards (indices 0-3)
-  // Row 2: 5 cards (indices 4-8) - offset to the left
-  // Row 3: 4 cards (indices 9-12) - aligned with row 1
   
   const row1 = domains.slice(0, 4);   // Industrial IOT, Drone & UAV, Wearables, Rapid Prototyping
   const row2 = domains.slice(4, 9);   // Security Devices, ML & AI, Home Automation, Access Control, Electric Vehicles
@@ -38,7 +34,7 @@ const DomainsSection = () => {
   };
 
   return (
-    <section className="w-full padding-y mt-4 bg-gradient-to-b from-[#DEF4FF]/10 via-[#DEF4FF] to-white flex flex-col items-center overflow-hidden">
+    <section className="w-full mt-28  bg-gradient-to-b from-[#DEF4FF]/10 via-[#DEF4FF] to-white flex flex-col items-center overflow-hidden">
       <h2 className="text-center  text-[#0f172a] mb-8 md:mb-12 text-oswald-bold text-40">
         Our Working Domains
       </h2>
