@@ -14,18 +14,28 @@ import numberTen from "../../assets/images/10.svg";
 
 const description = {
   iot: "Industrial IoT (IIoT) at Enarxi Innovations Private Limited focuses on connecting machines, sensors, and software to create intelligent, data-driven industrial ecosystems. By integrating advanced electronics, embedded firmware, PCB design, and AI-powered analytics, Enarxi enables factories and industries to monitor operations in real time, predict equipment failures, and optimize performance. The company’s expertise in product design, prototyping, and automation allows it to deliver complete end-to-end IIoT solutions—from sensor integration and edge computing to secure cloud connectivity. Through this, Enarxi helps businesses reduce downtime, cut operational costs, and transition toward smart, efficient, and scalable industrial systems.",
-  drone: "Drone and UAV solutions at Enarxi Innovations Private Limited focus on designing and developing advanced aerial systems that combine precision engineering, embedded intelligence, and real-time data processing. Enarxi specializes in creating custom drones for industrial, agricultural, defense, and surveillance applications, integrating high-performance sensors, navigation systems, and autonomous flight controls. With expertise in electronics design, PCB development, firmware engineering, and AI-based analytics, the company delivers end-to-end UAV solutions from prototype to deployment. These systems enable clients to capture critical data, perform automated inspections, and enhance operational efficiency across industries, driving innovation in next-generation unmanned aerial technology.",
-  wearable: "Wearable technology at Enarxi Innovations Private Limited focuses on developing smart, connected devices that integrate seamlessly with human activity to monitor, analyze, and enhance performance and wellbeing. Leveraging expertise in compact electronics, embedded firmware, PCB design, and low-power wireless communication, Enarxi builds wearables for healthcare, fitness, safety, and industrial applications. The company’s end-to-end development approach—from concept and sensor integration to mobile app connectivity and data analytics—enables the creation of reliable, ergonomic, and intelligent products. Through innovation in miniaturization, energy efficiency, and real-time tracking, Enarxi empowers businesses and users with next-generation wearable solutions that blend technology and comfort.",
-  rapidPrototyping: "Rapid prototyping at Enarxi Innovations Private Limited enables fast, precise, and cost-effective product development from concept to functional model. Using advanced 3D printing, CNC machining, and quick-turn PCB fabrication, Enarxi transforms design ideas into tangible prototypes within short timelines. The company’s expertise in electronics, mechanical design, and embedded systems allows seamless integration of hardware and software during the prototyping phase. This approach helps clients validate designs, test usability, and accelerate time-to-market with minimal risk. By combining innovation, accuracy, and speed, Enarxi delivers high-quality prototypes that drive efficient product innovation and industrial advancement.",
-  securityDevices: "Security devices at Enarxi Innovations Private Limited are engineered to deliver advanced protection and intelligent monitoring solutions for people, assets, and infrastructure. Combining embedded systems, IoT connectivity, and smart sensors, Enarxi designs custom surveillance, access control, and alarm systems that ensure safety, reliability, and real-time situational awareness across multiple environments.",
+  drone:
+    "Drone and UAV solutions at Enarxi Innovations Private Limited focus on designing and developing advanced aerial systems that combine precision engineering, embedded intelligence, and real-time data processing. Enarxi specializes in creating custom drones for industrial, agricultural, defense, and surveillance applications, integrating high-performance sensors, navigation systems, and autonomous flight controls. With expertise in electronics design, PCB development, firmware engineering, and AI-based analytics, the company delivers end-to-end UAV solutions from prototype to deployment. These systems enable clients to capture critical data, perform automated inspections, and enhance operational efficiency across industries, driving innovation in next-generation unmanned aerial technology.",
+  wearable:
+    "Wearable technology at Enarxi Innovations Private Limited focuses on developing smart, connected devices that integrate seamlessly with human activity to monitor, analyze, and enhance performance and wellbeing. Leveraging expertise in compact electronics, embedded firmware, PCB design, and low-power wireless communication, Enarxi builds wearables for healthcare, fitness, safety, and industrial applications. The company’s end-to-end development approach—from concept and sensor integration to mobile app connectivity and data analytics—enables the creation of reliable, ergonomic, and intelligent products. Through innovation in miniaturization, energy efficiency, and real-time tracking, Enarxi empowers businesses and users with next-generation wearable solutions that blend technology and comfort.",
+  rapidPrototyping:
+    "Rapid prototyping at Enarxi Innovations Private Limited enables fast, precise, and cost-effective product development from concept to functional model. Using advanced 3D printing, CNC machining, and quick-turn PCB fabrication, Enarxi transforms design ideas into tangible prototypes within short timelines. The company’s expertise in electronics, mechanical design, and embedded systems allows seamless integration of hardware and software during the prototyping phase. This approach helps clients validate designs, test usability, and accelerate time-to-market with minimal risk. By combining innovation, accuracy, and speed, Enarxi delivers high-quality prototypes that drive efficient product innovation and industrial advancement.",
+  securityDevices:
+    "Security devices at Enarxi Innovations Private Limited are engineered to deliver advanced protection and intelligent monitoring solutions for people, assets, and infrastructure. Combining embedded systems, IoT connectivity, and smart sensors, Enarxi designs custom surveillance, access control, and alarm systems that ensure safety, reliability, and real-time situational awareness across multiple environments.",
   mlAi: "Machine Learning and Artificial Intelligence (ML & AI) at Enarxi Innovations Private Limited drive innovation across all technology verticals. By embedding intelligent algorithms into hardware and software systems, Enarxi enables predictive analytics, process automation, and real-time decision-making. These AI-driven solutions enhance performance, optimize industrial operations, and unlock data-driven insights for smarter business outcomes.",
-  homeAutomation: "Home automation solutions at Enarxi Innovations Private Limited bring intelligence, comfort, and energy efficiency to modern living spaces. Through smart sensors, IoT hubs, and mobile connectivity, Enarxi enables users to automate and control lighting, security, and appliances effortlessly. The company focuses on creating seamless, secure, and user-friendly systems that redefine convenience and home experience.",
-  biometricDevices: "Biometric devices developed by Enarxi Innovations Private Limited provide secure, accurate, and efficient identity verification. Utilizing advanced fingerprint, facial, and iris recognition technologies, Enarxi designs reliable access control systems and authentication devices. These solutions enhance safety, prevent unauthorized access, and serve diverse applications across government, corporate, and industrial sectors.",
-  electricVehicles: "Enarxi Innovations Private Limited contributes to the electric vehicle revolution by developing intelligent electronic modules, battery management systems, and motor controllers. The company’s expertise in embedded systems and power electronics supports reliable, efficient, and scalable EV technology, driving sustainable mobility and innovation in the automotive ecosystem.",
-  healthcareDevices: "Healthcare device innovation at Enarxi Innovations Private Limited focuses on building connected medical systems that improve diagnostics, monitoring, and patient care. By integrating IoT connectivity, smart sensors, and data analytics, Enarxi delivers precise, reliable, and user-centric healthcare solutions that advance modern medical technology.",
+  homeAutomation:
+    "Home automation solutions at Enarxi Innovations Private Limited bring intelligence, comfort, and energy efficiency to modern living spaces. Through smart sensors, IoT hubs, and mobile connectivity, Enarxi enables users to automate and control lighting, security, and appliances effortlessly. The company focuses on creating seamless, secure, and user-friendly systems that redefine convenience and home experience.",
+  biometricDevices:
+    "Biometric devices developed by Enarxi Innovations Private Limited provide secure, accurate, and efficient identity verification. Utilizing advanced fingerprint, facial, and iris recognition technologies, Enarxi designs reliable access control systems and authentication devices. These solutions enhance safety, prevent unauthorized access, and serve diverse applications across government, corporate, and industrial sectors.",
+  electricVehicles:
+    "Enarxi Innovations Private Limited contributes to the electric vehicle revolution by developing intelligent electronic modules, battery management systems, and motor controllers. The company’s expertise in embedded systems and power electronics supports reliable, efficient, and scalable EV technology, driving sustainable mobility and innovation in the automotive ecosystem.",
+  healthcareDevices:
+    "Healthcare device innovation at Enarxi Innovations Private Limited focuses on building connected medical systems that improve diagnostics, monitoring, and patient care. By integrating IoT connectivity, smart sensors, and data analytics, Enarxi delivers precise, reliable, and user-centric healthcare solutions that advance modern medical technology.",
   arVr: "Augmented Reality (AR) and Virtual Reality (VR) solutions at Enarxi Innovations Private Limited create immersive experiences for industrial training, design visualization, and education. Through a combination of advanced hardware engineering and interactive software systems, Enarxi enables realistic simulations that enhance productivity, learning, and innovation across industries.",
-  biomedicalEquipment: "Biomedical equipment developed by Enarxi Innovations Private Limited merges engineering precision with medical innovation. Focusing on diagnostic and monitoring systems, Enarxi designs reliable, high-performance biomedical devices that comply with medical standards and improve patient outcomes through accurate sensing and data-driven insights.",
-  industrialAutomation: "Industrial automation at Enarxi Innovations Private Limited integrates IoT, control systems, and intelligent software to optimize manufacturing processes. Enarxi designs and develops custom automation hardware and embedded systems that enhance productivity, reduce manual intervention, and ensure operational safety, empowering industries to achieve smarter, more efficient production."
+  biomedicalEquipment:
+    "Biomedical equipment developed by Enarxi Innovations Private Limited merges engineering precision with medical innovation. Focusing on diagnostic and monitoring systems, Enarxi designs reliable, high-performance biomedical devices that comply with medical standards and improve patient outcomes through accurate sensing and data-driven insights.",
+  industrialAutomation:
+    "Industrial automation at Enarxi Innovations Private Limited integrates IoT, control systems, and intelligent software to optimize manufacturing processes. Enarxi designs and develops custom automation hardware and embedded systems that enhance productivity, reduce manual intervention, and ensure operational safety, empowering industries to achieve smarter, more efficient production.",
 };
 
 function useBreakpoint() {
@@ -154,7 +164,12 @@ const services = [
   },
 ];
 
-const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef, scale = 1 }) {
+const HexagonCard = memo(function HexagonCard({
+  service,
+  onClick,
+  cardRef,
+  scale = 1,
+}) {
   const elRef = useRef(null);
   const bp = useBreakpoint();
 
@@ -164,22 +179,28 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef, scale
 
     const hoverTl = gsap.timeline({ paused: true });
     hoverTl.to(el, {
-      z: bp === "mobile" ? -6 : -10, 
+      z: bp === "mobile" ? -6 : -10,
       scale: bp === "mobile" ? 1.03 * scale : 1.05 * scale,
       // rotation: bp === "mobile" ? 0 : 5,
       duration: bp === "mobile" ? 0.2 : 0.3,
       ease: "power2.out",
     });
-    hoverTl.to(el.querySelector(".hexagon-bg"), {
-      boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-    }, 0);
+    hoverTl.to(
+      el.querySelector(".hexagon-bg"),
+      {
+        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+      },
+      0
+    );
 
     const handleInteractionStart = () => hoverTl.play();
     const handleInteractionEnd = () => hoverTl.reverse();
 
     el.addEventListener("mouseenter", handleInteractionStart);
     el.addEventListener("mouseleave", handleInteractionEnd);
-    el.addEventListener("touchstart", handleInteractionStart, { passive: true });
+    el.addEventListener("touchstart", handleInteractionStart, {
+      passive: true,
+    });
     el.addEventListener("touchend", handleInteractionEnd, { passive: true });
 
     return () => {
@@ -194,9 +215,10 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef, scale
   const adjustedSize = baseSize * scale;
 
   // dynamically calculate font size
-  const fontSize = bp === "mobile"
-    ? `${10 * scale}px`   // 👈 smaller on mobile + scaled
-    : `${18 * scale}px`;  // 👈 normal size scaled
+  const fontSize =
+    bp === "mobile"
+      ? `${10 * scale}px` // 👈 smaller on mobile + scaled
+      : `${18 * scale}px`; // 👈 normal size scaled
 
   return (
     <div
@@ -235,17 +257,13 @@ const HexagonCard = memo(function HexagonCard({ service, onClick, cardRef, scale
   );
 });
 
-
 export default function WorkingDomain() {
   const bp = useBreakpoint();
   const cardRefs = useRef([]);
   const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
-    if (
-      bp !== "unknown" &&
-      cardRefs.current.length === services.length
-    ) {
+    if (bp !== "unknown" && cardRefs.current.length === services.length) {
       const ctx = gsap.context(() => {
         gsap.from(cardRefs.current, {
           scale: bp === "mobile" ? 0.9 : 0.8,
@@ -294,43 +312,43 @@ export default function WorkingDomain() {
         {bp === "mobile" ? (
           // Mobile: Custom 4-5-4 grid layout
           <div className="flex flex-col items-center overflow-hidden">
-          {/* Row 1 */}
-          <div className="flex justify-center gap-1 mb-2">
-            {services.slice(0, 4).map((service, index) => (
-              <HexagonCard
-                key={`mobile-row1-${index}`}
-                service={service}
-                onClick={() => handleCardClick(service)}
-                cardRef={(el) => (cardRefs.current[index] = el)}
-              />
-            ))}
+            {/* Row 1 */}
+            <div className="flex justify-center gap-1 mb-2">
+              {services.slice(0, 4).map((service, index) => (
+                <HexagonCard
+                  key={`mobile-row1-${index}`}
+                  service={service}
+                  onClick={() => handleCardClick(service)}
+                  cardRef={(el) => (cardRefs.current[index] = el)}
+                />
+              ))}
+            </div>
+
+            {/* Row 2 (slightly offset for honeycomb effect) */}
+            <div className="flex justify-center gap-1 mb-0.5">
+              {services.slice(4, 9).map((service, index) => (
+                <HexagonCard
+                  key={`mobile-row2-${index}`}
+                  service={service}
+                  scale={0.8}
+                  onClick={() => handleCardClick(service)}
+                  cardRef={(el) => (cardRefs.current[index + 4] = el)}
+                />
+              ))}
+            </div>
+
+            {/* Row 3 */}
+            <div className="flex justify-center gap-1 mb-2">
+              {services.slice(9, 13).map((service, index) => (
+                <HexagonCard
+                  key={`mobile-row3-${index}`}
+                  service={service}
+                  onClick={() => handleCardClick(service)}
+                  cardRef={(el) => (cardRefs.current[index + 9] = el)}
+                />
+              ))}
+            </div>
           </div>
-      
-          {/* Row 2 (slightly offset for honeycomb effect) */}
-          <div className="flex justify-center gap-1 mb-0.5">
-            {services.slice(4, 9).map((service, index) => (
-              <HexagonCard
-                key={`mobile-row2-${index}`}
-                service={service}
-                scale={0.80}
-                onClick={() => handleCardClick(service)}
-                cardRef={(el) => (cardRefs.current[index + 4] = el)}
-              />
-            ))}
-          </div>
-      
-          {/* Row 3 */}
-          <div className="flex justify-center gap-1 mb-2">
-            {services.slice(9, 13).map((service, index) => (
-              <HexagonCard
-                key={`mobile-row3-${index}`}
-                service={service}
-                onClick={() => handleCardClick(service)}
-                cardRef={(el) => (cardRefs.current[index + 9] = el)}
-              />
-            ))}
-          </div>
-        </div>
         ) : (
           // Tablet/Desktop: Existing grid layout
           <div className="flex flex-col items-center">
@@ -373,25 +391,38 @@ export default function WorkingDomain() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 bg-opacity-60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fadeIn"
         >
-          <div className={`relative m-4 w-full ${bp === "mobile" ? "max-w-sm" : "max-w-xl"} rounded-lg bg-white p-4 sm:p-6 md:p-8 shadow-2xl max-h-[80vh] overflow-y-auto`}>
-            <div className="flex items-start justify-between">
-              <h3 id="modal-title" className="text-xl font-oswald text-gray-900">
+          {/* Modal Container */}
+          <div
+            className={`relative m-4 w-full ${
+              bp === "mobile" ? "max-w-sm" : "max-w-2xl"
+            } rounded-2xl bg-gradient-to-br from-[#0f1115]/90 via-[#1a1c22]/80 to-[#0f1115]/90 border border-white/10 shadow-[0_8px_40px_-10px_rgba(0,0,0,0.8)] backdrop-blur-xl transition-all duration-300 scale-100 animate-popIn overflow-hidden`}
+          >
+            {/* Top Accent Line */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-400 via-cyan-400 to-transparent" />
+
+            {/* Header */}
+            <div className="flex items-start justify-between p-5 border-b border-white/10">
+              <h3
+                id="modal-title"
+                className="text-2xl font-oswald font-semibold text-white tracking-wide"
+              >
                 {selectedService.title}
               </h3>
+
               <button
                 onClick={closeModal}
                 aria-label="Close modal"
-                className="rounded-full p-1 text-gray-500 transition-colors bg-gray-200 hover:bg-gray-300 hover:text-gray-800"
+                className="rounded-full p-2 bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all duration-200"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={1.5}
+                  strokeWidth={1.8}
                   stroke="currentColor"
-                  className="h-6 w-6 cursor-pointer"
+                  className="h-5 w-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -401,17 +432,20 @@ export default function WorkingDomain() {
                 </svg>
               </button>
             </div>
-            <div className="mt-4 text-gray-600 text-sm sm:text-base">
+
+            {/* Content */}
+            <div className="p-6 text-gray-200 text-sm sm:text-base leading-relaxed">
               <p>{description[selectedService.key]}</p>
             </div>
+
+            {/* Glow Border Effect */}
+            <div className="absolute inset-0 rounded-2xl border border-white/5 pointer-events-none" />
           </div>
         </div>
       )}
     </div>
   );
 }
-
-
 
 // import React, { useState, useEffect, useRef, memo } from "react";
 // import { gsap } from "gsap";
@@ -429,7 +463,6 @@ export default function WorkingDomain() {
 // // Replace with your real mobile fallback image
 // import mobileFallback from "../../assets/images/ourDomainHexagonGrid.svg";
 
-
 // const description = {
 //   iot: "Industrial IoT (IIoT) at Enarxi Innovations Private Limited focuses on connecting machines, sensors, and software to create intelligent, data-driven industrial ecosystems. By integrating advanced electronics, embedded firmware, PCB design, and AI-powered analytics, Enarxi enables factories and industries to monitor operations in real time, predict equipment failures, and optimize performance. The company’s expertise in product design, prototyping, and automation allows it to deliver complete end-to-end IIoT solutions—from sensor integration and edge computing to secure cloud connectivity. Through this, Enarxi helps businesses reduce downtime, cut operational costs, and transition toward smart, efficient, and scalable industrial systems.",
 //   drone: "Drone and UAV solutions at Enarxi Innovations Private Limited focus on designing and developing advanced aerial systems that combine precision engineering, embedded intelligence, and real-time data processing. Enarxi specializes in creating custom drones for industrial, agricultural, defense, and surveillance applications, integrating high-performance sensors, navigation systems, and autonomous flight controls. With expertise in electronics design, PCB development, firmware engineering, and AI-based analytics, the company delivers end-to-end UAV solutions from prototype to deployment. These systems enable clients to capture critical data, perform automated inspections, and enhance operational efficiency across industries, driving innovation in next-generation unmanned aerial technology.",
@@ -445,7 +478,6 @@ export default function WorkingDomain() {
 //   biomedicalEquipment: "Biomedical equipment developed by Enarxi Innovations Private Limited merges engineering precision with medical innovation. Focusing on diagnostic and monitoring systems, Enarxi designs reliable, high-performance biomedical devices that comply with medical standards and improve patient outcomes through accurate sensing and data-driven insights.",
 //   industrialAutomation: "Industrial automation at Enarxi Innovations Private Limited integrates IoT, control systems, and intelligent software to optimize manufacturing processes. Enarxi designs and develops custom automation hardware and embedded systems that enhance productivity, reduce manual intervention, and ensure operational safety, empowering industries to achieve smarter, more efficient production."
 // };
-
 
 // function useBreakpoint() {
 //   const MOBILE_MAX = 760;
@@ -812,15 +844,6 @@ export default function WorkingDomain() {
 //   );
 // }
 // The above pasted component has worked on today and works fine while tap and it was hover the detailed about the product as description
-
-
-
-
-
-
-
-
-
 
 // // import React from 'react';
 

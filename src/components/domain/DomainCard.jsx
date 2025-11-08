@@ -1,26 +1,27 @@
 import { motion } from "framer-motion";
+import { memo } from "react";
 
-const DomainCard = ({ title, icon, onClick }) => {
+const DomainCard = memo(({ title, icon, onClick }) => {
   return (
     <motion.div
       whileHover={{
-        scale: 1.11,
-        y: -5,
-        filter: "drop-shadow(0px 8px 15px rgba(0, 0, 0, 0.25))",
+        scale: 1.08,
+        y: -8,
       }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.95 }}
       transition={{
         type: "spring",
-        stiffness: 120,
-        damping: 15,
-        mass: 0.8,
+        stiffness: 300,
+        damping: 20,
+        mass: 0.5,
       }}
       onClick={onClick}
-      className="relative flex flex-col items-center justify-center text-center cursor-pointer"
+      className="relative flex flex-col items-center justify-center text-center cursor-pointer hexagon-card"
       style={{
         width: "200px",
         height: "200px",
-        filter: "drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1))", // default subtle shadow
+        willChange: "transform",
+        transform: "translateZ(0)",
       }}
     >
       <div
@@ -36,10 +37,13 @@ const DomainCard = ({ title, icon, onClick }) => {
           className="w-full h-full object-contain select-none pointer-events-none"
           loading="lazy"
           draggable="false"
+          decoding="async"
         />
       </div>
     </motion.div>
   );
-};
+});
+
+DomainCard.displayName = 'DomainCard';
 
 export default DomainCard;

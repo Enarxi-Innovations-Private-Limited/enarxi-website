@@ -7,8 +7,11 @@
     align-items: center;
     gap: 0;
     transform-origin: top center;
-    transition: transform 0.3s ease-in-out, zoom 0.3s ease-in-out;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     transform: scale(var(--scale, 1)); /* default fallback */
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   
   /* ✅ Use zoom where supported (Chrome, Edge, Safari) */
@@ -16,6 +19,7 @@
     .honeycombContainer {
       transform: none; /* avoids layout shift/ghost spacing */
       zoom: var(--scale, 1);
+      transition: zoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
   }
   
@@ -30,6 +34,7 @@
     align-items: center;
     gap: 12px;
     margin-bottom: -45px; /* Overlap for honeycomb effect */
+    transform: translateZ(0);
   }
   
   /* Row 2: 5 cards - offset to the left */
@@ -40,6 +45,7 @@
     gap: 10px;
     margin-left: 0px;
     margin-bottom: -45px; /* Overlap */
+    transform: translateZ(0);
   }
   
   /* Row 3: 4 cards - aligned with row 1 */
@@ -48,6 +54,7 @@
     justify-content: center;
     align-items: center;
     gap: 12px;
+    transform: translateZ(0);
   }
   
   /* =====================================
@@ -92,6 +99,26 @@
   @media (max-width: 380px) {
     .honeycombContainer {
       --scale: 0.3;
+    }
+  }
+  
+  /* Mobile optimization - faster transitions */
+  @media (max-width: 768px) {
+    .honeycombContainer {
+      transition: transform 0.15s ease-out;
+    }
+    
+    @supports (zoom: 1) {
+      .honeycombContainer {
+        transition: zoom 0.15s ease-out;
+      }
+    }
+  }
+  
+  /* Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .honeycombContainer {
+      transition: none;
     }
   }
   
