@@ -170,8 +170,6 @@
 
 // export default CarouselDemo;
 
-
-
 "use client";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -263,43 +261,37 @@ const TeamBentoGrid = () => {
                   delay: index * 0.04,
                   ease: "easeOut",
                 }}
-                className={`group relative overflow-hidden rounded-[32px] border border-white/10 bg-linear-to-br from-white/5 via-white/2 to-white/0 aspect-[4/5] shadow-[0_15px_40px_-25px_rgba(15,17,21,0.7)]`}
+                // 🧠 Here’s the fix:
+                className={`group relative overflow-hidden rounded-[28px] border border-white/5 bg-[#0f1115] transition-all duration-500 aspect-[4/5] shadow-[0_15px_40px_-25px_rgba(15,17,21,0.7)] hover:border-white/20`}
               >
-                <div
-                  className={`absolute inset-0 -z-10 bg-linear-to-br ${accent}`}
-                />
+                <div className={`absolute inset-0 bg-linear-to-br ${accent} opacity-10`} />
 
-                <Card className="relative h-full w-full overflow-hidden rounded-[28px] border border-white/5 bg-[#0f1115] transition-all duration-500 group-hover:border-white/20">
-                  <CardContent className="relative h-full w-full p-0">
-                    <div className="relative h-full w-full overflow-hidden">
-                      {member.image ? (
-                        <motion.img
-                          src={member.image}
-                          alt={member.name}
-                          className="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-out grayscale group-hover:scale-105 group-hover:grayscale-0"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-slate-700 to-slate-900 text-sm uppercase tracking-[0.25em] text-white/50">
-                          No Image
-                        </div>
-                      )}
 
-                      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent transition-all duration-500 group-hover:from-black/55" />
+                {member.image ? (
+                  <motion.img
+                    src={member.image}
+                    alt={member.name}
+                    className="absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-slate-700 to-slate-900 text-sm uppercase tracking-[0.25em] text-white/50">
+                    No Image
+                  </div>
+                )}
 
-                      <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2 rounded-[18px] bg-black/0 px-1">
-                        <div className="h-[1px] w-12 bg-white/40 transition-all duration-500 group-hover:w-20" />
-                        <div className="flex flex-col gap-1">
-                          <h4 className="text-base sm:text-lg font-semibold text-white font-oswald">
-                            {member.name}
-                          </h4>
-                          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-white/60">
-                            {member.role}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent transition-all duration-500 group-hover:from-black/55" />
+
+                <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2 rounded-[18px] bg-black/0 px-1">
+                  <div className="h-[1px] w-12 bg-white/40 transition-all duration-500 group-hover:w-20" />
+                  <div className="flex flex-col gap-1">
+                    <h4 className="text-base sm:text-lg font-semibold text-white font-oswald">
+                      {member.name}
+                    </h4>
+                    <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-white/60">
+                      {member.role}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             );
           })}

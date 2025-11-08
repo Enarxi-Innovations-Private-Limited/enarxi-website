@@ -224,7 +224,7 @@ export default function AboutUs() {
               type: "spring",
               stiffness: 80,
             }}
-            className="flex justify-center"
+            className="flex justify-end"
             whileHover={{ scale: 1.05, rotate: 2 }}
           >
             <div className="relative">
