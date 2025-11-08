@@ -150,7 +150,7 @@
     transform: translateX(0);
   }
   to {
-    transform: translateX(-146%);
+    transform: translateX(-163%);
   }
 }
 
@@ -161,7 +161,7 @@
 
 @keyframes scroll-rev {
   from {
-    transform: translateX(-137%);
+    transform: translateX(-141.6%);
   }
   to {
     transform: translateX(0);
