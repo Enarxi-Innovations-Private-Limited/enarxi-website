@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from "rea
 import Testimonials from "./routers/Testimonials";
 import Blog from "./routers/Blog";
 import BlogDetail from "./routers/BlogDetail";
+import BlogPreview from "./routers/BlogPreview";
 import Gallery from "./routers/Gallery";
 import AboutUs from "./routers/AboutUs";
 import AboutUs1 from "@components/new/Aboutus";
@@ -74,6 +75,7 @@ function App() {
               <Route path="/services" element={<Services />} />
               <Route path="/blogs" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogDetail />} />
+              <Route path="/blog/preview/:previewId" element={<BlogPreview />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/testimonials" element={<Testimonials />} />
