@@ -165,7 +165,7 @@ const BlogContentRenderer = ({ content, imageBlocks, ytlinks }) => {
   };
 
   return (
-    <div className="prose prose-lg max-w-none mb-8">
+    <div className="prose prose-lg max-w-none mb-8 blog-content-renderer">
       {parse(content, options)}
     </div>
   );
@@ -327,6 +327,64 @@ const AdminBlogDetail = () => {
 
   return (
     <>
+      <style>{`
+        .blog-content-renderer h1 {
+          font-size: 2em;
+          line-height: 1.2;
+          font-weight: bold;
+          margin-top: 0.67em;
+          margin-bottom: 0.67em;
+        }
+        
+        .blog-content-renderer h2 {
+          font-size: 1.5em;
+          line-height: 1.3;
+          font-weight: bold;
+          margin-top: 0.83em;
+          margin-bottom: 0.83em;
+        }
+        
+        .blog-content-renderer h3 {
+          font-size: 1.17em;
+          line-height: 1.4;
+          font-weight: bold;
+          margin-top: 1em;
+          margin-bottom: 1em;
+        }
+        
+        .blog-content-renderer ul,
+        .blog-content-renderer ol {
+          padding-left: 1.75rem;
+          margin-top: 0.75em;
+          margin-bottom: 0.75em;
+        }
+        
+        .blog-content-renderer ul {
+          list-style-type: disc;
+        }
+        
+        .blog-content-renderer ol {
+          list-style-type: decimal;
+        }
+        
+        .blog-content-renderer li {
+          margin-top: 0.25em;
+          margin-bottom: 0.25em;
+        }
+        
+        .blog-content-renderer p {
+          margin-top: 0.75em;
+          margin-bottom: 0.75em;
+        }
+        
+        .blog-content-renderer strong {
+          font-weight: 600;
+        }
+        
+        .blog-content-renderer em {
+          font-style: italic;
+        }
+      `}</style>
       <Toaster position="top-right" />
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
