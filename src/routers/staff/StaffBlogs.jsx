@@ -10,8 +10,7 @@ import CropImageModal from "@/components/CropImageModal";
 import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
 import { useMediaStaging } from "@/hooks/useMediaStaging";
-import { Youtube, Image, Eye, Copy, X } from "lucide-react";
-import { toast, Toaster } from 'react-hot-toast';
+import { Youtube, Image } from "lucide-react";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -24,195 +23,6 @@ import { YouTubeEmbed } from "@/extensions/YouTubeEmbed";
 
 // --- Import the CSS file ---
 import "./tiptap.css";
-import parse from 'html-react-parser';
-
-//======================================================================
-//  BLOG PREVIEW MODAL COMPONENT
-//======================================================================
-const BlogPreviewModal = memo(({ isOpen, onClose, title, content, authorName, authorRole, imageFile }) => {
-  const [isCopying, setIsCopying] = useState(false);
-  
-  if (!isOpen) return null;
-
-  const handleCopyLink = async () => {
-    // Generate unique preview ID
-    const previewId = `preview_${Date.now()}`;
-    
-    setIsCopying(true);
-    
-    try {
-      // Upload image to Cloudinary if exists
-      let cloudinaryUrl = null;
-      if (imageFile) {
-        toast.info('Uploading image to cloud...');
-        const uploadResult = await uploadToCloudinary(imageFile);
-        cloudinaryUrl = uploadResult.url;
-        console.log('✅ Image uploaded for preview:', cloudinaryUrl);
-      }
-      
-      // Store draft data in localStorage with Cloudinary URL
-      const draftData = {
-        title: title,
-        content: content,
-        authorName: authorName,
-        authorRole: authorRole,
-        imageUrl: cloudinaryUrl,
-        timestamp: Date.now(),
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // Expires in 24 hours
-      };
-      
-      localStorage.setItem(previewId, JSON.stringify(draftData));
-      
-      // Generate shareable preview link
-      const previewLink = `${window.location.origin}/blog/preview/${previewId}`;
-      
-      await navigator.clipboard.writeText(previewLink);
-      toast.success('Preview link copied! Valid for 24 hours.');
-    } catch (error) {
-      console.error('Error storing preview:', error);
-      toast.error('Failed to create preview link');
-    } finally {
-      setIsCopying(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50" onClick={onClose}>
-      <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Modal Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-2xl font-bold text-gray-800">Blog Preview</h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCopyLink}
-              disabled={isCopying}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
-                isCopying
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
-              }`}
-            >
-              {isCopying ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Copy size={16} />
-                  Copy Link
-                </>
-              )}
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X size={24} className="text-gray-600" />
-            </button>
-          </div>
-        </div>
-
-        {/* Modal Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-8">
-          {/* Featured Image Preview */}
-          {imageFile && (
-            <div className="mb-6 rounded-lg overflow-hidden bg-gray-100">
-              <img
-                src={URL.createObjectURL(imageFile)}
-                alt="Featured"
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          )}
-
-          {/* Blog Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-oswald">
-            {title || 'Untitled Blog Post'}
-          </h1>
-
-          {/* Author Info */}
-          <div className="flex items-center gap-4 text-sm text-gray-600 mb-8 pb-8 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{authorName || 'Anonymous'}</span>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-500">{authorRole || 'Staff'}</span>
-            </div>
-          </div>
-
-          {/* Blog Content with Styling */}
-          <div className="blog-preview-content">
-            {content ? parse(content) : <p className="text-gray-400 italic">No content yet...</p>}
-          </div>
-        </div>
-      </div>
-
-      {/* Inline Styles for Preview Content */}
-      <style>{`
-        .blog-preview-content h1 {
-          font-size: 2em;
-          line-height: 1.2;
-          font-weight: bold;
-          margin-top: 0.67em;
-          margin-bottom: 0.67em;
-        }
-        
-        .blog-preview-content h2 {
-          font-size: 1.5em;
-          line-height: 1.3;
-          font-weight: bold;
-          margin-top: 0.83em;
-          margin-bottom: 0.83em;
-        }
-        
-        .blog-preview-content h3 {
-          font-size: 1.17em;
-          line-height: 1.4;
-          font-weight: bold;
-          margin-top: 1em;
-          margin-bottom: 1em;
-        }
-        
-        .blog-preview-content ul,
-        .blog-preview-content ol {
-          padding-left: 1.75rem;
-          margin-top: 0.75em;
-          margin-bottom: 0.75em;
-        }
-        
-        .blog-preview-content ul {
-          list-style-type: disc;
-        }
-        
-        .blog-preview-content ol {
-          list-style-type: decimal;
-        }
-        
-        .blog-preview-content li {
-          margin-top: 0.25em;
-          margin-bottom: 0.25em;
-        }
-        
-        .blog-preview-content p {
-          margin-top: 0.75em;
-          margin-bottom: 0.75em;
-          line-height: 1.6;
-        }
-        
-        .blog-preview-content strong {
-          font-weight: 600;
-        }
-        
-        .blog-preview-content em {
-          font-style: italic;
-        }
-      `}</style>
-    </div>
-  );
-});
 
 //======================================================================
 //  FINAL MEMOIZED MENU BAR COMPONENT
@@ -391,9 +201,6 @@ const StaffBlogs = () => {
   // Multi-image blocks state with staging
   const [showMultiImageModal, setShowMultiImageModal] = useState(false);
   const mediaStaging = useMediaStaging();
-  
-  // Preview modal state
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -479,7 +286,6 @@ const StaffBlogs = () => {
     console.log('✅ Cropped image received:', croppedFile);
     setImageFile(croppedFile);
     setShowCropModal(false);
-    setMessage('');
     
     // Clean up object URL
     if (imageToCrop) {
@@ -543,24 +349,6 @@ const StaffBlogs = () => {
    */
   const handleMultiImageCancel = useCallback(() => {
     setShowMultiImageModal(false);
-  }, []);
-
-  /**
-   * Handle preview button click
-   */
-  const handlePreview = useCallback(() => {
-    if (!blogContent || blogContent === '<p></p>') {
-      toast.error('Please add some content to preview');
-      return;
-    }
-    setShowPreviewModal(true);
-  }, [blogContent]);
-
-  /**
-   * Handle preview modal close
-   */
-  const handlePreviewClose = useCallback(() => {
-    setShowPreviewModal(false);
   }, []);
 
   const handleSubmit = useCallback(
@@ -720,10 +508,8 @@ const StaffBlogs = () => {
   if (!editor) return null;
 
   return (
-    <>
-      <Toaster position="top-right" />
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="max-w-3xl w-full bg-white p-8 rounded-xl shadow-2xl">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="max-w-3xl w-full bg-white p-8 rounded-xl shadow-2xl">
         <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
           Staff Blog Post Submission
         </h1>
@@ -811,21 +597,10 @@ const StaffBlogs = () => {
             </div>
           )}
 
-          {/* Preview Button */}
-          <button
-            type="button"
-            onClick={handlePreview}
-            className="w-full py-3 mt-4 font-bold text-indigo-600 bg-indigo-50 rounded-lg shadow-md transition duration-300 ease-in-out hover:bg-indigo-100 flex items-center justify-center gap-2"
-          >
-            <Eye size={20} />
-            Preview Blog Post
-          </button>
-
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 mt-3 font-bold text-white rounded-lg shadow-md transition duration-300 ease-in-out ${
+            className={`w-full py-3 mt-4 font-bold text-white rounded-lg shadow-md transition duration-300 ease-in-out ${
               loading
                 ? "bg-indigo-400 cursor-not-allowed"
                 : "bg-indigo-600 hover:bg-indigo-700"
@@ -834,7 +609,6 @@ const StaffBlogs = () => {
             {loading ? "Submitting..." : "Submit Blog Post"}
           </button>
         </form>
-        </div>
       </div>
 
       {/* Crop Image Modal */}
@@ -852,18 +626,7 @@ const StaffBlogs = () => {
         onSave={handleMultiImageSave}
         onCancel={handleMultiImageCancel}
       />
-
-      {/* Blog Preview Modal */}
-      <BlogPreviewModal
-        isOpen={showPreviewModal}
-        onClose={handlePreviewClose}
-        title={formData.title}
-        content={blogContent}
-        authorName={formData.authorName}
-        authorRole={formData.authorRole}
-        imageFile={imageFile}
-      />
-    </>
+    </div>
   );
 };
 
