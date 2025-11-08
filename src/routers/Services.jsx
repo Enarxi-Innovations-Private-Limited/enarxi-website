@@ -1,10 +1,11 @@
+"use client";
 import React, { memo, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 
-// ASSET IMPORTS
+// --- ASSETS ---
 import service_1 from "../assets/images/service_1.svg";
 import service_2 from "../assets/images/service_2.svg";
 import service_3 from "../assets/images/service_3.svg";
@@ -12,6 +13,7 @@ import service_4 from "../assets/images/service_4.svg";
 import service_5 from "../assets/images/service_5.svg";
 import service_bottom_girl from "../assets/images/service-bottom-girl.svg";
 
+// --- DATA ---
 const SERVICES_DATA = [
   {
     id: "01",
@@ -55,6 +57,7 @@ const FORM_OPTIONS = {
   types: ["Business", "Personal", "Partnership"],
 };
 
+// --- REUSABLE FIELDS ---
 const InputField = ({ register, name, label, error, ...props }) => (
   <div>
     <label htmlFor={name} className="sr-only">
@@ -126,7 +129,7 @@ const TextareaField = ({ register, name, label, error, ...props }) => (
   </div>
 );
 
-// Validation: message is optional generally. If service === "Other" then message must be >= 10.
+// --- VALIDATION SCHEMA (Zod) ---
 const contactSchema = z
   .object({
     firstName: z
@@ -144,7 +147,6 @@ const contactSchema = z
     email: z.string().email("Please enter a valid email address"),
     service: z.string().min(1, "Please select a service"),
     type: z.string().min(1, "Please select a type"),
-    // make optional here; conditional enforcement below
     message: z.string().optional(),
   })
   .refine(
@@ -157,6 +159,7 @@ const contactSchema = z
     }
   );
 
+// --- SERVICE CARD ---
 const ServiceCard = memo(({ service, reverse, index }) => {
   const flexDirection = useMemo(
     () => (reverse ? "md:flex-row-reverse" : "md:flex-row"),
@@ -215,19 +218,12 @@ const ServiceCard = memo(({ service, reverse, index }) => {
         >
           {service.desc}
         </motion.p>
-        <motion.div
-          className="flex gap-4 flex-wrap"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-        </motion.div>
       </div>
     </motion.article>
   );
 });
 
+// --- CONTACT FORM ---
 const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
   const [serverStatus, setServerStatus] = useState({ message: "", type: "" });
 
@@ -236,9 +232,11 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
     handleSubmit,
     reset,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(contactSchema),
+    mode: "onChange", // live validation
+    reValidateMode: "onChange",
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -262,7 +260,7 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
         type: "success",
       });
       reset();
-    } catch (error) {
+    } catch {
       setServerStatus({
         message: "Failed to send message. Please try again later.",
         type: "error",
@@ -303,6 +301,8 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
           label="First Name"
           placeholder="First Name"
           error={errors.firstName}
+          inputMode="text"
+          pattern="[A-Za-z\s-]*"
         />
         <InputField
           register={register}
@@ -310,6 +310,8 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
           label="Last Name"
           placeholder="Last Name *"
           error={errors.lastName}
+          inputMode="text"
+          pattern="[A-Za-z\s-]+"
         />
       </div>
 
@@ -320,7 +322,11 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
         type="tel"
         placeholder="Mobile No *"
         error={errors.mobile}
+        inputMode="numeric"
+        pattern="\d*"
+        maxLength={10}
       />
+
       <InputField
         register={register}
         name="email"
@@ -358,7 +364,6 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
         ))}
       </SelectField>
 
-      {/* Render message textarea only when 'Other' is selected */}
       {serviceValue === "Other" && (
         <TextareaField
           register={register}
@@ -375,12 +380,14 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
           type="submit"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          disabled={isSubmitting || !isValid}
           className="flex-1 bg-[#09B8DC] text-white py-3 rounded-md font-medium hover:bg-sky-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer"
-          disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit"}
         </motion.button>
+
         <p className="flex justify-center">Or</p>
+
         <motion.button
           type="button"
           whileHover={{ scale: 1.02 }}
@@ -413,6 +420,7 @@ const ContactForm = ({ showMeetLoader, setShowMeetLoader }) => {
   );
 };
 
+// --- MAIN PAGE ---
 export default function Services() {
   const [showMeetLoader, setShowMeetLoader] = useState(false);
 
@@ -466,57 +474,14 @@ export default function Services() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <h3 className="text-3xl md:text-4xl font-bold font-oswald text-gray-900 mb-3">
-                Get in Touch
-              </h3>
-              <p className="font-poppins text-gray-600 text-lg">
-                Please select a service below related to your inquiry.
-                <br />
-                Fill out our contact form
-              </p>
-            </motion.div>
-
-            <motion.ul
-              className="text-gray-700 space-y-3 font-poppins"
-              aria-label="Company strengths"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              {[
-                "Proven track record delivering diverse electronic products, from gadgets to industrial systems.",
-                "Proficient in circuit design, collaboration with cross-functional teams, and validation.",
-                "Expertise in embedded systems, FPGA programming, and advanced devices.",
-                "Experienced in testing, compliance, and sustainable designs.",
-              ].map((item, idx) => (
-                <motion.li
-                  key={idx}
-                  className="flex items-start gap-3"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.4 + idx * 0.1 }}
-                >
-                  <span className="text-blue-500 mt-1 flex-shrink-0">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                  <span>{item}</span>
-                </motion.li>
-              ))}
-            </motion.ul>
+            <h3 className="text-3xl md:text-4xl font-bold font-oswald text-gray-900 mb-3">
+              Get in Touch
+            </h3>
+            <p className="font-poppins text-gray-600 text-lg">
+              Please select a service below related to your inquiry.
+              <br />
+              Fill out our contact form
+            </p>
 
             <motion.div
               className="mt-8 flex justify-center md:justify-start"
