@@ -153,7 +153,7 @@ export default function OurStats() {
   return (
     <section
       // 👉 CHANGE: Swapped flat blue for a premium dark navy gradient
-      className="relative w-full bg-gradient-to-b mt-6 from-[#EBF7FF] via-[#D8EEFF] to-white py-10 md:py-12 overflow-hidden"
+      className="relative w-full bg-gradient-to-b mt-6 from-[#EBF7FF] via-[#D8EEFF] to-white py-10 md:pb-12 overflow-hidden"
       aria-labelledby="stats-heading"
     >
       {/* Width Control Container */}

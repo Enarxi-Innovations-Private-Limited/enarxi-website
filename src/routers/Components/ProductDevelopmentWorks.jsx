@@ -1,3 +1,4 @@
+"use client";
 import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -15,6 +16,7 @@ const ProductDevelopmentWorks = () => {
   const desktopContainerRef = useRef(null);
   const desktopContentRef = useRef(null);
   const desktopStepsRefs = useRef([]);
+  const roadRef = useRef(null);
   const mobileTimelineRef = useRef(null);
   const mobileStepRefs = useRef([]);
   const mobileHeadingRef = useRef(null);
@@ -23,41 +25,43 @@ const ProductDevelopmentWorks = () => {
     {
       id: "ideation",
       title: "Ideation",
-      description: "Understanding the customer need challenging it to a requirement chart",
+      description:
+        "Understanding the customer need and challenging it to a requirement chart",
       icon: IdeationIcon,
-      style: { top: "-1%", left: "5%" },
+      style: { top: "-30%", left: "10%" },
       layout: "text-right",
     },
     {
       id: "conceptualization",
       title: "Conceptualization",
-      description: "Structuring of Solution, Prototyping and Finalization",
+      description: "Structuring of solution, prototyping, and finalization",
       icon: ConceptualizationIcon,
-      style: { top: "20%", left: "55%" },
+      style: { top: "5%", left: "54.5%" },
       layout: "text-right",
     },
     {
       id: "hardware",
       title: "Hardware",
-      description: "Hardware planning, Schematic Design, PCB Layout Routing, Components Assembly and Testing",
+      description:
+        "Hardware planning, schematic design, PCB layout routing, components assembly, and testing",
       icon: HardwareIcon,
-      style: { top: "38%", left: "7.5%" },
+      style: { top: "33%", left: "8%" },
       layout: "text-left",
     },
     {
       id: "software",
       title: "Software",
-      description: "Firmware development, App and Cloud integrations.",
+      description: "Firmware development, app, and cloud integrations",
       icon: SoftwareIcon,
-      style: { top: "60%", left: "40%" },
+      style: { top: "63%", left: "41%" },
       layout: "text-right",
     },
     {
       id: "end-product",
       title: "End Product",
-      description: "End Product Ready For Market",
+      description: "End product ready for market",
       icon: EndProductIcon,
-      style: { top: "58%", left: "73%" },
+      style: { top: "65%", left: "69%" },
       layout: "text-left",
     },
   ];
@@ -66,38 +70,40 @@ const ProductDevelopmentWorks = () => {
     {
       id: "ideation",
       title: "Ideation",
-      description: "Understanding the customer need challenging it to a requirement chart",
+      description:
+        "Understanding the customer need and challenging it to a requirement chart",
       icon: IdeationIcon,
     },
     {
       id: "conceptualization",
       title: "Conceptualization",
-      description: "Structuring of Solution, Prototyping and Finalization",
+      description: "Structuring of solution, prototyping, and finalization",
       icon: ConceptualizationIcon,
     },
     {
       id: "hardware",
       title: "Hardware",
-      description: "Hardware planning, Schematic Design, PCB Layout Routing, Components Assembly and Testing",
+      description:
+        "Hardware planning, schematic design, PCB layout routing, components assembly, and testing",
       icon: HardwareIcon,
     },
     {
       id: "software",
       title: "Software",
-      description: "Firmware development, App and Cloud integrations.",
+      description: "Firmware development, app, and cloud integrations",
       icon: SoftwareIcon,
     },
     {
       id: "end-product",
       title: "End Product",
-      description: "End Product Ready For Market",
+      description: "End product ready for market",
       icon: EndProductIcon,
     },
   ];
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Desktop Animation (unchanged)
+      // Desktop Animation
       if (desktopContainerRef.current) {
         gsap
           .timeline({
@@ -117,41 +123,44 @@ const ProductDevelopmentWorks = () => {
           });
       }
 
-      // Mobile Animation + Resizing (for < 1536px)
+      // Mobile Animation
       if (mobileTimelineRef.current) {
         const updateFontSizes = () => {
           const width = window.innerWidth;
           let headingSize, titleSize, descSize, iconSize;
 
           if (width < 480) {
-            headingSize = "1.875rem"; // text-3xl
-            titleSize = "1.25rem";    // text-xl
-            descSize = "1rem";        // text-base
-            iconSize = "64px";        // larger icons
+            headingSize = "1.875rem";
+            titleSize = "1.25rem";
+            descSize = "1rem";
+            iconSize = "64px";
           } else if (width < 640) {
-            headingSize = "2rem";     // text-3xl+
-            titleSize = "1.375rem";   // text-xl+
-            descSize = "1.05rem";     // slightly larger
+            headingSize = "2rem";
+            titleSize = "1.375rem";
+            descSize = "1.05rem";
             iconSize = "72px";
           } else if (width < 768) {
-            headingSize = "2.25rem";  // text-4xl
-            titleSize = "1.5rem";     // text-2xl
-            descSize = "1.125rem";    // text-lg
+            headingSize = "2.25rem";
+            titleSize = "1.5rem";
+            descSize = "1.125rem";
             iconSize = "80px";
           } else if (width < 1024) {
-            headingSize = "2.5rem";   // text-5xl
-            titleSize = "1.75rem";    // text-3xl
-            descSize = "1.25rem";     // text-xl
-            iconSize = "96px";        // ✅ large tablets
+            headingSize = "2.5rem";
+            titleSize = "1.75rem";
+            descSize = "1.25rem";
+            iconSize = "96px";
           } else if (width < 1536) {
-            headingSize = "2.75rem";  // text-5xl+
-            titleSize = "1.875rem";   // text-3xl+
-            descSize = "1.375rem";    // text-xl+
-            iconSize = "104px";       // ✅ near-desktop size
+            headingSize = "2.75rem";
+            titleSize = "1.875rem";
+            descSize = "1.375rem";
+            iconSize = "104px";
           }
 
           if (mobileHeadingRef.current) {
-            gsap.to(mobileHeadingRef.current, { fontSize: headingSize, duration: 0.3 });
+            gsap.to(mobileHeadingRef.current, {
+              fontSize: headingSize,
+              duration: 0.3,
+            });
           }
 
           mobileStepRefs.current.forEach((stepEl) => {
@@ -159,9 +168,16 @@ const ProductDevelopmentWorks = () => {
               const titleEl = stepEl.querySelector("h3");
               const descEl = stepEl.querySelector("p");
               const imgEl = stepEl.querySelector("img");
-              if (titleEl) gsap.to(titleEl, { fontSize: titleSize, duration: 0.3 });
-              if (descEl) gsap.to(descEl, { fontSize: descSize, duration: 0.3 });
-              if (imgEl) gsap.to(imgEl, { width: iconSize, height: iconSize, duration: 0.3 });
+              if (titleEl)
+                gsap.to(titleEl, { fontSize: titleSize, duration: 0.3 });
+              if (descEl)
+                gsap.to(descEl, { fontSize: descSize, duration: 0.3 });
+              if (imgEl)
+                gsap.to(imgEl, {
+                  width: iconSize,
+                  height: iconSize,
+                  duration: 0.3,
+                });
             }
           });
         };
@@ -170,7 +186,7 @@ const ProductDevelopmentWorks = () => {
         window.addEventListener("resize", updateFontSizes);
 
         // Scroll Animations for each step
-        mobileStepRefs.current.forEach((stepEl, index) => {
+        mobileStepRefs.current.forEach((stepEl) => {
           if (stepEl) {
             gsap.fromTo(
               stepEl,
@@ -205,9 +221,20 @@ const ProductDevelopmentWorks = () => {
 
         return () => window.removeEventListener("resize", updateFontSizes);
       }
+
+      // ✅ Refresh GSAP triggers on resize/fullscreen
+      const handleResize = () => {
+        ScrollTrigger.refresh();
+      };
+      window.addEventListener("resize", handleResize);
+      window.addEventListener("fullscreenchange", handleResize);
     });
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      window.removeEventListener("resize", ScrollTrigger.refresh);
+      window.removeEventListener("fullscreenchange", ScrollTrigger.refresh);
+    };
   }, []);
 
   return (
@@ -217,51 +244,64 @@ const ProductDevelopmentWorks = () => {
         ref={desktopContainerRef}
         className="hidden 2xl:block w-full relative bg-white"
       >
-        <div ref={desktopContentRef} className="h-screen w-full mt-20">
+        <div ref={desktopContentRef} className="min-h-screen w-full flex flex-col justify-center mt-20">
           <h1 className="text-40 font-bold font-oswald text-center">
             How Product Development Works?
           </h1>
-          <div className="relative w-full h-full mx-auto">
-            <img
-              src={RoadPng}
-              alt="Product development roadmap"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-auto object-contain max-h-[80vh]"
-            />
-            {roadmapSteps.map((step, index) => (
-              <div
-                key={step.id}
-                ref={(el) => (desktopStepsRefs.current[index] = el)}
-                className={`absolute w-72 lg:w-80 transform opacity-0 flex items-center ${
-                  step.layout === "text-left" ? "flex-row-reverse" : ""
-                }`}
-                style={{ ...step.style, transform: "translateY(50px)" }}
-              >
-                <img
-                  src={step.icon}
-                  alt={`${step.title} icon`}
-                  className="w-24 h-24 lg:w-32 lg:h-32 flex-shrink-0"
-                />
+
+          {/* ✅ Fixed wrapper so road + icons scale together */}
+          <div className="relative w-full h-[80vh] flex items-center justify-center">
+            <div className="relative w-full">
+              <img
+                ref={roadRef}
+                src={RoadPng}
+                alt="Product development roadmap"
+                className="w-full h-auto object-contain"
+              />
+
+              {roadmapSteps.map((step, index) => (
                 <div
-                  className={`flex flex-col ${
-                    step.layout === "text-left" ? "text-right" : "text-left"
+                  key={step.id}
+                  ref={(el) => (desktopStepsRefs.current[index] = el)}
+                  className={`absolute w-72 lg:w-80 transform opacity-0 flex items-center ${
+                    step.layout === "text-left" ? "flex-row-reverse" : ""
                   }`}
+                  style={{
+                    top: step.style.top,
+                    left: step.style.left,
+                    transform: "translateY(50px)",
+                  }}
                 >
-                  <h3 className="text-xl lg:text-2xl font-semibold font-poppins">
-                    {step.title}
-                  </h3>
-                  <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                    {step.description}
-                  </p>
+                  <img
+                    src={step.icon}
+                    alt={`${step.title} icon`}
+                    className="w-24 h-24 lg:w-32 lg:h-32 flex-shrink-0"
+                  />
+                  <div
+                    className={`flex flex-col ${
+                      step.layout === "text-left" ? "text-right" : "text-left"
+                    }`}
+                  >
+                    <h3 className="text-xl lg:text-2xl font-semibold font-poppins">
+                      {step.title}
+                    </h3>
+                    <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Mobile Section */}
-      <section className="block 2xl:hidden w-full bg-gradient-to-b from-white to-gray-50 py-8 px-4 mt-12">
-        <h1 ref={mobileHeadingRef} className="text-40 font-bold font-oswald text-center mb-12 text-gray-800">
+      <section className="block  2xl:hidden w-full bg-gradient-to-b from-white to-gray-50 py-8 px-4 mt-12">
+        <h1
+          ref={mobileHeadingRef}
+          className="text-40 font-bold font-oswald text-center mb-12 text-gray-800"
+        >
           How Product Development Works?
         </h1>
         <div ref={mobileTimelineRef} className="relative max-w-lg mx-auto">
