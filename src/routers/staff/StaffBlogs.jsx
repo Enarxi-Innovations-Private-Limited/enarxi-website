@@ -10,7 +10,8 @@ import CropImageModal from "@/components/CropImageModal";
 import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
 import { useMediaStaging } from "@/hooks/useMediaStaging";
-import { Youtube, Image } from "lucide-react";
+import { Youtube, Image, Eye } from "lucide-react";
+import BlogPreviewModal from "@/components/BlogPreviewModal";
 
 // --- Import all required Tiptap extensions for customization ---
 import Heading from "@tiptap/extension-heading";
@@ -201,6 +202,9 @@ const StaffBlogs = () => {
   // Multi-image blocks state with staging
   const [showMultiImageModal, setShowMultiImageModal] = useState(false);
   const mediaStaging = useMediaStaging();
+  
+  // Preview modal state
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -350,6 +354,78 @@ const StaffBlogs = () => {
   const handleMultiImageCancel = useCallback(() => {
     setShowMultiImageModal(false);
   }, []);
+
+  /**
+   * Handle preview button click
+   */
+  const handlePreview = useCallback(() => {
+    if (!editor) return;
+    
+    const currentContent = editor.getHTML();
+    
+    if (currentContent === "<p></p>" || !formData.title) {
+      setMessage("⚠️ Please add a title and content before previewing.");
+      return;
+    }
+    
+    setShowPreviewModal(true);
+  }, [editor, formData.title]);
+
+  /**
+   * Prepare preview data with staged images and YouTube links
+   */
+  const getPreviewData = useCallback(() => {
+    if (!editor) return null;
+
+    const editorJson = editor.getJSON();
+    const youtubeLinks = [];
+    const previewImageBlocks = {};
+    
+    // Traverse the editor JSON to extract YouTube embeds and image blocks
+    const traverseNodes = (node) => {
+      if (node.type === 'youtubeEmbed') {
+        youtubeLinks.push(node.attrs.url);
+      } else if (node.type === 'imageBlock') {
+        const blockId = node.attrs.id;
+        // Get staged files for this block
+        const stagedFiles = mediaStaging.getStagedBlock(blockId);
+        if (stagedFiles && stagedFiles.length > 0) {
+          previewImageBlocks[blockId] = stagedFiles;
+        }
+      }
+      
+      if (node.content) {
+        node.content.forEach(traverseNodes);
+      }
+    };
+    
+    editorJson.content?.forEach(traverseNodes);
+    
+    // Get current HTML content
+    let previewContent = editor.getHTML();
+    
+    // Replace YouTube embed divs with simple placeholders for preview
+    youtubeLinks.forEach((url, index) => {
+      const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
+      previewContent = previewContent.replace(ytPattern, `<div id="yt${index}"></div>`);
+    });
+    
+    // Replace image block divs with simple placeholders for preview
+    Object.keys(previewImageBlocks).forEach((blockId) => {
+      const imgPattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?<\/div>`, 'gi');
+      previewContent = previewContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
+    });
+
+    return {
+      title: formData.title,
+      authorName: formData.authorName,
+      authorRole: formData.authorRole,
+      content: previewContent,
+      featuredImage: imageFile ? URL.createObjectURL(imageFile) : null,
+      imageBlocks: previewImageBlocks,
+      ytlinks: youtubeLinks,
+    };
+  }, [editor, formData, imageFile, mediaStaging]);
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -590,6 +666,8 @@ const StaffBlogs = () => {
               className={`p-3 rounded-lg text-sm font-medium ${
                 message.includes("successfully")
                   ? "bg-green-100 text-green-800"
+                  : message.includes("⚠️")
+                  ? "bg-yellow-100 text-yellow-800"
                   : "bg-red-100 text-red-800"
               }`}
             >
@@ -597,17 +675,33 @@ const StaffBlogs = () => {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 mt-4 font-bold text-white rounded-lg shadow-md transition duration-300 ease-in-out ${
-              loading
-                ? "bg-indigo-400 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700"
-            }`}
-          >
-            {loading ? "Submitting..." : "Submit Blog Post"}
-          </button>
+          {/* Action Buttons: Preview and Submit */}
+          <div className="flex gap-4 mt-4">
+            <button
+              type="button"
+              onClick={handlePreview}
+              disabled={loading}
+              className={`flex-1 py-3 font-bold text-indigo-600 bg-white border-2 border-indigo-600 rounded-lg shadow-md transition duration-300 ease-in-out flex items-center justify-center gap-2 ${
+                loading
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-indigo-50"
+              }`}
+            >
+              <Eye size={20} />
+              Preview Blog
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`flex-1 py-3 font-bold text-white rounded-lg shadow-md transition duration-300 ease-in-out ${
+                loading
+                  ? "bg-indigo-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700"
+              }`}
+            >
+              {loading ? "Submitting..." : "Submit Blog Post"}
+            </button>
+          </div>
         </form>
       </div>
 
@@ -625,6 +719,13 @@ const StaffBlogs = () => {
         isOpen={showMultiImageModal}
         onSave={handleMultiImageSave}
         onCancel={handleMultiImageCancel}
+      />
+
+      {/* Blog Preview Modal */}
+      <BlogPreviewModal
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        previewData={getPreviewData()}
       />
     </div>
   );
