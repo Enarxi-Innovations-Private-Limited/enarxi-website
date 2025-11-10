@@ -540,6 +540,8 @@ const StaffBlogs = () => {
         await addDoc(collection(db, "blogs"), {
           userId: user.uid,
           isAdminAccepted: false,
+          status: 'pending', // Default status for new blogs
+          visibility: true, // Default visibility
           title: formData.title,
           authorName: formData.authorName,
           authorRole: formData.authorRole,

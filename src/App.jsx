@@ -21,6 +21,7 @@ import StaffProtectedRoute from "././routers/admin/StaffProtectedRoute"; // Impo
 import Login from "././routers/admin/Login";
 import StaffLogin from "././routers/admin/StaffLogin"; // Import the new login page
 import StaffPortal from "./routers/StaffPortal"; // Import the new portal
+import StaffBlogDetail from "./routers/staff/StaffBlogDetail"; // Import staff blog detail page
 import UserProfile from "./routers/UserProfile"; // Import user profile page
 import AppLogger from "./AppLogger";
 import Logout from "./routers/admin/Logout";
@@ -89,6 +90,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/stafflogin" element={<StaffLogin />} />
               <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
+              <Route path="/staff/blog/:slug" element={<StaffProtectedRoute><StaffBlogDetail /></StaffProtectedRoute>} />
             </Route>
           </Routes>
         </Router>

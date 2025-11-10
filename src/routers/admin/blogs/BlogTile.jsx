@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Calendar, User, Eye, EyeOff, CheckCircle, Trash2, Image as ImageIcon } from 'lucide-react';
+import { FileText, Calendar, User, Eye, EyeOff, CheckCircle, Trash2, XCircle, Image as ImageIcon } from 'lucide-react';
 
-const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPending = true }) => {
+const BlogTile = ({ blog, onView, onApprove, onReject, onDelete, onToggleVisibility, isPending = true, isRejected = false }) => {
   const thumbnailUrl = blog.images?.[0]?.url || blog.images?.[0] || null;
   const imageCount = blog.images?.length || 0;
   const isVisible = blog.visibility !== false; // Default to true if field doesn't exist
@@ -56,11 +56,20 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
         )} */}
 
         {/* Status Badge */}
-        <div className={`absolute top-2 left-2 ${isPending ? 'bg-blue-600' : isVisible ? 'bg-green-600' : 'bg-gray-600'} bg-opacity-90 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1`}>
+        <div className={`absolute top-2 left-2 ${
+          isPending ? 'bg-blue-600' : 
+          isRejected ? 'bg-red-600' : 
+          isVisible ? 'bg-green-600' : 'bg-gray-600'
+        } bg-opacity-90 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1`}>
           {isPending ? (
             <>
               <Eye className="h-3 w-3" />
               <span>Review</span>
+            </>
+          ) : isRejected ? (
+            <>
+              <XCircle className="h-3 w-3" />
+              <span>Rejected</span>
             </>
           ) : isVisible ? (
             <>
@@ -96,8 +105,8 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
 
         {/* Action Buttons */}
         {isPending ? (
-          // Pending Blog Actions: Approve & Delete
-          <div className="flex items-center space-x-2 mt-auto">
+          // Pending Blog Actions: Approve, Reject & Delete
+          <div className="flex flex-col space-y-2 mt-auto">
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
@@ -105,12 +114,43 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+              className="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
             >
               <CheckCircle className="h-4 w-4" />
               <span>Accept</span>
             </motion.button>
             
+            <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReject(blog);
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+              >
+                <XCircle className="h-4 w-4" />
+                <span>Reject</span>
+              </motion.button>
+              
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(blog);
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete</span>
+              </motion.button>
+            </div>
+          </div>
+        ) : isRejected ? (
+          // Rejected Blog Actions: Delete only (staff will handle edit)
+          <div className="flex items-center space-x-2 mt-auto">
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
@@ -118,7 +158,7 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+              className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1 cursor-pointer"
             >
               <Trash2 className="h-4 w-4" />
               <span>Delete</span>

@@ -1,34 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Loader2, ChevronDown } from 'lucide-react';
-import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { FileText, Loader2, ChevronDown, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { collection, getDocs, query, where, orderBy, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
-import { deleteBlog, approveBlog, rejectBlog } from '@/lib/api';
-import { logAdminActivity } from '@/utils/adminActivityLogger';
+import { deleteBlog } from '@/lib/api';
 import { useAuth } from '@/AuthProvider';
-import BlogTile from './blogs/BlogTile';
 import ConfirmModal from '@/components/shared/ConfirmModal';
 import { createFullSlug } from '@/utils/slugUtils';
 
-const BlogsTable = () => {
+const StaffBlogsList = () => {
   const navigate = useNavigate();
-  const { firebaseUser } = useAuth();
+  const { user } = useAuth();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('pending'); // 'pending', 'approved', or 'rejected'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, blog: null });
-  const [rejectConfirm, setRejectConfirm] = useState({ isOpen: false, blog: null });
 
   const fetchBlogs = async (status = filterStatus) => {
     try {
       setLoading(true);
       
-      // Fetch all blogs and filter in memory to handle blogs without status field
+      if (!user) {
+        setBlogs([]);
+        setLoading(false);
+        return;
+      }
+
+      // Query blogs by current user only (no status filter to avoid index issues)
       const q = query(
         collection(db, 'blogs'),
+        where('userId', '==', user.uid),
         orderBy('updatedAt', 'desc')
       );
       
@@ -63,7 +67,7 @@ const BlogsTable = () => {
       // Check if it's an index error
       if (error.code === 'failed-precondition' || error.message.includes('index')) {
         toast.error(
-          'Database index required. Please create the composite index in Firebase Console.',
+          'Database index required. Please contact admin.',
           { duration: 6000 }
         );
         console.error('Index URL:', error.message);
@@ -71,7 +75,6 @@ const BlogsTable = () => {
         toast.error('Failed to load blogs. Please try again.');
       }
       
-      // Set empty array so UI doesn't break
       setBlogs([]);
     } finally {
       setLoading(false);
@@ -79,8 +82,10 @@ const BlogsTable = () => {
   };
 
   useEffect(() => {
-    fetchBlogs();
-  }, [filterStatus]);
+    if (user) {
+      fetchBlogs();
+    }
+  }, [filterStatus, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -93,104 +98,6 @@ const BlogsTable = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen]);
-
-  const handleApprove = async (blogId, blogTitle) => {
-    try {
-      // Use backend API for approval
-      await approveBlog(blogId);
-      
-      // Also update status and visibility in Firestore (frontend operation)
-      const blogRef = doc(db, 'blogs', blogId);
-      await updateDoc(blogRef, {
-        isAdminAccepted: true,
-        status: 'approved',
-        visibility: true,
-      });
-      
-      toast.success(`Blog "${blogTitle}" approved successfully!`);
-      fetchBlogs(); // Refresh the list
-    } catch (error) {
-      console.error('Error approving blog:', error);
-      toast.error(error.message || 'Failed to approve blog');
-    }
-  };
-
-  const handleRejectClick = (blog) => {
-    setRejectConfirm({ isOpen: true, blog });
-  };
-
-  const handleReject = async () => {
-    const { blog } = rejectConfirm;
-    if (!blog) return;
-
-    const blogId = blog.id;
-    const blogTitle = blog.title;
-    
-    setRejectConfirm({ isOpen: false, blog: null });
-    
-    const toastId = toast.loading('Rejecting blog...');
-    
-    try {
-      // Use backend API to reject blog
-      await rejectBlog(blogId);
-      
-      // Update status in Firestore
-      const blogRef = doc(db, 'blogs', blogId);
-      await updateDoc(blogRef, {
-        status: 'rejected',
-        isAdminAccepted: false,
-      });
-      
-      toast.dismiss(toastId);
-      toast.success(`Blog "${blogTitle}" rejected successfully!`);
-      
-      // Log activity
-      if (firebaseUser) {
-        await logAdminActivity(
-          firebaseUser.uid,
-          firebaseUser.displayName || firebaseUser.email,
-          'rejected_blog',
-          `Rejected blog: "${blogTitle}"`,
-          { blogId, blogTitle }
-        );
-      }
-      
-      // Refresh the blog list
-      fetchBlogs();
-    } catch (error) {
-      toast.dismiss(toastId);
-      console.error('Error rejecting blog:', error);
-      toast.error(error.message || 'Failed to reject blog');
-    }
-  };
-
-  const handleToggleVisibility = async (blogId, blogTitle, currentVisibility) => {
-    try {
-      const blogRef = doc(db, 'blogs', blogId);
-      const newVisibility = !currentVisibility;
-      
-      await updateDoc(blogRef, {
-        visibility: newVisibility,
-      });
-      
-      // Log activity
-      if (firebaseUser) {
-        await logAdminActivity(
-          firebaseUser.uid,
-          firebaseUser.displayName || firebaseUser.email,
-          'toggled_blog_visibility',
-          `${newVisibility ? 'Showed' : 'Hid'} blog: "${blogTitle}"`,
-          { blogId, blogTitle, visibility: newVisibility }
-        );
-      }
-      
-      toast.success(`Blog "${blogTitle}" is now ${newVisibility ? 'visible' : 'hidden'}`);
-      fetchBlogs(); // Refresh the list
-    } catch (error) {
-      console.error('Error toggling visibility:', error);
-      toast.error('Failed to toggle visibility');
-    }
-  };
 
   const handleDeleteClick = (blog) => {
     setDeleteConfirm({ isOpen: true, blog });
@@ -209,7 +116,6 @@ const BlogsTable = () => {
     
     try {
       // Use backend API to delete blog and its images
-      // Backend handles Cloudinary deletion securely
       const result = await deleteBlog(blogId);
       
       toast.dismiss(toastId);
@@ -236,6 +142,46 @@ const BlogsTable = () => {
     }
   };
 
+  const handleEdit = (blog) => {
+    // TODO: Edit functionality not yet implemented
+    toast.error('Edit functionality is coming soon! For now, please create a new blog.', {
+      duration: 4000,
+    });
+    // navigate(`/staff/blog/edit/${blog.id}`);
+  };
+
+  const handleViewBlog = (blog) => {
+    const slug = createFullSlug(blog.title, blog.id);
+    navigate(`/staff/blog/${slug}`);
+  };
+
+  const handleFilterChange = (newStatus) => {
+    setFilterStatus(newStatus);
+    setIsDropdownOpen(false);
+  };
+
+  const getStatusLabel = (status) => {
+    switch(status) {
+      case 'pending': return 'Pending';
+      case 'approved': return 'Approved';
+      case 'rejected': return 'Rejected';
+      default: return 'All';
+    }
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    try {
+      return timestamp.toDate().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return 'N/A';
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -259,33 +205,14 @@ const BlogsTable = () => {
     },
   };
 
-  const handleFilterChange = (newStatus) => {
-    setFilterStatus(newStatus);
-    setIsDropdownOpen(false);
-  };
-
-  const getStatusLabel = (status) => {
-    switch(status) {
-      case 'pending': return 'Pending';
-      case 'approved': return 'Approved';
-      case 'rejected': return 'Rejected';
-      default: return 'All';
-    }
-  };
-
-  const handleViewBlog = (blog) => {
-    const slug = createFullSlug(blog.title, blog.id);
-    navigate(`/admin/blog/${slug}`);
-  };
-
   return (
     <>
       <Toaster position="top-right" />
       <div className="space-y-6 text-poppins">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Blog Review Section</h2>
-            <p className="text-gray-600">Review and manage submitted blog posts.</p>
+            <h2 className="text-2xl font-bold text-[#0A1524] mb-2">My Blogs</h2>
+            <p className="text-gray-600">View and manage your submitted blog posts.</p>
           </div>
           
           {/* Dropdown Filter */}
@@ -345,35 +272,131 @@ const BlogsTable = () => {
             <Loader2 className="animate-spin h-12 w-12 text-blue-600" />
           </div>
         ) : blogs.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg shadow">
             <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">
-              {filterStatus === 'pending' ? 'No blogs pending review' : 
+              {filterStatus === 'pending' ? 'No pending blogs' : 
                filterStatus === 'approved' ? 'No approved blogs' : 
                'No rejected blogs'}
+            </p>
+            <p className="text-gray-400 text-sm mt-2">
+              {filterStatus === 'pending' && 'Submit a new blog to get started'}
+              {filterStatus === 'approved' && 'Your approved blogs will appear here'}
+              {filterStatus === 'rejected' && 'Rejected blogs can be edited and resubmitted'}
             </p>
           </div>
         ) : (
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            {blogs.map((blog) => (
-              <motion.div key={blog.id} variants={tileVariants}>
-                <BlogTile
-                  blog={blog}
-                  onView={handleViewBlog}
-                  onApprove={filterStatus === 'pending' ? (blog) => handleApprove(blog.id, blog.title) : null}
-                  onReject={filterStatus === 'pending' ? handleRejectClick : null}
-                  onDelete={handleDeleteClick}
-                  onToggleVisibility={filterStatus === 'approved' ? (blog) => handleToggleVisibility(blog.id, blog.title, blog.visibility) : null}
-                  isPending={filterStatus === 'pending'}
-                  isRejected={filterStatus === 'rejected'}
-                />
-              </motion.div>
-            ))}
+            {blogs.map((blog) => {
+              const thumbnailUrl = blog.images?.[0]?.url || blog.images?.[0] || null;
+              const isVisible = blog.visibility !== false;
+              const opacity = filterStatus === 'approved' && !isVisible ? 'opacity-60' : 'opacity-100';
+
+              return (
+                <motion.div
+                  key={blog.id}
+                  variants={tileVariants}
+                  whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0, 0, 0, 0.15)" }}
+                  className={`bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 flex flex-col cursor-pointer ${opacity}`}
+                  onClick={() => handleViewBlog(blog)}
+                >
+                  {/* Thumbnail Image */}
+                  <div className="relative h-48 bg-gradient-to-br from-blue-50 to-gray-100 overflow-hidden">
+                    {thumbnailUrl ? (
+                      <img
+                        src={thumbnailUrl}
+                        alt={blog.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <FileText className="h-16 w-16 text-gray-300" />
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <div className={`absolute top-2 left-2 ${
+                      filterStatus === 'pending' ? 'bg-blue-600' : 
+                      filterStatus === 'rejected' ? 'bg-red-600' : 
+                      isVisible ? 'bg-green-600' : 'bg-gray-600'
+                    } bg-opacity-90 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1`}>
+                      {filterStatus === 'pending' && <span>⏳ Pending Review</span>}
+                      {filterStatus === 'rejected' && <span>❌ Rejected</span>}
+                      {filterStatus === 'approved' && isVisible && (
+                        <>
+                          <Eye className="h-3 w-3" />
+                          <span>Published</span>
+                        </>
+                      )}
+                      {filterStatus === 'approved' && !isVisible && (
+                        <>
+                          <EyeOff className="h-3 w-3" />
+                          <span>Hidden</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <h3 className="text-lg font-semibold text-[#0A1524] mb-2 line-clamp-2 min-h-14">
+                      {blog.title || 'Untitled Blog'}
+                    </h3>
+                    
+                    {/* Date */}
+                    <div className="flex items-center text-xs text-gray-500 mb-3">
+                      <span>Updated: {formatDate(blog.updatedAt)}</span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    {filterStatus === 'rejected' ? (
+                      <div className="flex items-center space-x-2 mt-auto">
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(blog);
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span>Edit</span>
+                        </motion.button>
+                        <motion.button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(blog);
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span>Delete</span>
+                        </motion.button>
+                      </div>
+                    ) : (
+                      <div className="mt-auto">
+                        <p className="text-xs text-gray-500 italic">
+                          {filterStatus === 'pending' && 'Waiting for admin approval'}
+                          {filterStatus === 'approved' && isVisible && 'Live on website'}
+                          {filterStatus === 'approved' && !isVisible && 'Hidden by admin'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
 
@@ -381,26 +404,28 @@ const BlogsTable = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
             <div className="text-2xl font-bold text-[#0A1524]">{blogs.length}</div>
             <div className="text-sm text-gray-600">{getStatusLabel(filterStatus)} Blogs</div>
           </div>
-          <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-            <div className="text-2xl font-bold text-[#0A1524]">
-              {new Set(blogs.map(blog => blog.authorName)).size}
-            </div>
-            <div className="text-sm text-gray-600">Active Authors</div>
-          </div>
           {filterStatus === 'approved' && (
-            <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-              <div className="text-2xl font-bold text-[#0A1524]">
-                {blogs.filter(blog => blog.visibility !== false).length}
+            <>
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-green-600">
+                  {blogs.filter(b => b.visibility !== false).length}
+                </div>
+                <div className="text-sm text-gray-600">Published</div>
               </div>
-              <div className="text-sm text-gray-600">Visible Blogs</div>
-            </div>
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-gray-600">
+                  {blogs.filter(b => b.visibility === false).length}
+                </div>
+                <div className="text-sm text-gray-600">Hidden</div>
+              </div>
+            </>
           )}
         </motion.div>
       </div>
@@ -416,20 +441,8 @@ const BlogsTable = () => {
         cancelText="Cancel"
         variant="danger"
       />
-
-      {/* Reject Confirmation Modal */}
-      <ConfirmModal
-        isOpen={rejectConfirm.isOpen}
-        onClose={() => setRejectConfirm({ isOpen: false, blog: null })}
-        onConfirm={handleReject}
-        title="Reject Blog"
-        message={`Are you sure you want to reject "${rejectConfirm.blog?.title}"? The staff member will be able to edit and resubmit this blog.`}
-        confirmText="Reject"
-        cancelText="Cancel"
-        variant="warning"
-      />
     </>
   );
 };
 
-export default BlogsTable;
+export default StaffBlogsList;

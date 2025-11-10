@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, PenSquare, LogOut, User, Menu, X } from "lucide-react";
+import { LayoutDashboard, PenSquare, List, LogOut, User, Menu, X } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/AuthProvider";
 import { usePortalPersistence } from "@/hooks/usePortalPersistence";
 import StaffDashboard from "./staff/StaffDashboard";
 import StaffBlogs from "./staff/StaffBlogs";
+import StaffBlogsList from "./staff/StaffBlogsList";
 import BrandedLoader from "@/components/shared/BrandedLoader";
 import AccessDenied from "@/components/shared/AccessDenied";
 import ConfirmModal from "@/components/shared/ConfirmModal";
@@ -41,6 +42,8 @@ const StaffPortal = () => {
         return <StaffDashboard />;
       case "blogs":
         return <StaffBlogs />;
+      case "blogs-list":
+        return <StaffBlogsList />;
       default:
         return <StaffDashboard />;
     }
@@ -69,8 +72,13 @@ const StaffPortal = () => {
     },
     {
       id: "blogs",
-      label: "My Blogs",
+      label: "Write Blog",
       icon: PenSquare,
+    },
+    {
+      id: "blogs-list",
+      label: "My Blogs List",
+      icon: List,
     },
   ];
 
