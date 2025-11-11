@@ -39,11 +39,12 @@ service cloud.firestore {
       // Only admins can delete testimonials
       allow delete: if isAdmin();
     }
-    // Blogs collection - admins can read/write, authenticated users can create
+    // Blogs collection - admins can read/write, authenticated users can create and update their own
     match /blogs/{blogId} {
       allow read: if true;
-      allow write: if isAdmin();
       allow create: if isAuthenticated();
+      allow update: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.userId);
+      allow delete: if isAdmin();
     }
 		
         match /gallery/{postId} {

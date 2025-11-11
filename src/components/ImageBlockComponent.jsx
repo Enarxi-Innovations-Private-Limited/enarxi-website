@@ -115,12 +115,14 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
       </NodeViewWrapper>
 
       {/* Edit Modal */}
-      <MultiImageUploadModal
-        isOpen={showEditModal}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        existingBlock={{ id, stagedItems: items }}
-      />
+      {showEditModal && (
+        <MultiImageUploadModal
+          isOpen={showEditModal}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          existingBlock={{ id, stagedItems: items }}
+        />
+      )}
     </>
   );
 };

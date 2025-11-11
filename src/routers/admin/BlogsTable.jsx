@@ -131,8 +131,8 @@ const BlogsTable = () => {
     const toastId = toast.loading('Rejecting blog...');
     
     try {
-      // Use backend API to reject blog
-      await rejectBlog(blogId);
+      // Use backend API to reject blog (pass empty string as reason)
+      await rejectBlog(blogId, '');
       
       // Update status in Firestore
       const blogRef = doc(db, 'blogs', blogId);

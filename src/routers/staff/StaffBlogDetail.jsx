@@ -252,11 +252,7 @@ const StaffBlogDetail = () => {
   }, [slug, user]);
 
   const handleEdit = () => {
-    // TODO: Edit functionality not yet implemented
-    toast.error('Edit functionality is coming soon! For now, please create a new blog.', {
-      duration: 4000,
-    });
-    // navigate(`/staff/blog/edit/${blog.id}`);
+    navigate(`/staff/blog/edit/${blog.id}`);
   };
 
   const handleDelete = async () => {

@@ -10,7 +10,7 @@ import CropImageModal from "@/components/CropImageModal";
 import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
 import { useMediaStaging } from "@/hooks/useMediaStaging";
-import { Youtube, Image, Eye } from "lucide-react";
+import { Youtube, Image, Eye, Link as LinkIcon } from "lucide-react";
 import BlogPreviewModal from "@/components/BlogPreviewModal";
 
 // --- Import all required Tiptap extensions for customization ---
@@ -100,6 +100,37 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
       >
         H2
       </button>
+      <button
+        type="button"
+        onClick={() => {
+          const { from, to } = editor.state.selection;
+          const selectedText = editor.state.doc.textBetween(from, to, '');
+          if (!selectedText) {
+            alert('Please select text first to convert it to a link');
+            return;
+          }
+          const url = prompt('Enter URL:', 'https://');
+          if (url) {
+            editor.chain().focus().setLink({ href: url }).run();
+          }
+        }}
+        className={editor.isActive("link") ? "is-active" : ""}
+        title="Add hyperlink"
+        style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+      >
+        <LinkIcon size={16} />
+        Link
+      </button>
+      {editor.isActive("link") && (
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().unsetLink().run()}
+          className="unlink-button"
+          title="Remove link"
+        >
+          Unlink
+        </button>
+      )}
       <button
         type="button"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -213,18 +244,18 @@ const StaffBlogs = () => {
         listItem: false,
         orderedList: false,
         bulletList: false,
-        link: false, // Disable link from StarterKit to avoid duplicate
+        link: false,
       }),
-      Heading.extend({
-        addKeyboardShortcuts() {
-          return { Enter: () => this.editor.commands.splitBlock() };
-        },
-      }),
+      Heading.configure({ levels: [1, 2] }),
       OrderedList,
       BulletList,
       ListItem.extend({ keepOnSplit: true }),
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
       }),
       ImageBlock,
       YouTubeEmbed,

@@ -54,6 +54,19 @@ export const ImageBlock = Node.create({
     ];
   },
 
+  addCommands() {
+    return {
+      setImageBlock:
+        (blockId) =>
+        ({ commands }) => {
+          return commands.insertContent({
+            type: this.name,
+            attrs: { id: blockId, images: [], stagedItems: [] },
+          });
+        },
+    };
+  },
+
   addNodeView() {
     return ReactNodeViewRenderer(ImageBlockComponent);
   },
