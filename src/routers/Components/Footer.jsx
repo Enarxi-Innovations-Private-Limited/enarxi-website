@@ -3,8 +3,8 @@ import enarxiLogoWhite from "../../assets/images/logo-white.svg";
 // import whatsapp from "../../assets/footer/whatsapp.png"
 import { useLocation } from "react-router-dom";
 
-
-import { Mail, Phone, Instagram, Facebook, Linkedin, MessageCircleMore } from "lucide-react";
+import Whatsapp from "@assets/images/Whatsapp.png"
+import { FaEnvelope, FaPhone, FaInstagram, FaFacebook, FaLinkedin, FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   const {pathname}  = useLocation();
@@ -86,54 +86,54 @@ const Footer = () => {
                   href="https://wa.me/+919600676639"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   aria-label="Contact us on WhatsApp"
                 >
                   {/* <img src={whatsapp} alt="whatsapp Logo" className="w-5 h-5 md:w-6 md:h-6" /> */}
-                  <MessageCircleMore className="w-5 h-5 md:w-6 md:h-6" />
+                  <FaWhatsapp alt="whatsapp Logo" className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
                 <a
                   href="https://mail.google.com/mail/?view=cm&fs=1&to=info@enarxi.com&su=Product%20%26%20Service%20Enquiry&body=Hi%20Enarxi%20Team,%0A%0AI%20have%20a%20question%20about%20your%20hardware%20and%20software%20solutions.%0A%0APlease%20let%20me%20know%20how%20we%20can%20proceed.%0A%0ABest%20regards,%0A"
                   rel="noopener noreferrer"
                   target="_blank"
-                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   aria-label="Compose an email to info@enarxi.com in Gmail"
                 >
-                  <Mail className="w-5 h-5 md:w-6 md:h-6" />
+                  <FaEnvelope className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
                 <a
                   href="tel:+919600676639"
-                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   aria-label="Call us"
                 >
-                  <Phone className="w-5 h-5 md:w-6 md:h-6" />
+                  <FaPhone className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
                 <a
                   href="https://www.instagram.com/enarxi/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   aria-label="Follow us on Instagram"
                 >
-                  <Instagram className="w-5 h-5 md:w-6 md:h-6" />
+                  <FaInstagram className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
                 <a
                   href="https://www.facebook.com/enarxitech/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   aria-label="Follow us on Facebook"
                 >
-                  <Facebook className="w-5 h-5 md:w-6 md:h-6" />
+                  <FaFacebook className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
                 <a
                   href="https://www.linkedin.com/company/enarxi/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-footer-foreground hover:text-footer-brand transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   aria-label="Connect with us on LinkedIn"
                 >
-                  <Linkedin className="w-5 h-5 md:w-6 md:h-6" />
+                  <FaLinkedin className="w-5 h-5 md:w-6 md:h-6" />
                 </a>
               </div>
             </div>

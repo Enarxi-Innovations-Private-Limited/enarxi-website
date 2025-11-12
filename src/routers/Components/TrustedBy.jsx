@@ -45,7 +45,7 @@ const TrustedBy = () => {
 
   return (
     <section className="mt-20 w-full flex flex-col justify-center items-center overflow-hidden">
-      <h2 className="text-center mb-6 text-40 text-oswald-bold pb-2 md:pb-4">Trusted By</h2>
+      <h2 className="text-center mb-6 text-4xl text-oswald-bold pb-2 md:pb-4">Trusted By</h2>
 
       <div className="w-full flex flex-col gap-10">
         {/* Row 1 - scrolls left */}

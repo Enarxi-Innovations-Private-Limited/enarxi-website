@@ -175,7 +175,9 @@ export default function Header() {
                 onClick={() => {
                   setShowMeetLoader(true);
                   setTimeout(() => {
-                    const eventTitle = encodeURIComponent("Meeting with Enarxi");
+                    const eventTitle = encodeURIComponent(
+                      "Meeting with Enarxi"
+                    );
                     const eventDetails = encodeURIComponent(
                       "Discuss collaboration and project details."
                     );
@@ -316,7 +318,10 @@ export default function Header() {
                       setValueAs: (v) => v.replace(/[^a-zA-Z\s]/g, "").trim(),
                     })}
                     onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+                      e.target.value = e.target.value.replace(
+                        /[^a-zA-Z\s]/g,
+                        ""
+                      );
                     }}
                     className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
                       errors.name
@@ -402,7 +407,8 @@ export default function Header() {
                   />
                   {errors.location && (
                     <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" /> {errors.location.message}
+                      <AlertCircle className="h-4 w-4" />{" "}
+                      {errors.location.message}
                     </p>
                   )}
                 </div>
@@ -431,7 +437,8 @@ export default function Header() {
                   </select>
                   {errors.service && (
                     <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" /> {errors.service.message}
+                      <AlertCircle className="h-4 w-4" />{" "}
+                      {errors.service.message}
                     </p>
                   )}
                 </div>
@@ -454,14 +461,19 @@ export default function Header() {
                     <option value="" className="text-slate-400">
                       Select a convenient time
                     </option>
-                    <option value="Weekdays after 6 PM">Weekdays after 6 PM</option>
-                    <option value="Weekend after 4 PM">Weekend after 4 PM</option>
+                    <option value="Weekdays after 6 PM">
+                      Weekdays after 6 PM
+                    </option>
+                    <option value="Weekend after 4 PM">
+                      Weekend after 4 PM
+                    </option>
                     <option value="Anytime this week">Anytime this week</option>
                   </select>
 
                   {errors.reachout && (
                     <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" /> {errors.reachout.message}
+                      <AlertCircle className="h-4 w-4" />{" "}
+                      {errors.reachout.message}
                     </p>
                   )}
                 </div>
@@ -520,8 +532,10 @@ export default function Header() {
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 text-white text-lg font-medium"
+              className="mt-4 text-white text-lg font-medium text-center"
             >
+              Thank you for scheduling a meeting with us!
+              <br />
               Redirecting to Google Meet...
             </motion.p>
           </motion.div>

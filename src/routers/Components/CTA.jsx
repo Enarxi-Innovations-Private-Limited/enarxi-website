@@ -12,6 +12,7 @@ const CTA = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [connectPopup, setConnectPopup] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showMeetLoader, setShowMeetLoader] = useState(false);
 
   const {
     register,
@@ -62,9 +63,8 @@ const CTA = () => {
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight md:whitespace-nowrap">
               Let's get started on your ideas 💡
             </h2>
-            <p className="mt-5 text-slate-300 leading-relaxed">
-              Stay home, stay safe, and save lives. Connect with us digitally —
-              we’re all ears!
+            <p className="mt-5 text-lg text-slate-300 leading-relaxed">
+              Let’s turn your ideas into reality. Connect with us and make it happen!
             </p>
           </div>
 
@@ -117,14 +117,18 @@ const CTA = () => {
               </button>
               <button
                 onClick={() => {
-                  const eventTitle = encodeURIComponent("Meeting with Enarxi");
-                  const eventDetails = encodeURIComponent("Discuss collaboration and project details.");
-                  const eventLocation = encodeURIComponent("Google Meet");
-                  const startTime = new Date().toISOString().replace(/-|:|\.\d\d\d/g, "");
-                  const endTime = new Date(Date.now() + 30 * 60000).toISOString().replace(/-|:|\.\d\d\d/g, "");
-                  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
-                  window.open(calendarUrl, "_blank");
-                  setConnectPopup(false);
+                  setShowMeetLoader(true);
+                  setTimeout(() => {
+                    const eventTitle = encodeURIComponent("Meeting with Enarxi");
+                    const eventDetails = encodeURIComponent("Discuss collaboration and project details.");
+                    const eventLocation = encodeURIComponent("Google Meet");
+                    const startTime = new Date().toISOString().replace(/-|:|\.\d\d\d/g, "");
+                    const endTime = new Date(Date.now() + 30 * 60000).toISOString().replace(/-|:|\.\d\d\d/g, "");
+                    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
+                    window.open(calendarUrl, "_blank");
+                    setShowMeetLoader(false);
+                    setConnectPopup(false);
+                  }, 1500);
                 }}
                 className="bg-[#09B8DC] text-white py-2 rounded-lg hover:bg-[#08A0C6] cursor-pointer"
               >
@@ -356,6 +360,33 @@ const CTA = () => {
                 </p>
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Meet Loader Animation */}
+      <AnimatePresence>
+        {showMeetLoader && (
+          <motion.div
+            className="fixed inset-0 flex flex-col items-center justify-center bg-black/50 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="w-16 h-16 border-4 border-[#09B8DC] border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            />
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 text-white text-lg font-medium text-center"
+            >
+              Thank you for scheduling a meeting with us!
+              <br />
+              Redirecting to Google Meet...
+            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>

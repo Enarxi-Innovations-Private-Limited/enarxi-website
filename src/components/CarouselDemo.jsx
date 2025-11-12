@@ -262,7 +262,7 @@ const TeamBentoGrid = () => {
                   ease: "easeOut",
                 }}
                 // 🧠 Here’s the fix:
-                className={`group relative overflow-hidden rounded-[28px] border border-white/5 bg-[#0f1115] transition-all duration-500 aspect-[4/5] shadow-[0_15px_40px_-25px_rgba(15,17,21,0.7)] hover:border-white/20`}
+                className={`cursor-pointer group relative overflow-hidden rounded-[28px] border border-white/5 bg-[#0f1115] transition-all duration-500 aspect-[4/5] shadow-[0_15px_40px_-25px_rgba(15,17,21,0.7)] hover:border-white/20`}
               >
                 <div className={`absolute inset-0 bg-linear-to-br ${accent} opacity-10`} />
 

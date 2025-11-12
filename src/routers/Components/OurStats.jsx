@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 
-import idea from "../../assets/images/idea.svg";
-import people from "../../assets/images/people.svg";
-import packageHands from "../../assets/images/package.svg";
-import computer from "../../assets/images/computer.svg";
+import idea from "../../assets/images/Projects.png";
+import people from "../../assets/images/Workshops.png";
+import packageHands from "../../assets/images/Participants.png";
+import computer from "../../assets/images/HappyClients.png";
 
 // ============================================================================
 // CONSTANTS
@@ -19,10 +19,10 @@ const ANIMATION_CONFIG = {
 };
 
 const STATS_DATA = [
-  { id: "projects", icon: idea, value: 500, label: "Projects Completed", suffix: "+" },
-  { id: "events", icon: people, value: 30, label: "Events & Workshops", suffix: "+" },
   { id: "participants", icon: packageHands, value: 2000, label: "Participants", suffix: "+" },
-  { id: "clients", icon: computer, value: 500, label: "Happy Clients", suffix: "+" },
+  { id: "events", icon: people, value: 30, label: "Events & Workshops", suffix: "+" },
+  { id: "projects", icon: idea, value: 500, label: "Projects Completed", suffix: "+" },
+  { id: "clients", icon: computer, value: 500, label: "Our Clients", suffix: "+" },
 ];
 
 // ============================================================================
