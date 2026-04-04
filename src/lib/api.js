@@ -1,7 +1,8 @@
-import { auth } from './firebase';
+import { auth } from "./firebase";
 
 // Backend API base URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 /**
  * Get the current user's ID token for authentication
@@ -9,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 async function getAuthToken() {
   const user = auth.currentUser;
   if (!user) {
-    throw new Error('User not authenticated');
+    throw new Error("User not authenticated");
   }
   return await user.getIdToken();
 }
@@ -20,10 +21,10 @@ async function getAuthToken() {
 async function apiRequest(endpoint, options = {}) {
   try {
     const token = await getAuthToken();
-    
+
     const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
       ...options.headers,
     };
 
@@ -35,12 +36,12 @@ async function apiRequest(endpoint, options = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'API request failed');
+      throw new Error(data.message || "API request failed");
     }
 
     return data;
   } catch (error) {
-    console.error('API request error:', error);
+    console.error("API request error:", error);
     throw error;
   }
 }
@@ -54,7 +55,7 @@ async function apiRequest(endpoint, options = {}) {
  */
 export async function deleteUser(uid) {
   return await apiRequest(`/users/${uid}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 }
 
@@ -63,7 +64,7 @@ export async function deleteUser(uid) {
  */
 export async function updateUserEmail(uid, email) {
   return await apiRequest(`/users/${uid}/email`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify({ email }),
   });
 }
@@ -73,7 +74,7 @@ export async function updateUserEmail(uid, email) {
  */
 export async function updateUserPassword(uid, password) {
   return await apiRequest(`/users/${uid}/password`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify({ password }),
   });
 }
@@ -83,7 +84,7 @@ export async function updateUserPassword(uid, password) {
  */
 export async function updateUserProfile(uid, data) {
   return await apiRequest(`/users/${uid}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(data),
   });
 }
@@ -96,8 +97,8 @@ export async function updateUserProfile(uid, data) {
  * Delete image from Cloudinary by public ID (Admin only)
  */
 export async function deleteCloudinaryImage(publicId) {
-  return await apiRequest('/cloudinary/delete', {
-    method: 'POST',
+  return await apiRequest("/cloudinary/delete", {
+    method: "POST",
     body: JSON.stringify({ publicId }),
   });
 }
@@ -106,8 +107,8 @@ export async function deleteCloudinaryImage(publicId) {
  * Delete image from Cloudinary by URL (Admin only)
  */
 export async function deleteCloudinaryImageByUrl(url) {
-  return await apiRequest('/cloudinary/delete-by-url', {
-    method: 'POST',
+  return await apiRequest("/cloudinary/delete-by-url", {
+    method: "POST",
     body: JSON.stringify({ url }),
   });
 }
@@ -116,8 +117,8 @@ export async function deleteCloudinaryImageByUrl(url) {
  * Delete multiple images from Cloudinary (Admin only)
  */
 export async function deleteMultipleCloudinaryImages(publicIds) {
-  return await apiRequest('/cloudinary/delete-multiple', {
-    method: 'POST',
+  return await apiRequest("/cloudinary/delete-multiple", {
+    method: "POST",
     body: JSON.stringify({ publicIds }),
   });
 }
@@ -131,7 +132,7 @@ export async function deleteMultipleCloudinaryImages(publicIds) {
  */
 export async function deleteBlog(blogId) {
   return await apiRequest(`/blogs/${blogId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 }
 
@@ -140,7 +141,7 @@ export async function deleteBlog(blogId) {
  */
 export async function approveBlog(blogId) {
   return await apiRequest(`/blogs/${blogId}/approve`, {
-    method: 'PUT',
+    method: "PUT",
   });
 }
 
@@ -149,8 +150,24 @@ export async function approveBlog(blogId) {
  */
 export async function rejectBlog(blogId, reason = null) {
   return await apiRequest(`/blogs/${blogId}/reject`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify({ reason }),
+  });
+}
+
+// Retry a blog (Admin only)
+export async function retryBlog(blogId, feedback) {
+  return await apiRequest(`/blogs/${blogId}/retry`, {
+    method: "PUT",
+    body: JSON.stringify({ feedback }),
+  });
+}
+
+//Edit the retry blog (Satff)
+export async function updateBlog(blogId, data) {
+  return await apiRequest(`/blogs/${blogId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
   });
 }
 
@@ -163,10 +180,10 @@ export async function rejectBlog(blogId, reason = null) {
  */
 export async function checkApiHealth() {
   try {
-    const response = await fetch(`${API_BASE_URL.replace('/api', '')}/health`);
+    const response = await fetch(`${API_BASE_URL.replace("/api", "")}/health`);
     return await response.json();
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error("Health check failed:", error);
     throw error;
   }
 }

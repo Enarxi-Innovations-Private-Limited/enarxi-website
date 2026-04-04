@@ -1,7 +1,5 @@
 import admin from 'firebase-admin';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL } from './env.js';
 
 // Validate required environment variables
 const requiredEnvVars = [
@@ -19,11 +17,14 @@ if (missingVars.length > 0) {
   );
 }
 
+const formattedKey = FIREBASE_PRIVATE_KEY ? FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : null;
+
 // Initialize Firebase Admin SDK
 const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  projectId: FIREBASE_PROJECT_ID,
+  // privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  privateKey:formattedKey,
+  clientEmail: FIREBASE_CLIENT_EMAIL,
 };
 
 try {

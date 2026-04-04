@@ -26,6 +26,7 @@ import AppLogger from "./AppLogger";
 import Logout from "./routers/admin/Logout";
 import ErrorBoundary from "./routers/ErrorBoundary";
 import OfflineIndicator from "./components/shared/OfflineIndicator";
+import StaffBlogEdit from "./routers/staff/StaffBlogEdit";
 
 // Scroll to top component
 function ScrollToTop() {
@@ -66,7 +67,7 @@ function App() {
       <AuthProvider>
         <Router>
           <ScrollToTop />
-          <AppLogger/>
+          <AppLogger />
           <OfflineIndicator />
           <Routes>
             <Route element={<MainLayout />}>
@@ -81,7 +82,7 @@ function App() {
               <Route path="/feedback" element={<FeedBack />} />
               <Route path="/users/:username" element={<UserProfile />} />
             </Route>
-        
+
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<ProtectedRoute><AdminPortal /></ProtectedRoute>} />
               <Route path="/admin/blog/:slug" element={<ProtectedRoute><AdminBlogDetail /></ProtectedRoute>} />
@@ -89,6 +90,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/stafflogin" element={<StaffLogin />} />
               <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
+              <Route path="/staff/blogs/:blogId/edit" element={<StaffProtectedRoute><StaffBlogEdit /></StaffProtectedRoute>} />
             </Route>
           </Routes>
         </Router>
