@@ -12,6 +12,7 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("for testing");
     const fetchBlogs = async () => {
       try {
         const q = query(
@@ -60,7 +61,7 @@ export default function Blog() {
           })
           // Filter to show only visible blogs (visibility === true OR visibility field doesn't exist)
           .filter((blog) => blog.visibility !== false);
-        
+
         setBlogs(blogData);
       } catch (error) {
         console.error("Error fetching blogs:", error);
@@ -109,7 +110,7 @@ export default function Blog() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                // transition={{ delay: (index % 4) * 0.1}}
+              // transition={{ delay: (index % 4) * 0.1}}
               >
                 <BlogSkeleton />
               </motion.div>

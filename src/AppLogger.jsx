@@ -10,7 +10,8 @@ export default function AppLogger() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log('Logged in user:', user.name || user.email || user.displayName);
+        // console.log('Logged in user:', user.name || user.email || user.displayName);
+        console.log("Admin or staff logged in")
       } else {
         console.log('No user logged in');
       }
