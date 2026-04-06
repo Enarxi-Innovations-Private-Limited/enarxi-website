@@ -143,13 +143,13 @@ const DashboardStats = () => {
   };
 
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 20,
-      scale: 0.9 
+      scale: 0.9
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -175,12 +175,12 @@ const DashboardStats = () => {
       >
         {stats.map((stat) => {
           const Icon = stat.icon;
-          
+
           return (
             <motion.div
               key={stat.id}
               variants={cardVariants}
-              whileHover={{ 
+              whileHover={{
                 scale: 1.05,
                 transition: { duration: 0.2 }
               }}
@@ -200,7 +200,7 @@ const DashboardStats = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="mt-4">
                 <div className="flex items-center justify-between text-sm text-poppins text-weight-300 text-gray-500">
                   <span className="flex items-center">
@@ -245,7 +245,7 @@ const DashboardStats = () => {
                   if (!timestamp) return 'Just now';
                   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
                   const seconds = Math.floor((new Date() - date) / 1000);
-                  
+
                   if (seconds < 60) return 'Just now';
                   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
                   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;

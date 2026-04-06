@@ -10,7 +10,6 @@ export default function ProtectedRoute({ children }) {
 
   if (user && !role) return <BrandedLoader />
 
-
   if (!user || role == 'employee' || role == "intern") return <Login />;
   if (role !== 'admin') {
     // User is logged in but does not have a staff role

@@ -5,14 +5,15 @@ import { useStaff } from '@/hooks/useStaff';
 import AddStaffModal from './AddStaffModal';
 import ModifyStaffModal from './ModifyStaffModal';
 import { toast, Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
-const StaffTable = () => {
+const StaffTable = ({ setActiveSection }) => {
   const { staff, loading, error, updateStaff } = useStaff();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
-
-
+  const navigate = useNavigate();
 
   // Debug: Log staff state changes
 
@@ -34,6 +35,15 @@ const StaffTable = () => {
 
   return (
     <>
+      {/* back logic button to admin dashboard */}
+      <button onClick={() => setActiveSection('dashboard')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium mb-4 cursor-pointer">
+
+        <ArrowLeft size={18} />
+        Back
+
+      </button>
+
+
       <Toaster position="top-right" />
       <div className="space-y-6 text-poppins">
         {/* Header */}
@@ -92,20 +102,18 @@ const StaffTable = () => {
                           </td>
                           <td className="px-4 py-3 text-gray-600">{member.email || "N/A"}</td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                              member.role === 'employee'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-purple-100 text-purple-800'
-                            }`}>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${member.role === 'employee'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                              }`}>
                               {member.role || "N/A"}
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                              member.status === 'active'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}>
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${member.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}>
                               {member.status || "inactive"}
                             </span>
                           </td>

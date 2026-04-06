@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStaff } from '@/hooks/useStaff';
 import { Loader2 } from 'lucide-react';
 
-export default function AddStaffModal({ isOpen, onClose }) {
+export default function AddStaffModal({ isOpen, onClose,onSuccess }) {
   const { createStaff, loading, error: apiError } = useStaff();
   const [formData, setFormData] = useState({
     name: '',
@@ -32,7 +32,19 @@ export default function AddStaffModal({ isOpen, onClose }) {
     }
 
     try {
+      console.log("creating a new staff hiting");
       await createStaff(formData);
+
+      //resetting the form data
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role: ''
+      })
+
+      onSuccess?.();
       onClose(); // Close modal on success
     } catch (err) {
       // The hook sets the error, we can display it or log it
@@ -111,7 +123,7 @@ export default function AddStaffModal({ isOpen, onClose }) {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center cursor-pointer"
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} 
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Add Staff
             </button>
           </div>

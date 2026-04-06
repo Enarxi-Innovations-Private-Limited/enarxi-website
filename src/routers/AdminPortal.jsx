@@ -54,15 +54,15 @@ const AdminPortal = () => {
       case "dashboard":
         return <DashboardStats setActiveSection={setActiveSection} />;
       case "staff":
-        return <StaffTable />;
+        return <StaffTable setActiveSection={setActiveSection} />;
       case "team":
-        return <TeamTable />;
+        return <TeamTable setActiveSection={setActiveSection} />;
       case "blogs":
-        return <BlogsTable />;
+        return <BlogsTable setActiveSection={setActiveSection} />;
       case "reviews":
-        return <ReviewsTable />;
+        return <ReviewsTable setActiveSection={setActiveSection} />;
       case "gallery":
-        return <GalleryTable />;
+        return <GalleryTable setActiveSection={setActiveSection} />;
       default:
         return <DashboardStats />;
     }

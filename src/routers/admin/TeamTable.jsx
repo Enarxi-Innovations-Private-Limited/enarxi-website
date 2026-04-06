@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit3, Trash2, Eye, EyeOff, GripVertical, Loader2 } from 'lucide-react';
-import { 
-  collection, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  doc, 
-  updateDoc, 
+import { Plus, Edit3, Trash2, Eye, EyeOff, GripVertical, Loader2,ArrowLeft } from 'lucide-react';
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
   deleteDoc,
   serverTimestamp,
   writeBatch,
@@ -147,7 +147,7 @@ const SortableRow = ({ member, onEdit, onDelete, onToggleVisibility }) => {
   );
 };
 
-const TeamTable = () => {
+const TeamTable = ({setActiveSection}) => {
   const { firebaseUser } = useAuth();
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -165,7 +165,7 @@ const TeamTable = () => {
   // Real-time listener
   useEffect(() => {
     const q = query(collection(db, 'teamMembers'), orderBy('order', 'asc'));
-    
+
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
@@ -230,7 +230,7 @@ const TeamTable = () => {
         visibility: !member.visibility,
         updatedAt: serverTimestamp(),
       });
-      
+
       // Log activity
       if (firebaseUser) {
         await logAdminActivity(
@@ -241,7 +241,7 @@ const TeamTable = () => {
           { memberId: member.id, memberName: member.name, visibility: !member.visibility }
         );
       }
-      
+
       toast.success(
         `Team member ${!member.visibility ? 'shown' : 'hidden'} successfully`
       );
@@ -340,6 +340,14 @@ const TeamTable = () => {
 
   return (
     <>
+      {/* back logic button to admin dashboard */}
+      <button onClick={() => setActiveSection('dashboard')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium mb-4 cursor-pointer">
+
+        <ArrowLeft size={18} />
+        Back
+
+      </button>
+
       <Toaster position="top-right" />
       <div className="space-y-6 text-poppins">
         <div className="flex items-center justify-between">

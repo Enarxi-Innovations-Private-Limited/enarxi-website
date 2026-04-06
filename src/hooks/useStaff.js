@@ -1,12 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { db, secondaryAuth, auth } from "@/lib/firebase"; // Use secondaryAuth for creation
 import {
   collection,
-  getDocs,
   doc,
   setDoc,
   updateDoc,
-  deleteDoc,
   onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
@@ -39,6 +37,7 @@ export const useStaff = () => {
   //   }
   // }, []);
 
+
   useEffect(() => {
     setLoading(true);
     const unsubscribe = onSnapshot(
@@ -65,6 +64,7 @@ export const useStaff = () => {
   }, []);
 
   const createStaff = async (staffData) => {
+    console.log("Started to create a new staff")
     const { email, password, name, role } = staffData;
     setLoading(true);
     setError(null);
@@ -77,6 +77,7 @@ export const useStaff = () => {
         password
       );
       const newUser = userCredential.user;
+      console.log("new user created");
 
       await updateProfile(newUser, {
         displayName: name,
