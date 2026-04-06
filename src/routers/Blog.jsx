@@ -12,7 +12,6 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("for testing");
     const fetchBlogs = async () => {
       try {
         const q = query(

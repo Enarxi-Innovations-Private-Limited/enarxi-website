@@ -42,8 +42,8 @@ const AdminPortal = () => {
 
   // Handle navigation from quick actions
   useEffect(() => {
-    if (location.state?.section) {
-      setActiveSection(location.state.section);
+    if (location.state?.activeTab) {
+      setActiveSection(location.state.activeTab);
       // Clear the state after using it
       window.history.replaceState({}, document.title);
     }

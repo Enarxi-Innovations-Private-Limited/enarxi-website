@@ -137,6 +137,12 @@ const AdminBlogDetail = () => {
     fetchBlog();
   }, [slug]);
 
+
+  const handleNavigate = () => {
+    setTimeout(() => {
+      navigate('/admin', { state: { activeTab: 'blogs' } })
+    }, 1500);
+  }
   const handleApprove = async () => {
     try {
       await approveBlog(blog.id);
@@ -144,6 +150,8 @@ const AdminBlogDetail = () => {
       await updateDoc(blogRef, { isAdminAccepted: true, visibility: true });
       toast.success(`Blog "${blog.title}" approved successfully!`);
       setBlog(prev => ({ ...prev, isAdminAccepted: true, visibility: true, status: 'approved' }));
+
+      handleNavigate(); //after aproving back to blogs list
     } catch (error) {
       console.error('Error approving blog:', error);
       toast.error(error.message || 'Failed to approve blog');
@@ -171,7 +179,7 @@ const AdminBlogDetail = () => {
       toast.dismiss(toastId);
       if (result.success) {
         toast.success(`Blog "${blog.title}" deleted successfully!`);
-        setTimeout(() => navigate('/admin'), 1500);
+        handleNavigate(); //after deleting back to blogs list
       }
     } catch (error) {
       toast.dismiss(toastId);
@@ -189,6 +197,8 @@ const AdminBlogDetail = () => {
       toast.dismiss(toastId);
       toast.success(`Blog sent back to ${blog.authorName} for revision.`);
       setBlog(prev => ({ ...prev, status: 'retry' }));
+
+      handleNavigate(); //after retry naviagate to the blogs
     } catch (error) {
       toast.dismiss(toastId);
       console.error('Error sending retry:', error);
@@ -261,7 +271,7 @@ const AdminBlogDetail = () => {
             <motion.button
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate('/admin', { state: { activeTab: 'blogs' } })}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-medium"
             >
               <ArrowLeft size={20} />
@@ -297,8 +307,8 @@ const AdminBlogDetail = () => {
                 <button
                   onClick={handleToggleVisibility}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${blog.visibility
-                      ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                 >
                   {blog.visibility ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -327,14 +337,14 @@ const AdminBlogDetail = () => {
             transition={{ delay: 0.1 }}
             className="bg-white rounded-2xl shadow-lg overflow-hidden"
           >
-            <div className="w-full aspect-video overflow-hidden bg-gray-100">
+            {/* <div className="w-full aspect-video overflow-hidden bg-gray-100">
               <img
                 src={blog.img}
                 alt={blog.title}
                 className="w-full h-full object-cover"
                 onError={(e) => { e.target.src = '/blogs/default.jpg'; }}
               />
-            </div>
+            </div> */}
 
             <div className="p-8">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-oswald">
@@ -365,7 +375,7 @@ const AdminBlogDetail = () => {
                 dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
               />
 
-              {blog.ytlinks && blog.ytlinks.length > 0 && (
+              {/* {blog.ytlinks && blog.ytlinks.length > 0 && (
                 <div className="mt-8 p-4 bg-blue-50 rounded-lg">
                   <h3 className="text-sm font-semibold text-blue-900 mb-2">
                     YouTube Videos in Content ({blog.ytlinks.length})
@@ -378,7 +388,7 @@ const AdminBlogDetail = () => {
                     ))}
                   </ul>
                 </div>
-              )}
+              )} */}
 
               {blog.images && blog.images.length > 1 && (
                 <div className="mt-12">

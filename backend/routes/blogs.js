@@ -206,6 +206,7 @@ router.put(
  * @desc    Reject a blog (Admin only)
  * @access  Private (Admin)
  */
+
 router.put(
   "/:blogId/reject",
   authenticateUser,
