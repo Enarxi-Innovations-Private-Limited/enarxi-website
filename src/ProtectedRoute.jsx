@@ -3,11 +3,15 @@ import { useAuth } from "./AuthProvider";
 import Login from "./routers/admin/Login";
 import BrandedLoader from "@components/shared/BrandedLoader";
 
-export default function ProtectedRoute({ children}) {
+export default function ProtectedRoute({ children }) {
   const { user, role, loading } = useAuth();
 
   if (loading) return <BrandedLoader />;
-  if (!user || role =='employee' || role=="intern") return <Login />;
+
+  if (user && !role) return <BrandedLoader />
+
+
+  if (!user || role == 'employee' || role == "intern") return <Login />;
   if (role !== 'admin') {
     // User is logged in but does not have a staff role
     return (
