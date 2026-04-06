@@ -92,7 +92,7 @@ const DashboardStats = () => {
       color: 'bg-blue-500',
       textColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      action: () => navigate('/admin', { state: { section: 'blogs' } }),
+      action: () => navigate('/admin', { state: { activeTab: 'blogs' } }),
     },
     {
       id: 2,
@@ -102,7 +102,7 @@ const DashboardStats = () => {
       color: 'bg-yellow-500',
       textColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
-      action: () => navigate('/admin', { state: { section: 'reviews' } }),
+      action: () => navigate('/admin', { state: { activeTab: 'reviews' } }),
     },
     {
       id: 3,
@@ -112,7 +112,7 @@ const DashboardStats = () => {
       color: 'bg-green-500',
       textColor: 'text-green-600',
       bgColor: 'bg-green-50',
-      action: () => navigate('/admin', { state: { section: 'staff' } }),
+      action: () => navigate('/admin', { state: { activeTab: 'staff' } }),
     },
   ];
 
@@ -127,13 +127,13 @@ const DashboardStats = () => {
   };
 
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 20,
-      scale: 0.9 
+      scale: 0.9
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -159,12 +159,12 @@ const DashboardStats = () => {
       >
         {stats.map((stat) => {
           const Icon = stat.icon;
-          
+
           return (
             <motion.div
               key={stat.id}
               variants={cardVariants}
-              whileHover={{ 
+              whileHover={{
                 scale: 1.05,
                 transition: { duration: 0.2 }
               }}
@@ -184,7 +184,7 @@ const DashboardStats = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="mt-4">
                 <div className="flex items-center justify-between text-sm text-poppins text-weight-300 text-gray-500">
                   <span className="flex items-center">
@@ -229,7 +229,7 @@ const DashboardStats = () => {
                   if (!timestamp) return 'Just now';
                   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
                   const seconds = Math.floor((new Date() - date) / 1000);
-                  
+
                   if (seconds < 60) return 'Just now';
                   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
                   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -262,7 +262,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'blogs' } })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'blogs' } })}
               className="w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -276,7 +276,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'reviews' } })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'reviews' } })}
               className="w-full text-left p-3 rounded-lg bg-yellow-50 hover:bg-yellow-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -290,7 +290,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'staff' } })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'staff' } })}
               className="w-full text-left p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -304,7 +304,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'team' } })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'team' } })}
               className="w-full text-left p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">

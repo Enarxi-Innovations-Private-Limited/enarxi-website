@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { db, secondaryAuth, auth } from "@/lib/firebase"; // Use secondaryAuth for creation
 import {
   collection,
@@ -8,6 +8,7 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  onSnapshot
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { logAdminActivity } from "@/utils/adminActivityLogger";
@@ -17,28 +18,59 @@ export const useStaff = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchStaff = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const querySnapshot = await getDocs(collection(db, "users"));
+  // const fetchStaff = useCallback(async () => {
+  //   console.log("Started to fetch staff");
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const querySnapshot = await getDocs(collection(db, "users"));
+  //     const allUsers = querySnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+
+  //     const staffList = allUsers.filter((user) => user.role === 'employee' || user.role === 'intern');
+
+  //     setStaff(staffList);
+  //   } catch (err) {
+  //     console.error("❌ Error fetching staff:", err);
+  //     setError("Failed to fetch staff data.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+
+
+  //refersh the staff list after added a new staff
+
+  // remove fetchStaff with getDocs entirely and replace useEffect with this:
+useEffect(() => {
+  setLoading(true);
+  const unsubscribe = onSnapshot(
+    collection(db, "users"),
+    (querySnapshot) => {
       const allUsers = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
-      const staffList = allUsers.filter((user) => user.role === 'employee' || user.role === 'intern');
-
+      const staffList = allUsers.filter(
+        (user) => user.role === "employee" || user.role === "intern"
+      );
       setStaff(staffList);
-    } catch (err) {
+      setLoading(false);
+    },
+    (err) => {
       console.error("❌ Error fetching staff:", err);
       setError("Failed to fetch staff data.");
-    } finally {
       setLoading(false);
     }
-  }, []);
+  );
+
+  return () => unsubscribe(); // cleanup on unmount
+}, []);
 
   const createStaff = async (staffData) => {
+    console.log("Started to create a new staff")
     const { email, password, name, role } = staffData;
     setLoading(true);
     setError(null);
@@ -51,6 +83,7 @@ export const useStaff = () => {
         password
       );
       const newUser = userCredential.user;
+      console.log("new user created");
 
       await updateProfile(newUser, {
         displayName: name,
@@ -80,7 +113,7 @@ export const useStaff = () => {
       }
 
       // Refresh the staff list to show the new member
-      fetchStaff();
+      // fetchStaff();
     } catch (err) {
       console.error("Error creating staff:", err);
       let friendlyError = "Failed to create staff member.";
@@ -126,5 +159,5 @@ export const useStaff = () => {
     }
   };
 
-  return { staff, loading, error, fetchStaff, createStaff, updateStaff };
+  return { staff, loading, error, createStaff, updateStaff };
 };

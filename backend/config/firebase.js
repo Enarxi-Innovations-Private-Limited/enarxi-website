@@ -19,6 +19,15 @@ if (missingVars.length > 0) {
   );
 }
 
+
+const logData = () => {
+  console.log(process.env.FIREBASE_PROJECT_ID);
+  console.log(process.env.FIREBASE_PRIVATE_KEY);
+  console.log(process.env.FIREBASE_CLIENT_EMAIL);
+}
+
+logData();
+
 // Initialize Firebase Admin SDK
 const serviceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
@@ -32,7 +41,7 @@ try {
     projectId: process.env.FIREBASE_PROJECT_ID,
     databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
   });
-  
+
   console.log('✅ Firebase Admin SDK initialized successfully');
   console.log('📊 Project ID:', process.env.FIREBASE_PROJECT_ID);
 } catch (error) {

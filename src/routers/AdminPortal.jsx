@@ -42,8 +42,8 @@ const AdminPortal = () => {
 
   // Handle navigation from quick actions
   useEffect(() => {
-    if (location.state?.section) {
-      setActiveSection(location.state.section);
+    if (location.state?.activeTab) {
+      setActiveSection(location.state.activeTab);
       // Clear the state after using it
       window.history.replaceState({}, document.title);
     }
@@ -54,15 +54,15 @@ const AdminPortal = () => {
       case "dashboard":
         return <DashboardStats />;
       case "staff":
-        return <StaffTable />;
+        return <StaffTable setActiveSection={setActiveSection} />;
       case "team":
-        return <TeamTable />;
+        return <TeamTable setActiveSection={setActiveSection} />;
       case "blogs":
-        return <BlogsTable />;
+        return <BlogsTable setActiveSection={setActiveSection} />;
       case "reviews":
-        return <ReviewsTable />;
+        return <ReviewsTable setActiveSection={setActiveSection} />;
       case "gallery":
-        return <GalleryTable />;
+        return <GalleryTable setActiveSection={setActiveSection} />;
       default:
         return <DashboardStats />;
     }

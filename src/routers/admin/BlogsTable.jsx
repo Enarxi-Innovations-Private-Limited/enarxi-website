@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, Loader2, ChevronDown } from 'lucide-react';
+import { FileText, Loader2, ChevronDown, ArrowLeft } from 'lucide-react';
 import { collection, getDocs, query, where, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast, Toaster } from 'react-hot-toast';
@@ -12,7 +12,7 @@ import BlogTile from './blogs/BlogTile';
 import ConfirmModal from '@/components/shared/ConfirmModal';
 import { createFullSlug } from '@/utils/slugUtils';
 
-const BlogsTable = () => {
+const BlogsTable = ({setActiveSection}) => {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
   const [blogs, setBlogs] = useState([]);
@@ -38,7 +38,7 @@ const BlogsTable = () => {
       setBlogs(blogData);
     } catch (error) {
       console.error('Error fetching blogs:', error);
-      
+
       // Check if it's an index error
       if (error.code === 'failed-precondition' || error.message.includes('index')) {
         toast.error(
@@ -49,7 +49,7 @@ const BlogsTable = () => {
       } else {
         toast.error('Failed to load blogs. Please try again.');
       }
-      
+
       // Set empty array so UI doesn't break
       setBlogs([]);
     } finally {
@@ -77,14 +77,14 @@ const BlogsTable = () => {
     try {
       // Use backend API for approval
       await approveBlog(blogId);
-      
+
       // Also update visibility in Firestore (frontend operation)
       const blogRef = doc(db, 'blogs', blogId);
       await updateDoc(blogRef, {
         isAdminAccepted: true,
         visibility: true,
       });
-      
+
       toast.success(`Blog "${blogTitle}" approved successfully!`);
       fetchBlogs(); // Refresh the list
     } catch (error) {
@@ -97,11 +97,11 @@ const BlogsTable = () => {
     try {
       const blogRef = doc(db, 'blogs', blogId);
       const newVisibility = !currentVisibility;
-      
+
       await updateDoc(blogRef, {
         visibility: newVisibility,
       });
-      
+
       // Log activity
       if (firebaseUser) {
         await logAdminActivity(
@@ -112,7 +112,7 @@ const BlogsTable = () => {
           { blogId, blogTitle, visibility: newVisibility }
         );
       }
-      
+
       toast.success(`Blog "${blogTitle}" is now ${newVisibility ? 'visible' : 'hidden'}`);
       fetchBlogs(); // Refresh the list
     } catch (error) {
@@ -131,21 +131,21 @@ const BlogsTable = () => {
 
     const blogId = blog.id;
     const blogTitle = blog.title;
-    
+
     setDeleteConfirm({ isOpen: false, blog: null });
-    
+
     const toastId = toast.loading('Deleting blog and images...');
-    
+
     try {
       // Use backend API to delete blog and its images
       // Backend handles Cloudinary deletion securely
       const result = await deleteBlog(blogId);
-      
+
       toast.dismiss(toastId);
-      
+
       if (result.success) {
         const { imagesDeleted, imagesFailed } = result.data;
-        
+
         if (imagesFailed > 0) {
           toast.success(
             `Blog "${blogTitle}" deleted! ${imagesDeleted} image(s) deleted, ${imagesFailed} failed.`,
@@ -154,7 +154,7 @@ const BlogsTable = () => {
         } else {
           toast.success(`Blog "${blogTitle}" and all images deleted successfully!`);
         }
-        
+
         // Refresh the blog list
         fetchBlogs();
       }
@@ -177,8 +177,8 @@ const BlogsTable = () => {
 
   const tileVariants = {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
       transition: {
         type: "spring",
@@ -200,6 +200,15 @@ const BlogsTable = () => {
 
   return (
     <>
+
+      {/* back logic button to admin dashboard */}
+      <button onClick={() => setActiveSection('dashboard')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium mb-4 cursor-pointer">
+
+        <ArrowLeft size={18} />
+        Back
+
+      </button>
+
       <Toaster position="top-right" />
       <div className="space-y-6 text-poppins">
         <div className="flex items-center justify-between">
@@ -207,7 +216,7 @@ const BlogsTable = () => {
             <h2 className="text-2xl font-bold text-[#0A1524] mb-2">Blog Review Section</h2>
             <p className="text-gray-600">Review and manage submitted blog posts.</p>
           </div>
-          
+
           {/* Dropdown Filter */}
           <div className="relative dropdown-container">
             <motion.button
@@ -217,8 +226,8 @@ const BlogsTable = () => {
               className="flex items-center space-x-2 bg-white border-2 border-gray-300 hover:border-blue-500 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 cursor-pointer"
             >
               <span className="capitalize">{filterStatus}</span>
-              <ChevronDown 
-                className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
               />
             </motion.button>
 
@@ -233,17 +242,15 @@ const BlogsTable = () => {
               >
                 <button
                   onClick={() => handleFilterChange('pending')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
-                    filterStatus === 'pending' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${filterStatus === 'pending' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                    }`}
                 >
                   Pending
                 </button>
                 <button
                   onClick={() => handleFilterChange('approved')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
-                    filterStatus === 'approved' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${filterStatus === 'approved' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                    }`}
                 >
                   Approved
                 </button>

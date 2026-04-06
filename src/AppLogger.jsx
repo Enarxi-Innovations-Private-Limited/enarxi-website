@@ -6,7 +6,7 @@ import { useAuth } from './AuthProvider';
 
 export default function AppLogger() {
   const { firbaseUser,user } = useAuth();
-  console.log("user object: ",user)
+  // console.log("user object: ",user)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
