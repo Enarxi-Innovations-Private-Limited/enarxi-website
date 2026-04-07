@@ -52,7 +52,7 @@ export const requireAdmin = async (req, res, next) => {
       });
     }
 
-    console.log('🔍 Checking admin status for user:', req.user.uid);
+    // console.log('🔍 Checking admin status for user:', req.user.uid);
 
     // Get user document from Firestore using Admin SDK (bypasses security rules)
     const userDoc = await db.collection('users').doc(req.user.uid).get();
@@ -67,7 +67,7 @@ export const requireAdmin = async (req, res, next) => {
     }
 
     const userData = userDoc.data();
-    console.log('✅ User data retrieved:', { uid: req.user.uid, role: userData.role });
+    // console.log('✅ User data retrieved:', { uid: req.user.uid, role: userData.role });
 
     if (userData.role !== 'admin') {
       console.error('❌ User is not admin:', { uid: req.user.uid, role: userData.role });

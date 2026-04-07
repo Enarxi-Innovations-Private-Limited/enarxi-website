@@ -79,6 +79,9 @@ const AdminBlogDetail = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [retryModal, setRetryModal] = useState(false); // ← new
 
+
+
+
   useEffect(() => {
     const fetchBlog = async () => {
       try {

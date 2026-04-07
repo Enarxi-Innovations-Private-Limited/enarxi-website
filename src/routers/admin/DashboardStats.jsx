@@ -92,17 +92,17 @@ const DashboardStats = () => {
       color: 'bg-blue-500',
       textColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      action: () => navigate('/admin', { state: { section: 'blogs' } }),
+      action: () => navigate('/admin', { state: {activeTab:'blogs'} }),
     },
     {
-      id: 2,
+      id: 2,  
       title: 'Pending Customer Reviews',
       value: pendingReviews,
       icon: Star,
       color: 'bg-yellow-500',
       textColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
-      action: () => navigate('/admin', { state: { section: 'reviews' } }),
+      action: () => navigate('/admin', { state: {activeTab:'reviews'} }),
     },
     {
       id: 3,
@@ -112,7 +112,7 @@ const DashboardStats = () => {
       color: 'bg-green-500',
       textColor: 'text-green-600',
       bgColor: 'bg-green-50',
-      action: () => navigate('/admin', { state: { section: 'staff' } }),
+      action: () => navigate('/admin', { state: {activeTab:'staff'} }),
     },
   ];
 
@@ -262,7 +262,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'blogs' } })}
+              onClick={() => navigate('/admin', { state: {activeTab: 'blogs'} })}
               className="w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -276,7 +276,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'reviews' } })}
+              onClick={() => navigate('/admin', { state: {activeTab: 'reviews'} })}
               className="w-full text-left p-3 rounded-lg bg-yellow-50 hover:bg-yellow-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -290,7 +290,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'staff' } })}
+              onClick={() => navigate('/admin', { state: {activeTab: 'staff'} })}
               className="w-full text-left p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -304,7 +304,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: { section: 'team' } })}
+              onClick={() => navigate('/admin', { state: {activeTab: 'team'} })}
               className="w-full text-left p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">

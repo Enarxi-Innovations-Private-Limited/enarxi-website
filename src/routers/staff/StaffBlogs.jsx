@@ -171,7 +171,7 @@ const AuthorDetails = memo(({ formData, onChange }) => {
           required
           readOnly
         />
-      </div>user
+      </div>
     </div>
   );
 });

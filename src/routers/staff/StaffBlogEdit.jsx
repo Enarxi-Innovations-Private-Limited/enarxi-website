@@ -141,6 +141,8 @@ const StaffBlogEdit = () => {
         }
 
         setRetryFeedback(data.retryFeedback || "");
+        console.log("content:", data.content);
+        console.log("ytlinks:", data.ytlinks);
         setFormData({
           authorName: data.authorName || firebaseUser?.name || user?.email || "",
           authorRole: data.authorRole || role || "",

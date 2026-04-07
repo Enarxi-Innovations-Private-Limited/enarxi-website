@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { db, secondaryAuth, auth } from "@/lib/firebase"; // Use secondaryAuth for creation
 import {
   collection,
@@ -7,6 +7,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
@@ -17,25 +18,50 @@ export const useStaff = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchStaff = useCallback(async () => {
+  // const fetchStaff = useCallback(async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const querySnapshot = await getDocs(collection(db, "users"));
+  //     const allUsers = querySnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+
+  //     const staffList = allUsers.filter((user) => user.role === 'employee' || user.role === 'intern');
+
+  //     setStaff(staffList);
+  //   } catch (err) {
+  //     console.error("❌ Error fetching staff:", err);
+  //     setError("Failed to fetch staff data.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+
+  useEffect(() => {
     setLoading(true);
-    setError(null);
-    try {
-      const querySnapshot = await getDocs(collection(db, "users"));
-      const allUsers = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const unsubscribe = onSnapshot(
+      collection(db, "users"),
+      (querySnapshot) => {
+        const allUsers = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const staffList = allUsers.filter(
+          (user) => user.role === "employee" || user.role === "intern"
+        );
+        setStaff(staffList);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("❌ Error fetching staff:", err);
+        setError("Failed to fetch staff data.");
+        setLoading(false);
+      }
+    );
 
-      const staffList = allUsers.filter((user) => user.role === 'employee' || user.role === 'intern');
-
-      setStaff(staffList);
-    } catch (err) {
-      console.error("❌ Error fetching staff:", err);
-      setError("Failed to fetch staff data.");
-    } finally {
-      setLoading(false);
-    }
+    return () => unsubscribe();
   }, []);
 
   const createStaff = async (staffData) => {
@@ -80,7 +106,7 @@ export const useStaff = () => {
       }
 
       // Refresh the staff list to show the new member
-      fetchStaff();
+      // fetchStaff();
     } catch (err) {
       console.error("Error creating staff:", err);
       let friendlyError = "Failed to create staff member.";
@@ -117,7 +143,7 @@ export const useStaff = () => {
       }
 
       // Refresh the local state to show the update immediately
-      await fetchStaff();
+      // await fetchStaff();
     } catch (err) {
       console.error("Error updating staff:", err);
       setError(`Failed to update staff: ${err.message}`);
@@ -126,5 +152,5 @@ export const useStaff = () => {
     }
   };
 
-  return { staff, loading, error, fetchStaff, createStaff, updateStaff };
+  return { staff, loading, error, createStaff, updateStaff };
 };

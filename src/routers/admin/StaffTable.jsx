@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Edit3, User, Loader2, Plus } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
@@ -7,14 +7,12 @@ import ModifyStaffModal from './ModifyStaffModal';
 import { toast, Toaster } from 'react-hot-toast';
 
 const StaffTable = () => {
-  const { staff, loading, error, fetchStaff, updateStaff } = useStaff();
+  const { staff, loading, error, updateStaff } = useStaff();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
 
-  useEffect(() => {
-    fetchStaff();
-  }, [fetchStaff]);
+
 
   // Debug: Log staff state changes
 
