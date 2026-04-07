@@ -19,6 +19,9 @@ const AdminBlogDetail = () => {
   const [error, setError] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
+
+
+
   useEffect(() => {
     const fetchBlog = async () => {
       try {

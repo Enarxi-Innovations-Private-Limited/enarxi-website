@@ -7,8 +7,8 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  onSnapshot,
   serverTimestamp,
-  onSnapshot
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { logAdminActivity } from "@/utils/adminActivityLogger";
@@ -19,7 +19,6 @@ export const useStaff = () => {
   const [error, setError] = useState(null);
 
   // const fetchStaff = useCallback(async () => {
-  //   console.log("Started to fetch staff");
   //   setLoading(true);
   //   setError(null);
   //   try {
@@ -40,37 +39,32 @@ export const useStaff = () => {
   //   }
   // }, []);
 
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = onSnapshot(
+      collection(db, "users"),
+      (querySnapshot) => {
+        const allUsers = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const staffList = allUsers.filter(
+          (user) => user.role === "employee" || user.role === "intern"
+        );
+        setStaff(staffList);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("❌ Error fetching staff:", err);
+        setError("Failed to fetch staff data.");
+        setLoading(false);
+      }
+    );
 
-  //refersh the staff list after added a new staff
-
-  // remove fetchStaff with getDocs entirely and replace useEffect with this:
-useEffect(() => {
-  setLoading(true);
-  const unsubscribe = onSnapshot(
-    collection(db, "users"),
-    (querySnapshot) => {
-      const allUsers = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      const staffList = allUsers.filter(
-        (user) => user.role === "employee" || user.role === "intern"
-      );
-      setStaff(staffList);
-      setLoading(false);
-    },
-    (err) => {
-      console.error("❌ Error fetching staff:", err);
-      setError("Failed to fetch staff data.");
-      setLoading(false);
-    }
-  );
-
-  return () => unsubscribe(); // cleanup on unmount
-}, []);
+    return () => unsubscribe();
+  }, []);
 
   const createStaff = async (staffData) => {
-    console.log("Started to create a new staff")
     const { email, password, name, role } = staffData;
     setLoading(true);
     setError(null);
@@ -83,7 +77,6 @@ useEffect(() => {
         password
       );
       const newUser = userCredential.user;
-      console.log("new user created");
 
       await updateProfile(newUser, {
         displayName: name,
@@ -150,7 +143,7 @@ useEffect(() => {
       }
 
       // Refresh the local state to show the update immediately
-      await fetchStaff();
+      // await fetchStaff();
     } catch (err) {
       console.error("Error updating staff:", err);
       setError(`Failed to update staff: ${err.message}`);
