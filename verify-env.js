@@ -58,7 +58,7 @@ try {
     console.log('❌ VITE_CLOUDINARY_API_KEY: Still using placeholder value "my-api-key"');
     hasIssues = true;
   } else {
-    console.log(`✅ VITE_CLOUDINARY_API_KEY: Set (${credentials.VITE_CLOUDINARY_API_KEY.substring(0, 4)}...)`);
+    // console.log(`✅ VITE_CLOUDINARY_API_KEY: Set (${credentials.VITE_CLOUDINARY_API_KEY.substring(0, 4)}...)`);
   }
   
   // Check API_SECRET
@@ -69,7 +69,7 @@ try {
     console.log('❌ VITE_CLOUDINARY_API_SECRET: Still using placeholder value "my-api-secret"');
     hasIssues = true;
   } else {
-    console.log(`✅ VITE_CLOUDINARY_API_SECRET: Set (${credentials.VITE_CLOUDINARY_API_SECRET.substring(0, 4)}...)`);
+    // console.log(`✅ VITE_CLOUDINARY_API_SECRET: Set (${credentials.VITE_CLOUDINARY_API_SECRET.substring(0, 4)}...)`);
   }
   
   console.log('\n' + '='.repeat(60));

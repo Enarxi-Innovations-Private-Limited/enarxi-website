@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Calendar, User, Eye, EyeOff, CheckCircle, Trash2, Image as ImageIcon } from 'lucide-react';
+import { FileText, Calendar, User, Eye, EyeOff, CheckCircle, Trash2, Image as ImageIcon, RefreshCw } from 'lucide-react';
 
 const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPending = true }) => {
   const thumbnailUrl = blog.images?.[0]?.url || blog.images?.[0] || null;
@@ -56,8 +56,18 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
         )} */}
 
         {/* Status Badge */}
-        <div className={`absolute top-2 left-2 ${isPending ? 'bg-blue-600' : isVisible ? 'bg-green-600' : 'bg-gray-600'} bg-opacity-90 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1`}>
-          {isPending ? (
+        <div className={`absolute top-2 left-2 ${
+          blog.status === 'retry' ? 'bg-orange-600' :
+          isPending ? 'bg-blue-600' : 
+          isVisible ? 'bg-green-600' : 
+          'bg-gray-600'
+        } bg-opacity-90 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1`}>
+          {blog.status === 'retry' ? (
+            <>
+              <RefreshCw className="h-3 w-3" />
+              <span>Retry</span>
+            </>
+          ) : isPending ? (
             <>
               <Eye className="h-3 w-3" />
               <span>Review</span>

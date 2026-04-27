@@ -11,13 +11,15 @@ import { useAuth } from '@/AuthProvider';
 import BlogTile from './blogs/BlogTile';
 import ConfirmModal from '@/components/shared/ConfirmModal';
 import { createFullSlug } from '@/utils/slugUtils';
+import { useLocation } from 'react-router-dom';
 
 const BlogsTable = ({setActiveSection}) => {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
+  const location = useLocation();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('pending'); // 'pending' or 'approved'
+  const [filterStatus, setFilterStatus] = useState(location.state?.blogFilter || 'pending');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, blog: null });
 
@@ -31,10 +33,18 @@ const BlogsTable = ({setActiveSection}) => {
         orderBy('updatedAt', 'desc')
       );
       const snapshot = await getDocs(q);
-      const blogData = snapshot.docs.map((docSnap) => ({
+      let blogData = snapshot.docs.map((docSnap) => ({
         id: docSnap.id,
         ...docSnap.data(),
       }));
+
+      // Filter by status if not approved
+      if (status === 'retry') {
+        blogData = blogData.filter(blog => blog.status === 'retry');
+      } else if (status === 'pending') {
+        blogData = blogData.filter(blog => blog.status !== 'retry');
+      }
+
       setBlogs(blogData);
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -248,6 +258,14 @@ const BlogsTable = ({setActiveSection}) => {
                   Pending
                 </button>
                 <button
+                  onClick={() => handleFilterChange('retry')}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
+                    filterStatus === 'retry' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                  }`}
+                >
+                  Retry
+                </button>
+                <button
                   onClick={() => handleFilterChange('approved')}
                   className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${filterStatus === 'approved' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
                     }`}
@@ -267,7 +285,9 @@ const BlogsTable = ({setActiveSection}) => {
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-12 text-center">
             <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">
-              {filterStatus === 'pending' ? 'No blogs pending review' : 'No approved blogs'}
+              {filterStatus === 'pending' ? 'No new blogs pending review' : 
+               filterStatus === 'retry' ? 'No blogs in retry status' : 
+               'No approved blogs'}
             </p>
           </div>
         ) : (
@@ -282,10 +302,10 @@ const BlogsTable = ({setActiveSection}) => {
                 <BlogTile
                   blog={blog}
                   onView={handleViewBlog}
-                  onApprove={filterStatus === 'pending' ? (blog) => handleApprove(blog.id, blog.title) : null}
+                  onApprove={filterStatus === 'pending' || filterStatus === 'retry' ? (blog) => handleApprove(blog.id, blog.title) : null}
                   onDelete={handleDeleteClick}
                   onToggleVisibility={filterStatus === 'approved' ? (blog) => handleToggleVisibility(blog.id, blog.title, blog.visibility) : null}
-                  isPending={filterStatus === 'pending'}
+                  isPending={filterStatus === 'pending' || filterStatus === 'retry'}
                 />
               </motion.div>
             ))}

@@ -113,8 +113,8 @@ app.listen(PORT, () => {
   console.log('🚀 Enarxi Backend API Server');
   console.log('═══════════════════════════════════════════════════════════');
   console.log(`📡 Server running on: http://localhost:${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔒 CORS enabled for: ${process.env.FRONTEND_URL}`);
+  // console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  // console.log(`🔒 CORS enabled for: ${process.env.FRONTEND_URL}`);
   console.log('');
   console.log('Available endpoints:');
   console.log('  GET  /health                          - Health check');
@@ -129,7 +129,7 @@ app.listen(PORT, () => {
   console.log('  PUT  /api/blogs/:blogId/approve       - Approve blog');
   console.log('  PUT  /api/blogs/:blogId/reject        - Reject blog');
   console.log('═══════════════════════════════════════════════════════════');
-  console.log('');
+  // console.log('');
 });
 
 // Handle unhandled promise rejections
