@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Star, Users, Clock, ArrowRight } from 'lucide-react';
+import { FileText, Star, Users, Clock, ArrowRight, RefreshCw } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ const DashboardStats = () => {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
   const [pendingBlogs, setPendingBlogs] = useState(0);
+  const [retryBlogs, setRetryBlogs] = useState(0);
   const [pendingReviews, setPendingReviews] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [recentActivities, setRecentActivities] = useState([]);
@@ -23,7 +24,12 @@ const DashboardStats = () => {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setPendingBlogs(snapshot.size);
+      const allPending = snapshot.docs.map(doc => doc.data());
+      const retryCount = allPending.filter(blog => blog.status === 'retry').length;
+      const trulyPending = allPending.length - retryCount;
+      
+      setPendingBlogs(trulyPending);
+      setRetryBlogs(retryCount);
     });
 
     return () => unsubscribe();
@@ -86,13 +92,23 @@ const DashboardStats = () => {
   const stats = [
     {
       id: 1,
-      title: 'Pending Blog Reviews',
+      title: 'Pending Blogs',
       value: pendingBlogs,
       icon: FileText,
       color: 'bg-blue-500',
       textColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
       action: () => navigate('/admin', { state: {activeTab:'blogs'} }),
+    },
+    {
+      id: 4,
+      title: 'Retry Blogs',
+      value: retryBlogs,
+      icon: RefreshCw,
+      color: 'bg-orange-500',
+      textColor: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      action: () => navigate('/admin', { state: {activeTab:'blogs', blogFilter: 'retry'} }),
     },
     {
       id: 2,  
