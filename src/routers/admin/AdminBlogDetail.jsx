@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Loader2, Eye, EyeOff, CheckCircle, Trash2, RefreshCw } from 'lucide-react'; // ← added RefreshCw
-import { injectYouTubePlayers } from '@/utils/injectYouTubePlayers';
+import { injectBlogContent } from '@/utils/blogRenderer';
 import { toast, Toaster } from 'react-hot-toast';
 import { deleteBlog, approveBlog, retryBlog } from '@/lib/api'; // ← added retryBlog
 import { useAuth } from '@/AuthProvider';
@@ -125,6 +125,7 @@ const AdminBlogDetail = () => {
           authorName: data.authorName || 'Anonymous',
           authorRole: data.authorRole || 'Staff',
           ytlinks: data.ytlinks || [],
+          imageBlocks: data.imageBlocks || {},
           isAdminAccepted: data.isAdminAccepted || false,
           visibility: data.visibility !== false,
           status: data.status || 'pending',
@@ -375,7 +376,7 @@ const AdminBlogDetail = () => {
 
               <div
                 className="prose prose-lg max-w-none mb-8"
-                dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
+                dangerouslySetInnerHTML={{ __html: injectBlogContent(blog.content, blog.ytlinks, blog.imageBlocks) }}
               />
 
               {/* {blog.ytlinks && blog.ytlinks.length > 0 && (
