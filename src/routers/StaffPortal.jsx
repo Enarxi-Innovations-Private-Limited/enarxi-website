@@ -66,10 +66,10 @@ const StaffPortal = () => {
     },
     {
       id: "blogs",
-      label: "My Blogs",
+      label: "Create Blog",
       icon: PenSquare,
     },
-  ];
+  ]
 
   const handleMenuClick = (sectionId) => {
     setActiveTab(sectionId);
@@ -225,7 +225,7 @@ const StaffPortal = () => {
                 animate={{ opacity: 1, x: 0 }}
                 className="text-2xl font-bold text-[#0A1524] ml-2 lg:ml-0"
               >
-                {activeTab === "dashboard" ? "Dashboard" : "My Blogs"}
+                {activeTab === "dashboard" ? "Dashboard" : "Create Blog"}
               </motion.h1>
             </div>
             <motion.div

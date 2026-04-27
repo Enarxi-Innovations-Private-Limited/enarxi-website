@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Loader2 } from 'lucide-react';
-import { injectYouTubePlayers } from '@/utils/injectYouTubePlayers';
+import { injectBlogContent } from '@/utils/blogRenderer';
 import styles from './Blog.module.css';
 
 const BlogDetail = () => {
@@ -67,6 +67,7 @@ const BlogDetail = () => {
           authorName: data.authorName || 'Anonymous',
           authorRole: data.authorRole || 'Staff',
           ytlinks: data.ytlinks || [],
+          imageBlocks: data.imageBlocks || {},
         });
       } catch (err) {
         console.error('Error fetching blog:', err);
@@ -163,7 +164,7 @@ const BlogDetail = () => {
             {/* Blog Content with Embedded YouTube Videos */}
             <div
               className={`${styles.content} prose prose-lg max-w-none`}
-              dangerouslySetInnerHTML={{ __html: injectYouTubePlayers(blog.content, blog.ytlinks) }}
+              dangerouslySetInnerHTML={{ __html: injectBlogContent(blog.content, blog.ytlinks, blog.imageBlocks) }}
             />
 
             {/* Additional Images */}
