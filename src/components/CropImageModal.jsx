@@ -169,6 +169,7 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
               <div className="flex items-center justify-center space-x-6 mb-4">
                 {/* Zoom Out */}
                 <button
+                  type="button"
                   onClick={handleZoomOut}
                   className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
                   disabled={zoom <= 1 || isProcessing}
@@ -195,6 +196,7 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
 
                 {/* Zoom In */}
                 <button
+                  type="button"
                   onClick={handleZoomIn}
                   className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
                   disabled={zoom >= 3 || isProcessing}
@@ -205,6 +207,7 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
 
                 {/* Rotate */}
                 <button
+                  type="button"
                   onClick={handleRotate}
                   className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
                   disabled={isProcessing}
@@ -217,6 +220,7 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
               {/* Action Buttons */}
               <div className="flex items-center justify-end space-x-3">
                 <button
+                  type="button"
                   onClick={onCancel}
                   className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                   disabled={isProcessing}
@@ -224,6 +228,7 @@ const CropImageModal = ({ isOpen, imageSrc, fileName, aspect = 16/9, onCropCompl
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleCropConfirm}
                   disabled={isProcessing}
                   className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"

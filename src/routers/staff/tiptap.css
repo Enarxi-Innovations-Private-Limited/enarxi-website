@@ -1,7 +1,7 @@
 /* Basic editor styles - Document Feel */
 .ProseMirror {
-  padding: 0;
-  min-height: 400px;
+  padding: 1rem;
+  min-height: 500px;
   outline: none;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: #1a1a1a;
@@ -56,12 +56,32 @@
   line-height: 1.3;
 }
 
+.ProseMirror h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
 /* Image blocks and YouTube embeds */
 .image-block, .youtube-embed {
   margin: 2rem 0;
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 3rem 0;
+  cursor: pointer;
+}
+
+.ProseMirror hr.ProseMirror-selectednode {
+  border-top-color: #3b82f6;
 }
 
 /*==============================================
