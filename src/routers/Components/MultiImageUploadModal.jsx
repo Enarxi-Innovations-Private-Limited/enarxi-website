@@ -190,6 +190,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                 </div>
               </div>
               <button
+                type="button"
                 onClick={onCancel}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 disabled={processing}
@@ -283,6 +284,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                           </p>
                         </div>
                         <button
+                          type="button"
                           onClick={() => handleRemoveImage(item.id)}
                           className="p-2 hover:bg-red-100 rounded-lg transition-colors shrink-0"
                           disabled={processing}
@@ -304,6 +306,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
             {/* Footer */}
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end space-x-3">
               <button
+                type="button"
                 onClick={onCancel}
                 className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 disabled={processing}
@@ -311,6 +314,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={processing || stagedItems.length === 0}
                 className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"

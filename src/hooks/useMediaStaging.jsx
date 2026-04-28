@@ -232,7 +232,8 @@ export const useMediaStaging = () => {
     updateStagedFiles,
     removeStagedFile,
     removeStagedBlock,
-    getStagedBlock,
+    getStagedFiles: getStagedBlock, // Renamed for clarity
+    getStagedBlock, // Alias for backward compatibility
     flushUploads,
     clearAll,
   };

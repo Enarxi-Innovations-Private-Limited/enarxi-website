@@ -282,3 +282,47 @@ body.modal-open {
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f1f1f1;
 }
+
+/* Typography Overrides for Blog Content */
+.prose hr {
+  margin-top: 3.5rem !important;
+  margin-bottom: 3.5rem !important;
+  border: none !important;
+  border-top: 2px solid #e5e7eb !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+.prose ul {
+  list-style-type: disc !important;
+  padding-left: 1.6rem !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+  padding-left: 1.6rem !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.prose li {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+  padding-left: 0.375rem !important;
+}
+
+.prose p {
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+  line-height: 1.75 !important;
+}
+
+.prose h3 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 0.75rem !important;
+}

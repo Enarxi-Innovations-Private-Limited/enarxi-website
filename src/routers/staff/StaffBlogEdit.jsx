@@ -8,7 +8,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
-import { Youtube, AlertTriangle, ArrowLeft, Loader2, Bold, Italic, Heading1, Heading2, List, ListOrdered, Type, Save, User, Briefcase, FileImage, X } from "lucide-react";
+import { Youtube, AlertTriangle, ArrowLeft, Loader2, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, X, Minus, Eye } from "lucide-react";
 import Heading from "@tiptap/extension-heading";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
@@ -25,121 +25,149 @@ import { YouTubeEmbed, extractYouTubeId } from "@/extensions/YouTubeEmbed";
 import { ImageBlock } from "@/extensions/ImageBlock";
 import { useMediaStaging } from "@/hooks/useMediaStaging";
 import MultiImageUploadModal from "../Components/MultiImageUploadModal";
+import BlogPreviewModal from "@/components/BlogPreviewModal";
 import { Image as ImageIcon } from "lucide-react";
+import TextAlign from '@tiptap/extension-text-align';
 
-// ── MenuBar ───────────────────────────────────────────────────────────────────
-const MenuBar = memo(({ editor }) => {
-  const [_, setForceUpdate] = useState(0);
+// ── Toolbar Components ────────────────────────────────────────────────────────
+const ToolbarButton = ({ onClick, isActive, title, children }) => (
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={onClick}
+    className={`p-2 rounded-md transition-colors w-8 h-8 flex items-center justify-center ${isActive ? 'bg-gray-200 text-blue-600' : 'text-gray-600 hover:bg-gray-200'
+      }`}
+    title={title}
+  >
+    {children}
+  </button>
+);
 
-  useEffect(() => {
-    if (!editor) return;
-    const handleUpdate = () => setForceUpdate((v) => v + 1);
-    editor.on("transaction", handleUpdate);
-    return () => editor.off("transaction", handleUpdate);
-  }, [editor]);
-
+const MenuBar = memo(({ editor, onInsertImageBlock }) => {
   if (!editor) return null;
 
   const handleYouTubeEmbed = () => {
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to, "");
-    if (!selectedText) { alert("Please select a YouTube URL first"); return; }
-    if (!isYouTubeUrl(selectedText.trim())) { alert("Selected text is not a valid YouTube URL"); return; }
+    if (!selectedText) { toast.error("Please select a YouTube URL first"); return; }
+    if (!isYouTubeUrl(selectedText.trim())) { toast.error("Selected text is not a valid YouTube URL"); return; }
     editor.chain().focus().setYouTubeEmbed(selectedText.trim()).run();
-  }
+  };
 
   return (
-    <div className="menu-bar">
-      <div className="toolbar-group">
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+    <div className="flex items-center gap-2 p-1 px-4 overflow-x-auto no-scrollbar">
+      {/* Formatting */}
+      <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive("bold") ? "is-active" : ""}
+          isActive={editor.isActive("bold")}
           title="Bold (Ctrl+B)"
         >
-          <Bold />
-        </button>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+          <Bold size={16} />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive("italic") ? "is-active" : ""}
+          isActive={editor.isActive("italic")}
           title="Italic (Ctrl+I)"
         >
-          <Italic />
-        </button>
+          <Italic size={16} />
+        </ToolbarButton>
       </div>
 
-      <div className="toolbar-group">
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+      {/* Headings */}
+      <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
+        <ToolbarButton
           onClick={() => editor.chain().focus().setParagraph().run()}
-          className={editor.isActive("paragraph") ? "is-active" : ""}
+          isActive={editor.isActive("paragraph")}
           title="Normal Text"
         >
-          <Type />
-        </button>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+          <Type size={16} />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={editor.isActive("heading", { level: 1 }) ? "is-active" : ""}
+          isActive={editor.isActive("heading", { level: 1 })}
           title="Heading 1"
         >
-          <Heading1 />
-        </button>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+          <Heading1 size={16} />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={editor.isActive("heading", { level: 2 }) ? "is-active" : ""}
+          isActive={editor.isActive("heading", { level: 2 })}
           title="Heading 2"
         >
-          <Heading2 />
-        </button>
+          <Heading2 size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          isActive={editor.isActive("heading", { level: 3 })}
+          title="Heading 3"
+        >
+          <Heading3 size={16} />
+        </ToolbarButton>
       </div>
 
-      <div className="toolbar-group">
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+      {/* Lists */}
+      <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive("bulletList") ? "is-active" : ""}
+          isActive={editor.isActive("bulletList")}
           title="Bullet List"
         >
-          <List />
-        </button>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+          <List size={16} />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive("orderedList") ? "is-active" : ""}
+          isActive={editor.isActive("orderedList")}
           title="Numbered List"
         >
-          <ListOrdered />
-        </button>
+          <ListOrdered size={16} />
+        </ToolbarButton>
       </div>
 
-      <div className="toolbar-group">
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => window.dispatchEvent(new CustomEvent('insert-image-block'))}
-          title="Insert Images"
+      {/* Alignment */}
+      <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign('left').run()} 
+          isActive={editor.isActive({ textAlign: 'left' })} 
+          title="Align Left"
         >
-          <ImageIcon />
-        </button>
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
+          <AlignLeft size={16} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign('center').run()} 
+          isActive={editor.isActive({ textAlign: 'center' })} 
+          title="Align Center"
+        >
+          <AlignCenter size={16} />
+        </ToolbarButton>
+        <ToolbarButton 
+          onClick={() => editor.chain().focus().setTextAlign('right').run()} 
+          isActive={editor.isActive({ textAlign: 'right' })} 
+          title="Align Right"
+        >
+          <AlignRight size={16} />
+        </ToolbarButton>
+      </div>
+
+      {/* Media */}
+      <div className="flex items-center gap-1">
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          isActive={false}
+          title="Add Divider Line"
+        >
+          <Minus size={16} />
+        </ToolbarButton>
+        <ToolbarButton onClick={onInsertImageBlock} isActive={false} title="Insert Images">
+          <ImageIcon size={16} />
+        </ToolbarButton>
+        <ToolbarButton
           onClick={handleYouTubeEmbed}
-          className={editor.isActive("youtubeEmbed") ? "is-active" : ""}
+          isActive={editor.isActive("youtubeEmbed")}
           title="Embed YouTube Video"
         >
-          <Youtube />
-        </button>
+          <Youtube size={16} />
+        </ToolbarButton>
       </div>
     </div>
   );
@@ -159,11 +187,12 @@ const StaffBlogEdit = () => {
   const [existingImage, setExistingImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
 
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [originalFileName, setOriginalFileName] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -185,6 +214,9 @@ const StaffBlogEdit = () => {
       Link.configure({ openOnClick: false }),
       ImageBlock,
       YouTubeEmbed,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
     ],
     content: "",
   });
@@ -214,6 +246,35 @@ const StaffBlogEdit = () => {
   }, []);
 
   useEffect(() => () => editor?.destroy(), [editor]);
+
+  // --- Local Storage Auto-Save Logic ---
+  useEffect(() => {
+    if (!editor || fetchLoading) return;
+    const savedDraft = localStorage.getItem(`blog_edit_draft_${blogId}`);
+    if (savedDraft) {
+      try {
+        const { formData: savedForm, content: savedContent } = JSON.parse(savedDraft);
+        if (savedForm?.title) {
+          setFormData(prev => ({ ...prev, title: savedForm.title }));
+        }
+        if (savedContent) {
+          editor.commands.setContent(savedContent);
+        }
+      } catch (e) {
+        console.error("Failed to load edit draft:", e);
+      }
+    }
+  }, [editor, fetchLoading, blogId]);
+
+  useEffect(() => {
+    // Only save if data has finished loading from DB to avoid saving empty state
+    if (!fetchLoading && editor) {
+      const content = editor.getHTML();
+      if (formData.title || (content && content !== '<p></p>')) {
+        localStorage.setItem(`blog_edit_draft_${blogId}`, JSON.stringify({ formData, content }));
+      }
+    }
+  }, [formData, editor, fetchLoading, blogId]);
 
   // ── Fetch existing blog data ──────────────────────────────────────────────
   useEffect(() => {
@@ -280,7 +341,7 @@ const StaffBlogEdit = () => {
 
         // editor.commands.setContent(cleanedContent);
         let contentToLoad = data.content || "";
-        
+
         // Restore YouTube embeds
         if (data.ytlinks && data.ytlinks.length > 0) {
           data.ytlinks.forEach((url, index) => {
@@ -294,9 +355,9 @@ const StaffBlogEdit = () => {
         // Restore Image blocks
         if (data.imageBlocks && Object.keys(data.imageBlocks).length > 0) {
           Object.entries(data.imageBlocks).forEach(([blockId, images]) => {
-            const placeholder = `<div class="image-block" id="${blockId}"></div>`;
+            const placeholderRegex = new RegExp(`<div[^>]*class=["']image-block["'][^>]*id=["']${blockId}["'][^>]*>\\s*</div>`, 'i');
             const imageBlockDiv = `<div data-type="image-block" data-id="${blockId}" data-images='${JSON.stringify(images)}'></div>`;
-            contentToLoad = contentToLoad.replace(placeholder, imageBlockDiv);
+            contentToLoad = contentToLoad.replace(placeholderRegex, imageBlockDiv);
           });
         }
 
@@ -326,12 +387,10 @@ const StaffBlogEdit = () => {
       const dimensions = await getImageDimensions(file);
       if (isAspectRatio16x9(dimensions.width, dimensions.height)) {
         setImageFile(file);
-        setMessage("");
       } else {
         setOriginalFileName(file.name);
         setImageToCrop(URL.createObjectURL(file));
         setShowCropModal(true);
-        setMessage("");
       }
     } catch {
       toast.error("❌ Failed to process image. Please try again.");
@@ -370,7 +429,7 @@ const StaffBlogEdit = () => {
       const editorJson = editor.getJSON();
       const youtubeLinks = [];
       const imageBlockIds = [];
-      
+
       const traverseNodes = (node) => {
         if (node.type === 'youtubeEmbed') {
           youtubeLinks.push(node.attrs.url);
@@ -382,7 +441,7 @@ const StaffBlogEdit = () => {
       editorJson.content?.forEach(traverseNodes);
 
       let cleanedContent = editor.getHTML();
-      
+
       // Clean YouTube embeds
       youtubeLinks.forEach((url, index) => {
         const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
@@ -391,7 +450,7 @@ const StaffBlogEdit = () => {
 
       // Clean Image blocks
       imageBlockIds.forEach((blockId) => {
-        const imgPattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?<\/div>`, 'gi');
+        const imgPattern = new RegExp(`<div[^>]*data-id=["']${blockId}["'][^>]*>.*?</div>`, 'i');
         cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
       });
 
@@ -446,6 +505,10 @@ const StaffBlogEdit = () => {
       });
 
       toast.success("Blog updated successfully and sent for review!", { id: toastId, duration: 5000 });
+      
+      // Clear local storage draft
+      localStorage.removeItem(`blog_edit_draft_${blogId}`);
+
       setTimeout(() => navigate("/staff"), 2000);
     } catch (error) {
       console.error("Error updating blog:", error);
@@ -475,26 +538,77 @@ const StaffBlogEdit = () => {
     );
   }
 
+  const getPreviewData = useCallback(() => {
+    if (!editor) return { content: '', ytlinks: [], imageBlocks: {} };
+    const editorJson = editor.getJSON();
+    const previewImageBlocks = {};
+    const youtubeLinks = [];
+    const traverseNodes = (node) => {
+      if (node.type === 'youtubeEmbed') {
+        youtubeLinks.push(node.attrs.url);
+      } else if (node.type === 'imageBlock') {
+        const id = node.attrs.id;
+        const items = node.attrs.stagedItems || node.attrs.images || [];
+        if (items.length > 0) {
+          previewImageBlocks[id] = items;
+        }
+      }
+      if (node.content) {
+        node.content.forEach(traverseNodes);
+      }
+    };
+    editorJson.content?.forEach(traverseNodes);
+
+    let htmlContent = editor.getHTML();
+    
+    youtubeLinks.forEach((url, index) => {
+      const pattern = new RegExp(`<div[^>]*data-type="youtube-embed"[^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`, 'gi');
+      htmlContent = htmlContent.replace(pattern, `<div id="yt${index}"></div>`);
+    });
+
+    Object.keys(previewImageBlocks).forEach((blockId) => {
+      const pattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?</div>`, 'gi');
+      htmlContent = htmlContent.replace(pattern, `<div class="image-block" id="${blockId}"></div>`);
+    });
+
+    return {
+      content: htmlContent,
+      ytlinks: youtubeLinks,
+      imageBlocks: previewImageBlocks
+    };
+  }, [editor, mediaStaging]);
+
   if (!editor) return null;
+  const previewData = showPreview ? getPreviewData() : null;
 
   return (
     <div className="min-h-screen bg-white">
       <form onSubmit={handleSubmit}>
-        {/* Sticky Toolbar & Actions */}
-        <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center">
+        {/* Combined Fixed Header (Nav + Toolbar + Actions) */}
+        <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-2 shrink-0 shadow-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-2">
               <button
                 type="button"
                 onClick={() => navigate("/staff")}
-                className="p-3 text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-colors"
+                className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors shrink-0"
                 title="Back to Dashboard"
               >
                 <ArrowLeft size={20} />
               </button>
-              <MenuBar editor={editor} />
+              <div className="h-6 w-[1px] bg-gray-300 mx-1 shrink-0" />
+              <MenuBar editor={editor} onInsertImageBlock={() => setShowMultiImageModal(true)} />
             </div>
-            <div className="px-4">
+
+            <div className="shrink-0 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md font-semibold transition-all hover:bg-gray-200 border border-gray-200 text-sm"
+              >
+                <Eye size={18} />
+                <span>Preview</span>
+              </button>
               <button
                 type="submit"
                 disabled={loading}
@@ -545,16 +659,18 @@ const StaffBlogEdit = () => {
             </div>
 
             {/* Content Area */}
-            <div className="relative">
+            <div className="relative border border-gray-200 rounded-xl bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
               <EditorContent editor={editor} />
             </div>
+
+
 
             {/* Featured Image Section - Integrated subtly */}
             <div className="mt-12 pt-8 border-t border-gray-100">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">
                 <FileImage size={16} /> Featured Image
               </label>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 {/* Existing Image */}
                 {existingImage && !imageFile && (
@@ -610,10 +726,23 @@ const StaffBlogEdit = () => {
         </div>
       </form>
 
+      {/* Preview Modal */}
+      <BlogPreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        title={formData.title}
+        content={previewData?.content}
+        authorName={formData.authorName}
+        authorRole={formData.authorRole}
+        featuredImage={imageFile || existingImage?.url}
+        ytlinks={previewData?.ytlinks}
+        imageBlocks={previewData?.imageBlocks}
+      />
+
       <MultiImageUploadModal
         isOpen={showMultiImageModal}
+        onClose={() => setShowMultiImageModal(false)}
         onSave={handleMultiImageSave}
-        onCancel={handleMultiImageCancel}
       />
 
       <CropImageModal
@@ -622,6 +751,7 @@ const StaffBlogEdit = () => {
         fileName={originalFileName}
         onCropComplete={handleCropComplete}
         onCancel={handleCropCancel}
+        aspect={16 / 9}
       />
 
       <Toaster position="top-right" />

@@ -13,7 +13,13 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
   const { id, stagedItems = [] } = node.attrs;
   
   // Support both old 'images' format and new 'stagedItems' format for backward compatibility
-  const items = stagedItems.length > 0 ? stagedItems : (node.attrs.images || []);
+  const getItems = () => {
+    if (Array.isArray(stagedItems) && stagedItems.length > 0) return stagedItems;
+    if (Array.isArray(node.attrs.images) && node.attrs.images.length > 0) return node.attrs.images;
+    return [];
+  };
+  
+  const items = getItems();
 
   const handleEdit = () => {
     setShowEditModal(true);
@@ -51,6 +57,7 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
             </div>
             <div className="flex items-center space-x-2">
               <button
+                type="button"
                 onClick={handleEdit}
                 className="p-2 hover:bg-indigo-100 rounded-lg transition-colors group"
                 title="Edit block"
@@ -58,6 +65,7 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
                 <Edit className="w-4 h-4 text-indigo-600 group-hover:text-indigo-700" />
               </button>
               <button
+                type="button"
                 onClick={handleDelete}
                 className="p-2 hover:bg-red-100 rounded-lg transition-colors group"
                 title="Delete block"
@@ -104,6 +112,7 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
               <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
               <p className="text-sm text-gray-500">No images in this block</p>
               <button
+                type="button"
                 onClick={handleEdit}
                 className="mt-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
               >

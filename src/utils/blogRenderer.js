@@ -54,7 +54,7 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
         gridHtml += `
           <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
             <img 
-              src="${img.url}" 
+              src="${img.url || img.previewUrl}" 
               alt="Blog image ${idx + 1}" 
               style="width: 100%; height: 100%; object-fit: cover; display: block;"
               loading="lazy"
