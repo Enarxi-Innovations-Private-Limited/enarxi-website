@@ -194,32 +194,50 @@ const StaffBlogEdit = () => {
   const [originalFileName, setOriginalFileName] = useState("");
   const [showPreview, setShowPreview] = useState(false);
 
+  const editorExtensions = React.useMemo(() => [
+    StarterKit.configure({
+      heading: false,
+      listItem: false,
+      orderedList: false,
+      bulletList: false,
+      link: false,
+    }),
+    Heading.extend({
+      addKeyboardShortcuts() {
+        return { Enter: () => this.editor.commands.splitBlock() };
+      },
+    }),
+    OrderedList,
+    BulletList,
+    ListItem.extend({ keepOnSplit: true }),
+    Link.configure({ openOnClick: false }),
+    ImageBlock,
+    YouTubeEmbed,
+    TextAlign.configure({
+      types: ['heading', 'paragraph'],
+    }),
+  ], []);
+
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: false,
-        listItem: false,
-        orderedList: false,
-        bulletList: false,
-        link: false,
-      }),
-      Heading.extend({
-        addKeyboardShortcuts() {
-          return { Enter: () => this.editor.commands.splitBlock() };
-        },
-      }),
-      OrderedList,
-      BulletList,
-      ListItem.extend({ keepOnSplit: true }),
-      Link.configure({ openOnClick: false }),
-      ImageBlock,
-      YouTubeEmbed,
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-    ],
+    extensions: editorExtensions,
     content: "",
   });
+
+  // Dedicated effect for initial content loading to follow "GOOD" pattern
+  const [contentLoaded, setContentLoaded] = useState(false);
+  const [initialContent, setInitialContent] = useState("");
+
+  useEffect(() => {
+    if (editor && initialContent && !contentLoaded) {
+      const timeoutId = setTimeout(() => {
+        if (editor.getHTML() !== initialContent) {
+          editor.commands.setContent(initialContent);
+          setContentLoaded(true);
+        }
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [editor, initialContent, contentLoaded]);
 
   useEffect(() => {
     const handleInsertImageEvent = () => setShowMultiImageModal(true);
@@ -258,7 +276,12 @@ const StaffBlogEdit = () => {
           setFormData(prev => ({ ...prev, title: savedForm.title }));
         }
         if (savedContent) {
-          editor.commands.setContent(savedContent);
+          const timeoutId = setTimeout(() => {
+            if (editor.getHTML() !== savedContent) {
+              editor.commands.setContent(savedContent);
+            }
+          }, 0);
+          return () => clearTimeout(timeoutId);
         }
       } catch (e) {
         console.error("Failed to load edit draft:", e);
@@ -361,7 +384,8 @@ const StaffBlogEdit = () => {
           });
         }
 
-        editor.commands.setContent(contentToLoad);
+        // editor.commands.setContent(contentToLoad);
+        setInitialContent(contentToLoad);
       } catch (err) {
         console.error("Error fetching blog:", err);
         setFetchError("Failed to load blog.");
@@ -371,7 +395,7 @@ const StaffBlogEdit = () => {
     };
 
     fetchBlog();
-  }, [blogId, editor, user]);
+  }, [blogId, editor, user, role, firebaseUser]); // Added missing dependencies
 
   const handleInputChange = useCallback((e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -518,26 +542,6 @@ const StaffBlogEdit = () => {
     }
   }, [editor, user, formData, imageFile, existingImage, blogId, navigate, mediaStaging]);
 
-  // ── Loading / error states ────────────────────────────────────────────────
-  if (fetchLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <Loader2 className="animate-spin h-10 w-10 text-indigo-600" />
-      </div>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-4">
-        <p className="text-red-600 font-semibold text-lg">{fetchError}</p>
-        <button onClick={() => navigate("/staff")} className="flex items-center gap-2 text-indigo-600 hover:underline">
-          <ArrowLeft size={18} /> Back to Dashboard
-        </button>
-      </div>
-    );
-  }
-
   const getPreviewData = useCallback(() => {
     if (!editor) return { content: '', ytlinks: [], imageBlocks: {} };
     const editorJson = editor.getJSON();
@@ -578,154 +582,167 @@ const StaffBlogEdit = () => {
     };
   }, [editor, mediaStaging]);
 
-  if (!editor) return null;
   const previewData = showPreview ? getPreviewData() : null;
 
   return (
     <div className="min-h-screen bg-white">
-      <form onSubmit={handleSubmit}>
-        {/* Combined Fixed Header (Nav + Toolbar + Actions) */}
-        <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-2 shrink-0 shadow-sm">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-2">
-              <button
-                type="button"
-                onClick={() => navigate("/staff")}
-                className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors shrink-0"
-                title="Back to Dashboard"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div className="h-6 w-[1px] bg-gray-300 mx-1 shrink-0" />
-              <MenuBar editor={editor} onInsertImageBlock={() => setShowMultiImageModal(true)} />
-            </div>
+      {fetchLoading ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+          <Loader2 className="animate-spin h-10 w-10 text-indigo-600" />
+        </div>
+      ) : fetchError ? (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-4">
+          <p className="text-red-600 font-semibold text-lg">{fetchError}</p>
+          <button onClick={() => navigate("/staff")} className="flex items-center gap-2 text-indigo-600 hover:underline">
+            <ArrowLeft size={18} /> Back to Dashboard
+          </button>
+        </div>
+      ) : !editor ? (
+        null
+      ) : (
+        <form onSubmit={handleSubmit}>
+          {/* Combined Fixed Header (Nav + Toolbar + Actions) */}
+          <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-2 shrink-0 shadow-sm">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+              <div className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/staff")}
+                  className="p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors shrink-0"
+                  title="Back to Dashboard"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div className="h-6 w-[1px] bg-gray-300 mx-1 shrink-0" />
+                <MenuBar editor={editor} onInsertImageBlock={() => setShowMultiImageModal(true)} />
+              </div>
 
-            <div className="shrink-0 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowPreview(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md font-semibold transition-all hover:bg-gray-200 border border-gray-200 text-sm"
-              >
-                <Eye size={18} />
-                <span>Preview</span>
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md font-semibold transition-all shadow-sm hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed`}
-              >
-                {loading ? "Saving..." : <><Save size={18} /> Resubmit Blog</>}
-              </button>
+              <div className="shrink-0 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md font-semibold transition-all hover:bg-gray-200 border border-gray-200 text-sm"
+                >
+                  <Eye size={18} />
+                  <span>Preview</span>
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md font-semibold transition-all shadow-sm hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed`}
+                >
+                  {loading ? "Saving..." : <><Save size={18} /> Resubmit Blog</>}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Workspace Area */}
-        <div className="editor-workspace">
-          <div className="document-canvas">
-            {/* Admin feedback banner */}
-            {retryFeedback && (
-              <div className="mb-10 p-5 bg-orange-50 border border-orange-100 rounded-lg flex gap-4">
-                <AlertTriangle size={24} className="text-orange-500 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-orange-900 mb-1 uppercase tracking-wider">Requested Revisions</p>
-                  <p className="text-base text-orange-800 leading-relaxed">{retryFeedback}</p>
+          {/* Workspace Area */}
+          <div className="editor-workspace">
+            <div className="document-canvas">
+              {/* Admin feedback banner */}
+              {retryFeedback && (
+                <div className="mb-10 p-5 bg-orange-50 border border-orange-100 rounded-lg flex gap-4">
+                  <AlertTriangle size={24} className="text-orange-500 shrink-0" />
+                  <div>
+                    <p className="text-sm font-bold text-orange-900 mb-1 uppercase tracking-wider">Requested Revisions</p>
+                    <p className="text-base text-orange-800 leading-relaxed">{retryFeedback}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Title Section */}
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                maxLength={100}
+                required
+                placeholder="Blog Title..."
+                className="doc-title-input"
+              />
+
+              {/* Author Section */}
+              <div className="doc-author-section">
+                <div className="doc-author-item">
+                  <User size={16} />
+                  <span className="font-semibold text-gray-900">{formData.authorName}</span>
+                </div>
+                <div className="doc-author-item">
+                  <Briefcase size={16} />
+                  <span className="capitalize">{formData.authorRole}</span>
                 </div>
               </div>
-            )}
 
-            {/* Title Section */}
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              maxLength={100}
-              required
-              placeholder="Blog Title..."
-              className="doc-title-input"
-            />
-
-            {/* Author Section */}
-            <div className="doc-author-section">
-              <div className="doc-author-item">
-                <User size={16} />
-                <span className="font-semibold text-gray-900">{formData.authorName}</span>
+              {/* Content Area */}
+              <div className="relative border border-gray-200 rounded-xl bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
+                <EditorContent editor={editor} />
               </div>
-              <div className="doc-author-item">
-                <Briefcase size={16} />
-                <span className="capitalize">{formData.authorRole}</span>
-              </div>
-            </div>
 
-            {/* Content Area */}
-            <div className="relative border border-gray-200 rounded-xl bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
-              <EditorContent editor={editor} />
-            </div>
-
-
-
-            {/* Featured Image Section - Integrated subtly */}
-            <div className="mt-12 pt-8 border-t border-gray-100">
-              <label className="flex items-center gap-2 text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">
-                <FileImage size={16} /> Featured Image
-              </label>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                {/* Existing Image */}
-                {existingImage && !imageFile && (
-                  <div className="relative group">
-                    <img
-                      src={existingImage.url}
-                      alt="Current"
-                      className="w-32 h-32 object-cover rounded-xl border border-gray-200 shadow-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setExistingImage(null)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md transition-transform scale-0 group-hover:scale-100"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-
-                {/* Upload Button */}
-                <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200 rounded-xl px-6 py-4 transition-colors flex flex-col items-center gap-2">
-                  <FileImage className="text-gray-400" />
-                  <span className="text-xs font-medium text-gray-600">{existingImage ? "Replace Image" : "Choose Image"}</span>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
-                  />
+              {/* Featured Image Section - Integrated subtly */}
+              <div className="mt-12 pt-8 border-t border-gray-100">
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">
+                  <FileImage size={16} /> Featured Image
                 </label>
 
-                {/* New Image Preview */}
-                {imageFile && (
-                  <div className="relative group">
-                    <img
-                      src={URL.createObjectURL(imageFile)}
-                      alt="New"
-                      className="w-32 h-32 object-cover rounded-xl border border-blue-200 shadow-sm"
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  {/* Existing Image */}
+                  {existingImage && !imageFile && (
+                    <div className="relative group">
+                      <img
+                        src={existingImage.url}
+                        alt="Current"
+                        className="w-32 h-32 object-cover rounded-xl border border-gray-200 shadow-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setExistingImage(null)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md transition-transform scale-0 group-hover:scale-100"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Upload Button */}
+                  <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200 rounded-xl px-6 py-4 transition-colors flex flex-col items-center gap-2">
+                    <FileImage className="text-gray-400" />
+                    <span className="text-xs font-medium text-gray-600">{existingImage ? "Replace Image" : "Choose Image"}</span>
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      className="hidden"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setImageFile(null)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md transition-transform scale-0 group-hover:scale-100"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                )}
+                  </label>
+
+                  {/* New Image Preview */}
+                  {imageFile && (
+                    <div className="relative group">
+                      <img
+                        src={URL.createObjectURL(imageFile)}
+                        alt="New"
+                        className="w-32 h-32 object-cover rounded-xl border border-blue-200 shadow-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setImageFile(null)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md transition-transform scale-0 group-hover:scale-100"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <p className="mt-2 text-xs text-gray-400">Updating the featured image will replace the current one.</p>
               </div>
-              <p className="mt-2 text-xs text-gray-400">Updating the featured image will replace the current one.</p>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      )}
 
+      {/* Modals are outside the form but inside the main div for stability */}
       {/* Preview Modal */}
       <BlogPreviewModal
         isOpen={showPreview}
