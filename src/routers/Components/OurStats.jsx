@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 
-import idea from "../../assets/images/idea.svg";
-import people from "../../assets/images/people.svg";
-import packageHands from "../../assets/images/package.svg";
-import computer from "../../assets/images/computer.svg";
+import idea from "../../assets/images/Projects.png";
+import people from "../../assets/images/Workshops.png";
+import packageHands from "../../assets/images/Participants.png";
+import computer from "../../assets/images/HappyClients.png";
 
 // ============================================================================
 // CONSTANTS
@@ -19,10 +19,10 @@ const ANIMATION_CONFIG = {
 };
 
 const STATS_DATA = [
-  { id: "projects", icon: idea, value: 500, label: "Projects Completed", suffix: "+" },
-  { id: "events", icon: people, value: 30, label: "Events & Workshops", suffix: "+" },
   { id: "participants", icon: packageHands, value: 2000, label: "Participants", suffix: "+" },
-  { id: "clients", icon: computer, value: 500, label: "Happy Clients", suffix: "+" },
+  { id: "events", icon: people, value: 30, label: "Events & Workshops", suffix: "+" },
+  { id: "projects", icon: idea, value: 500, label: "Projects Completed", suffix: "+" },
+  { id: "clients", icon: computer, value: 500, label: "Our Clients", suffix: "+" },
 ];
 
 // ============================================================================
@@ -153,7 +153,7 @@ export default function OurStats() {
   return (
     <section
       // 👉 CHANGE: Swapped flat blue for a premium dark navy gradient
-      className="relative w-full bg-gradient-to-b mt-14 from-[#EBF7FF] via-[#D8EEFF] to-white py-10 md:py-12 overflow-hidden"
+      className="relative w-full bg-gradient-to-b mt-6 from-[#EBF7FF] via-[#D8EEFF] to-white py-10 md:pb-12 overflow-hidden"
       aria-labelledby="stats-heading"
     >
       {/* Width Control Container */}

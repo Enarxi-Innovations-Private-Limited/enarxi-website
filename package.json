@@ -36,6 +36,7 @@
     "firebase": "^12.3.0",
     "framer-motion": "^12.23.19",
     "gsap": "^3.13.0",
+    "html-react-parser": "^5.2.7",
     "lucide-react": "^0.540.0",
     "motion": "^12.23.12",
     "pnpm": "^10.17.1",

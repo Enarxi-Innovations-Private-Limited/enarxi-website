@@ -211,3 +211,27 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+/*==============================================
+  IMAGE BLOCK NODE VIEW STYLES
+==============================================*/
+.image-block-wrapper {
+  user-select: none;
+}
+
+.image-block-wrapper .ProseMirror-selectednode {
+  outline: 2px solid #4f46e5;
+  border-radius: 0.5rem;
+}
+
+/*==============================================
+  YOUTUBE EMBED NODE VIEW STYLES
+==============================================*/
+.youtube-embed-wrapper {
+  user-select: none;
+}
+
+.youtube-embed-wrapper .ProseMirror-selectednode {
+  outline: 2px solid #4f46e5;
+  border-radius: 0.5rem;
+}

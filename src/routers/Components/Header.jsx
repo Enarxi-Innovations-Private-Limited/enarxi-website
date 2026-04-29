@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
-import { href, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Menu } from "lucide-react";
-import enarxiLogo from "../../assets/images/enarxiHeaderLogo.svg";
+import { X, Menu, AlertCircle, CheckCircle } from "lucide-react";
+import enarxiLogo from "../../assets/images/enarxi-front-logo-black.png";
+import { useForm } from "react-hook-form";
+import emailjs from "@emailjs/browser";
 
 // Navigation items
 const navItems = [
@@ -11,7 +13,7 @@ const navItems = [
   { label: "Services", href: "/services" },
   { label: "Testimonials", href: "/testimonials" },
   { label: "Blogs", href: "/blogs" },
-  {label : "Gallery", href: "/gallery"},
+  { label: "Gallery", href: "/gallery" },
   { label: "About Us", href: "/aboutus" },
 ];
 
@@ -39,6 +41,47 @@ const mobileNavItemVariants = {
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [connectPopup, setConnectPopup] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showMeetLoader, setShowMeetLoader] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({ mode: "onBlur" });
+
+  const onSubmit = async (data) => {
+    const payload = {
+      from_name: data.name,
+      from_email: data.email,
+      phone: data.phone,
+      location: data.location,
+      service: data.service,
+      reachout: data.reachout,
+      message: data.message,
+    };
+    try {
+      console.log("Form Submitted ✅:", data);
+      reset();
+      setIsOpen(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+
+      const result = await emailjs.send(
+        "service_9kqymv2",
+        "template_by1gtll",
+        payload,
+        "DrjvKCy8rORVEmghe"
+      );
+
+      console.log(result.text);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -57,7 +100,7 @@ export default function Header() {
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden text-gray-800  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#09B8DC] rounded"
+            className="lg:hidden text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#09B8DC] rounded"
             aria-controls="primary-navigation"
             aria-expanded={isMenuOpen}
             aria-label="Toggle navigation menu"
@@ -104,19 +147,73 @@ export default function Header() {
 
         {/* Desktop CTA Button */}
         <div
-          type="button"
-          className="hidden relative top-[-2px] w-auto rounded-3xl bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] lg:block"
-          aria-label="Lets connect button"
+          onClick={() => setConnectPopup(true)}
+          className="hidden relative top-[-2px] w-auto rounded-3xl bg-[#09B8DC] text-lets-connect px-6 py-2.5 text-white transition duration-300 hover:bg-[#08A0C6] lg:block hover:cursor-pointer"
         >
-          Let’s Connect
+          Schedule Meet
         </div>
       </div>
+
+      {/* Connect Popup */}
+      {connectPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-80 text-center shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Choose an Option</h2>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setConnectPopup(false);
+                  setIsOpen(true);
+                }}
+                className="bg-gray-200 py-2 rounded-lg hover:bg-gray-300 cursor-pointer"
+              >
+                Get Enquiry
+              </button>
+
+              {/* Schedule Meet Button */}
+              <button
+                onClick={() => {
+                  setShowMeetLoader(true);
+                  setTimeout(() => {
+                    const eventTitle = encodeURIComponent(
+                      "Meeting with Enarxi"
+                    );
+                    const eventDetails = encodeURIComponent(
+                      "Discuss collaboration and project details."
+                    );
+                    const eventLocation = encodeURIComponent("Google Meet");
+                    const startTime = new Date()
+                      .toISOString()
+                      .replace(/-|:|\.\d\d\d/g, "");
+                    const endTime = new Date(Date.now() + 30 * 60000)
+                      .toISOString()
+                      .replace(/-|:|\.\d\d\d/g, "");
+                    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${startTime}/${endTime}&add=info@enarxi.com`;
+                    window.open(calendarUrl, "_blank");
+                    setShowMeetLoader(false);
+                    setConnectPopup(false);
+                  }, 1500);
+                }}
+                className="bg-[#09B8DC] text-white py-2 rounded-lg hover:bg-[#08A0C6] cursor-pointer"
+              >
+                Schedule Meet
+              </button>
+
+              <button
+                onClick={() => setConnectPopup(false)}
+                className="text-gray-500 text-sm mt-2 hover:underline cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Slide Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            {/* Overlay */}
             <motion.div
               className="fixed inset-0 bg-black/40 backdrop-blur-md z-40 lg:hidden"
               initial={{ opacity: 0 }}
@@ -126,7 +223,6 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
             />
 
-            {/* Sliding Nav Menu */}
             <motion.nav
               id="mobile-navigation"
               className="fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white z-50 lg:hidden shadow-2xl"
@@ -136,22 +232,22 @@ export default function Header() {
               variants={mobileMenuVariants}
               aria-label="Mobile Navigation"
             >
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <ul className="flex flex-col items-center space-y-6 text-[#4f4f4f] uppercase tracking-wide text-sm lg:text-base">
-                  {navItems.map((item, i) => (
+              <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                <ul className="flex flex-col items-center space-y-6 text-[#4f4f4f] uppercase tracking-wide text-base">
+                  {navItems.map((item, index) => (
                     <motion.li
                       key={item.label}
-                      custom={i}
+                      custom={index}
                       variants={mobileNavItemVariants}
                       initial="hidden"
                       animate="visible"
                       exit="hidden"
                     >
                       <NavLink
-                        onClick={() => setIsMenuOpen(false)}
                         to={item.href}
+                        onClick={() => setIsMenuOpen(false)}
                         className={({ isActive }) =>
-                          `transition text-poppins-md cursor-pointer text-lg ${
+                          `transition text-poppins-md cursor-pointer ${
                             isActive
                               ? "text-[#09B8DC]"
                               : "hover:text-[#09B8DC] hover:scale-105 transition-all duration-300"
@@ -162,26 +258,287 @@ export default function Header() {
                       </NavLink>
                     </motion.li>
                   ))}
-
-                  {/* CTA Button */}
-                  <motion.li
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: navItems.length * 0.08 }}
-                  >
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.97 }}
-                      className="w-full text-white bg-[#09B8DC] rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition duration-300 text-lg"
-                    >
-                      Let’s Connect
-                    </motion.button>
-                  </motion.li>
                 </ul>
+
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setConnectPopup(true);
+                  }}
+                  className="mt-10 w-full text-white bg-[#09B8DC] rounded-full px-6 py-2.5 hover:bg-[#08A0C6] transition duration-300 text-lg cursor-pointer"
+                >
+                  Schedule Meet
+                </motion.button>
               </div>
             </motion.nav>
           </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-4 right-4 p-1 text-slate-500 hover:text-slate-700 cursor-pointer hover:bg-slate-200 rounded-full"
+                aria-label="Close enquiry form"
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              <h3 className="text-xl font-bold text-slate-900 mb-4">
+                Connect With Us
+              </h3>
+
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    {...register("name", {
+                      required: "Name is required",
+                      minLength: { value: 3, message: "Minimum 3 characters" },
+                      setValueAs: (v) => v.replace(/[^a-zA-Z\s]/g, "").trim(),
+                    })}
+                    onInput={(e) => {
+                      e.target.value = e.target.value.replace(
+                        /[^a-zA-Z\s]/g,
+                        ""
+                      );
+                    }}
+                    className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
+                      errors.name
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-slate-300 focus:ring-[#09B8DC]"
+                    }`}
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" /> {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    {...register("phone", {
+                      required: "Phone number is required",
+                      pattern: {
+                        value: /^[6-9]\d{9}$/,
+                        message: "Invalid Indian phone number",
+                      },
+                    })}
+                    className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
+                      errors.phone
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-slate-300 focus:ring-[#09B8DC]"
+                    }`}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" /> {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
+                        message: "Invalid email address",
+                      },
+                    })}
+                    className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
+                      errors.email
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-slate-300 focus:ring-[#09B8DC]"
+                    }`}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" /> {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    {...register("location", {
+                      required: "Location is required",
+                      minLength: { value: 2, message: "Too short" },
+                      setValueAs: (v) => v.trim(),
+                    })}
+                    className={`mt-1 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none ${
+                      errors.location
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-slate-300 focus:ring-[#09B8DC]"
+                    }`}
+                  />
+                  {errors.location && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />{" "}
+                      {errors.location.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Service Required
+                  </label>
+                  <select
+                    {...register("service", {
+                      required: "Please select a service",
+                    })}
+                    className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer transition-all duration-300 ease-in-out bg-white hover:border-[#09B8DC]/50 hover:shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-size-[1.25rem] bg-position-[right_0.75rem_center] bg-no-repeat pr-10 ${
+                      errors.service
+                        ? "border-red-500 focus:ring-red-400 focus:border-red-500"
+                        : "border-slate-300 focus:ring-[#09B8DC] focus:border-[#09B8DC]"
+                    }`}
+                  >
+                    <option value="" className="text-slate-400">
+                      Select a service
+                    </option>
+                    <option>Product Design &amp; Prototyping</option>
+                    <option>Micro Controller &amp; Processor Coding</option>
+                    <option>PCB Design &amp; Fabrication</option>
+                    <option>Custom Software Development</option>
+                  </select>
+                  {errors.service && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />{" "}
+                      {errors.service.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700">
+                    When can we reach out to you?
+                  </label>
+
+                  <select
+                    {...register("reachout", {
+                      required: "Please select a time",
+                    })}
+                    className={`mt-1 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none cursor-pointer transition-all duration-300 ease-in-out bg-white hover:border-[#09B8DC]/50 hover:shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e')] bg-size-[1.25rem] bg-position-[right_0.75rem_center] bg-no-repeat pr-10 ${
+                      errors.reachout
+                        ? "border-red-500 focus:ring-red-400 focus:border-red-500"
+                        : "border-slate-300 focus:ring-[#09B8DC] focus:border-[#09B8DC]"
+                    }`}
+                  >
+                    <option value="" className="text-slate-400">
+                      Select a convenient time
+                    </option>
+                    <option value="Weekdays after 6 PM">
+                      Weekdays after 6 PM
+                    </option>
+                    <option value="Weekend after 4 PM">
+                      Weekend after 4 PM
+                    </option>
+                    <option value="Anytime this week">Anytime this week</option>
+                  </select>
+
+                  {errors.reachout && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />{" "}
+                      {errors.reachout.message}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full rounded-lg bg-[#09B8DC] px-6 py-3 font-semibold text-white shadow-md transition hover:bg-[#08A0C6] cursor-pointer"
+                >
+                  Submit
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 -translate-y-1/2 justify-center items-center z-50 md:w-auto w-[80vw] mx-auto"
+          >
+            <div className="flex items-center gap-3 rounded-lg border border-black/70 bg-white px-5 py-4 shadow-2xl ">
+              <CheckCircle className="h-6 w-6 text-green-500" />
+              <div>
+                <p className="text-lg font-medium text-slate-900">
+                  Thanks for reaching out!
+                </p>
+                <p className="text-md font-normal text-slate-700">
+                  We will get back to you shortly.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Meet Loader Animation */}
+      <AnimatePresence>
+        {showMeetLoader && (
+          <motion.div
+            className="fixed inset-0 flex flex-col items-center justify-center bg-black/50 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="w-16 h-16 border-4 border-[#09B8DC] border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            />
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 text-white text-lg font-medium text-center"
+            >
+              Thank you for scheduling a meeting with us!
+              <br />
+              Redirecting to Google Meet...
+            </motion.p>
+          </motion.div>
         )}
       </AnimatePresence>
     </header>

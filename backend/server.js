@@ -86,13 +86,27 @@ app.use('/api/cloudinary', cloudinaryRoutes);
 app.use('/api/blogs', blogsRoutes);
 
 // 404 handler
+// Enhanced 404 handler with detailed logging
 app.use((req, res) => {
+  console.error('❌ 404 - Route Not Found');
+  console.error('🧭 Method:', req.method);
+  console.error('📍 Path:', req.originalUrl);
+  console.error('🔢 Query:', req.query);
+  console.error('📦 Body:', req.body);
+
   res.status(404).json({
     success: false,
     error: 'Not Found',
-    message: 'The requested endpoint does not exist'
+    message: 'The requested endpoint does not exist',
+    debug: {
+      method: req.method,
+      path: req.originalUrl,
+      query: req.query,
+      body: req.body
+    }
   });
 });
+
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -109,6 +123,9 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log('');
+  console.log("🚀 NODE_ENV =", process.env.NODE_ENV);
+  console.log("🌍 FRONTEND_URL =", process.env.FRONTEND_URL);
+  console.log("📦 PORT =", process.env.PORT);
   console.log('═══════════════════════════════════════════════════════════');
   console.log('🚀 Enarxi Backend API Server');
   console.log('═══════════════════════════════════════════════════════════');
