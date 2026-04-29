@@ -71,7 +71,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'Enarxi Backend API is running',
@@ -111,7 +111,7 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     error: err.name || 'Internal Server Error',
@@ -122,31 +122,32 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log('');
-  console.log("🚀 NODE_ENV =", process.env.NODE_ENV);
-  console.log("🌍 FRONTEND_URL =", process.env.FRONTEND_URL);
-  console.log("📦 PORT =", process.env.PORT);
+  console.log('🚀 Enarxi Backend API Server');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log(`📦 PORT = ${PORT}`);
   console.log('═══════════════════════════════════════════════════════════');
   console.log('🚀 Enarxi Backend API Server');
   console.log('═══════════════════════════════════════════════════════════');
+  console.log('🚀 Enarxi Backend API Server');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('═══════════════════════════════════════════════════════════');
   console.log(`📡 Server running on: http://localhost:${PORT}`);
-  // console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  // console.log(`🔒 CORS enabled for: ${process.env.FRONTEND_URL}`);
   console.log('');
   console.log('Available endpoints:');
-  console.log('  GET  /health                          - Health check');
+  console.log('  GET    /api/health                          - Health check');
   console.log('  DELETE /api/users/:uid                - Delete user');
-  console.log('  PUT  /api/users/:uid/email            - Update user email');
-  console.log('  PUT  /api/users/:uid/password         - Update user password');
-  console.log('  PUT  /api/users/:uid                  - Update user profile');
-  console.log('  POST /api/cloudinary/delete           - Delete Cloudinary image');
-  console.log('  POST /api/cloudinary/delete-by-url    - Delete by URL');
-  console.log('  POST /api/cloudinary/delete-multiple  - Delete multiple images');
+  console.log('  PUT    /api/users/:uid/email            - Update user email');
+  console.log('  PUT    /api/users/:uid/password         - Update user password');
+  console.log('  PUT    /api/users/:uid                  - Update user profile');
+  console.log('  POST   /api/cloudinary/delete           - Delete Cloudinary image');
+  console.log('  POST   /api/cloudinary/delete-by-url    - Delete by URL');
+  console.log('  POST   /api/cloudinary/delete-multiple  - Delete multiple images');
   console.log('  DELETE /api/blogs/:blogId             - Delete blog');
-  console.log('  PUT  /api/blogs/:blogId/approve       - Approve blog');
-  console.log('  PUT  /api/blogs/:blogId/reject        - Reject blog');
+  console.log('  PUT    /api/blogs/:blogId/approve       - Approve blog');
+  console.log('  PUT    /api/blogs/:blogId/reject        - Reject blog');
+  console.log('  PUT    /api/blogs/:blogId/retry         - Request blog revision');
+  console.log('  PUT    /api/blogs/:blogId               - Update blog content');
   console.log('═══════════════════════════════════════════════════════════');
-  // console.log('');
 });
 
 // Handle unhandled promise rejections
