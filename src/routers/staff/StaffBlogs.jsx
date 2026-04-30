@@ -141,23 +141,23 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
 
       {/* Alignment */}
       <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('left').run()} 
-          isActive={editor.isActive({ textAlign: 'left' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          isActive={editor.isActive({ textAlign: 'left' })}
           title="Align Left"
         >
           <AlignLeft size={16} />
         </ToolbarButton>
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('center').run()} 
-          isActive={editor.isActive({ textAlign: 'center' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          isActive={editor.isActive({ textAlign: 'center' })}
           title="Align Center"
         >
           <AlignCenter size={16} />
         </ToolbarButton>
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('right').run()} 
-          isActive={editor.isActive({ textAlign: 'right' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          isActive={editor.isActive({ textAlign: 'right' })}
           title="Align Right"
         >
           <AlignRight size={16} />
@@ -166,9 +166,9 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
 
       {/* Media */}
       <div className="flex items-center gap-1">
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setHorizontalRule().run()} 
-          isActive={false} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          isActive={false}
           title="Add Divider Line"
         >
           <Minus size={16} />
@@ -208,6 +208,7 @@ const AuthorDetails = memo(({ formData }) => {
 const StaffBlogs = () => {
   const { user, role, firebaseUser } = useAuth(); // Get authenticated user and role
   const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "" });
+  const [editingBlock, setEditingBlock] = useState(null);
 
   useEffect(() => {
     // Pre-fill author details from the authenticated user context
@@ -219,6 +220,8 @@ const StaffBlogs = () => {
       });
     }
   }, [user, role]);
+
+
 
   const [blogContent, setBlogContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -378,7 +381,17 @@ const StaffBlogs = () => {
   /**
    * Handle insert image block button click
    */
+  useEffect(() => {
+    const handleInsertImageEvent = (e) => {
+      setEditingBlock(e.detail || null);
+      setShowMultiImageModal(true);
+    };
+    window.addEventListener('insert-image-block', handleInsertImageEvent);
+    return () => window.removeEventListener('insert-image-block', handleInsertImageEvent);
+  }, []);
+
   const handleInsertImageBlock = useCallback(() => {
+    setEditingBlock(null); // fresh insert
     setShowMultiImageModal(true);
   }, []);
 
@@ -386,28 +399,46 @@ const StaffBlogs = () => {
    * Handle multi-image modal save
    */
   const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
-    // Store staged files in media staging
     mediaStaging.updateStagedFiles(id, stagedItems);
 
-    // Insert ImageBlock node in editor with staged items
     if (editor) {
-      editor
-        .chain()
-        .focus()
-        .insertContent({
+      if (editingBlock) {
+        // Update existing node in-place
+        let updated = false;
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'imageBlock' && node.attrs.id === id) {
+            editor.chain().focus().command(({ tr }) => {
+              tr.setNodeMarkup(pos, undefined, { ...node.attrs, stagedItems });
+              return true;
+            }).run();
+            updated = true;
+            return false;
+          }
+        });
+        if (!updated) {
+          editor.chain().focus().insertContent({
+            type: 'imageBlock',
+            attrs: { id, stagedItems },
+          }).run();
+        }
+      } else {
+        // Fresh insert
+        editor.chain().focus().insertContent({
           type: 'imageBlock',
           attrs: { id, stagedItems },
-        })
-        .run();
+        }).run();
+      }
     }
 
+    setEditingBlock(null);
     setShowMultiImageModal(false);
-  }, [editor, mediaStaging]);
+  }, [editor, mediaStaging, editingBlock]);
 
   /**
    * Handle multi-image modal cancel
    */
   const handleMultiImageCancel = useCallback(() => {
+    setEditingBlock(null);
     setShowMultiImageModal(false);
   }, []);
 
@@ -487,11 +518,21 @@ const StaffBlogs = () => {
         let uploadedImageBlocks = {};
 
         try {
+          // Build activeBlocks only from blocks still present in the editor
+          const activeBlocks = {};
+          imageBlockIds.forEach((blockId) => {
+            const hookItems = mediaStaging.stagedBlocks[blockId] || [];
+            if (hookItems.length > 0) {
+              activeBlocks[blockId] = hookItems;
+            }
+          });
+
           uploadedImageBlocks = await mediaStaging.flushUploads(
             uploadToCloudinary,
             ({ current, total, fileName }) => {
               toast.loading(`Uploading image ${current}/${total}: ${fileName}...`, { id: toastId });
-            }
+            },
+            activeBlocks
           );
 
           console.log('✅ All image blocks uploaded:', uploadedImageBlocks);
@@ -568,6 +609,18 @@ const StaffBlogs = () => {
     },
     [editor, user, formData, imageFile, mediaStaging]
   );
+
+  useEffect(() => {
+    const handleSyncStaged = (e) => {
+      const { id, stagedItems } = e.detail;
+      mediaStaging.updateStagedFiles(id, stagedItems);
+    };
+    window.addEventListener('sync-staged-block', handleSyncStaged);
+    return () => window.removeEventListener('sync-staged-block', handleSyncStaged);
+  }, [mediaStaging]);
+
+
+  
   const getPreviewData = useCallback(() => {
     if (!editor) return { content: '', ytlinks: [], imageBlocks: {} };
     const editorJson = editor.getJSON();
@@ -591,7 +644,7 @@ const StaffBlogs = () => {
     editorJson.content?.forEach(traverseNodes);
 
     let htmlContent = editor.getHTML();
-    
+
     youtubeLinks.forEach((url, index) => {
       const pattern = new RegExp(`<div[^>]*data-type="youtube-embed"[^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`, 'gi');
       htmlContent = htmlContent.replace(pattern, `<div id="yt${index}"></div>`);
@@ -742,8 +795,9 @@ const StaffBlogs = () => {
 
       <MultiImageUploadModal
         isOpen={showMultiImageModal}
-        onClose={handleMultiImageCancel}
+        onCancel={handleMultiImageCancel}
         onSave={handleMultiImageSave}
+        existingBlock={editingBlock}
       />
       <CropImageModal
         isOpen={showCropModal}

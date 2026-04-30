@@ -14,8 +14,6 @@ import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import BulletList from "@tiptap/extension-bullet-list";
 import Link from "@tiptap/extension-link";
-// import { extractYouTubeLinks, isYouTubeUrl } from "@/utils/youtubeUtils";
-// import { YouTubeLink } from "@/extensions/YouTubeLink";
 import "./tiptap.css";
 import { updateBlog } from "@/lib/api";
 import toast, { Toaster } from "react-hot-toast";
@@ -126,23 +124,23 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
 
       {/* Alignment */}
       <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('left').run()} 
-          isActive={editor.isActive({ textAlign: 'left' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          isActive={editor.isActive({ textAlign: 'left' })}
           title="Align Left"
         >
           <AlignLeft size={16} />
         </ToolbarButton>
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('center').run()} 
-          isActive={editor.isActive({ textAlign: 'center' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          isActive={editor.isActive({ textAlign: 'center' })}
           title="Align Center"
         >
           <AlignCenter size={16} />
         </ToolbarButton>
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('right').run()} 
-          isActive={editor.isActive({ textAlign: 'right' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          isActive={editor.isActive({ textAlign: 'right' })}
           title="Align Right"
         >
           <AlignRight size={16} />
@@ -239,8 +237,15 @@ const StaffBlogEdit = () => {
     }
   }, [editor, initialContent, contentLoaded]);
 
+
+  const [editingBlock, setEditingBlock] = useState(null); // { id, stagedItems }
+
   useEffect(() => {
-    const handleInsertImageEvent = () => setShowMultiImageModal(true);
+    const handleInsertImageEvent = (e) => {
+      // e.detail will carry existing block data when editing, or null when inserting fresh
+      setEditingBlock(e.detail || null);
+      setShowMultiImageModal(true);
+    };
     window.addEventListener('insert-image-block', handleInsertImageEvent);
     return () => window.removeEventListener('insert-image-block', handleInsertImageEvent);
   }, []);
@@ -248,18 +253,62 @@ const StaffBlogEdit = () => {
   const mediaStaging = useMediaStaging();
   const [showMultiImageModal, setShowMultiImageModal] = useState(false);
 
+  // const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
+  //   mediaStaging.updateStagedFiles(id, stagedItems);
+  //   if (editor) {
+  //     editor.chain().focus().insertContent({
+  //       type: 'imageBlock',
+  //       attrs: { id, stagedItems },
+  //     }).run();
+  //   }
+  //   setShowMultiImageModal(false);
+  // }, [editor, mediaStaging]);
+
+
   const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
+    // Always sync the hook with the final item list
     mediaStaging.updateStagedFiles(id, stagedItems);
+
     if (editor) {
-      editor.chain().focus().insertContent({
-        type: 'imageBlock',
-        attrs: { id, stagedItems },
-      }).run();
+      if (editingBlock) {
+        // UPDATE the existing node in-place instead of inserting a new one
+        let updated = false;
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'imageBlock' && node.attrs.id === id) {
+            editor
+              .chain()
+              .focus()
+              .command(({ tr }) => {
+                tr.setNodeMarkup(pos, undefined, { ...node.attrs, stagedItems });
+                return true;
+              })
+              .run();
+            updated = true;
+            return false; // stop traversal
+          }
+        });
+        if (!updated) {
+          // Fallback: node not found, insert fresh
+          editor.chain().focus().insertContent({
+            type: 'imageBlock',
+            attrs: { id, stagedItems },
+          }).run();
+        }
+      } else {
+        // Fresh insert from toolbar button
+        editor.chain().focus().insertContent({
+          type: 'imageBlock',
+          attrs: { id, stagedItems },
+        }).run();
+      }
     }
+
+    setEditingBlock(null);
     setShowMultiImageModal(false);
-  }, [editor, mediaStaging]);
+  }, [editor, mediaStaging, editingBlock]);
 
   const handleMultiImageCancel = useCallback(() => {
+    setEditingBlock(null);
     setShowMultiImageModal(false);
   }, []);
 
@@ -342,27 +391,6 @@ const StaffBlogEdit = () => {
           setExistingImage(typeof first === "object" ? first : { url: first });
         }
 
-        // editor.commands.setContent(data.content || "");
-        // const editorJson = editor.getJSON();
-        // const youtubeLinks = [];
-
-        // const traverseNodes = (node) => {
-        //   if (node.type === 'youtubeEmbed') {
-        //     youtubeLinks.push(node.attrs.url);
-        //   }
-        //   if (node.content) {
-        //     node.content.forEach(traverseNodes);
-        //   }
-        // };
-        // editorJson.content?.forEach(traverseNodes);
-
-        // let cleanedContent = editor.getHTML();
-        // youtubeLinks.forEach((url, index) => {
-        //   const ytPattern = /<div[^>]*data-type="youtube-embed"[^>]*>.*?<\/div>/gi;
-        //   cleanedContent = cleanedContent.replace(ytPattern, `<div id="yt${index}"></div>`);
-        // });
-
-        // editor.commands.setContent(cleanedContent);
         let contentToLoad = data.content || "";
 
         // Restore YouTube embeds
@@ -453,16 +481,66 @@ const StaffBlogEdit = () => {
       const editorJson = editor.getJSON();
       const youtubeLinks = [];
       const imageBlockIds = [];
+      const blocksToUpload = {};
+      const existingImagesMap = {};
 
-      const traverseNodes = (node) => {
-        if (node.type === 'youtubeEmbed') {
+      // Use a more robust traversal method
+      editor.state.doc.descendants((node) => {
+        if (node.type.name === 'youtubeEmbed') {
           youtubeLinks.push(node.attrs.url);
-        } else if (node.type === 'imageBlock') {
-          imageBlockIds.push(node.attrs.id);
+        } else if (node.type.name === 'imageBlock') {
+          const { id, stagedItems, images } = node.attrs;
+          if (!id) return;
+
+          if (!imageBlockIds.includes(id)) {
+            imageBlockIds.push(id);
+          }
+
+          // 1. Get the IDs of staged items currently in THIS node
+          const currentStagedItems = stagedItems || [];
+          const activeStagedIds = currentStagedItems
+            .filter(item => !item.url)
+            .map(item => item.id);
+
+          // 2. Get the "live" File objects from the hook state for these IDs
+          const hookItems = mediaStaging.stagedBlocks[id] || [];
+          const filteredHookItems = hookItems.filter(item => activeStagedIds.includes(item.id));
+
+          if (filteredHookItems.length > 0) {
+            // Deduplicate based on item ID to be safe
+            const uniqueItems = [];
+            const seenIds = new Set();
+            filteredHookItems.forEach(item => {
+              if (!seenIds.has(item.id)) {
+                uniqueItems.push(item);
+                seenIds.add(item.id);
+              }
+            });
+            blocksToUpload[id] = uniqueItems;
+          }
+
+          // 3. Track already uploaded images for this block
+          // const alreadyUploaded = [
+          //   ...(images || []),
+          //   ...(currentStagedItems || []).filter(item => item.url)
+          // ];
+          const alreadyUploaded = (currentStagedItems || []).filter(item => item.url);
+
+          if (alreadyUploaded.length > 0) {
+            // Deduplicate already uploaded images by publicId or url
+            const uniqueExisting = [];
+            const seenExisting = new Set();
+            alreadyUploaded.forEach(img => {
+              const key = img.publicId || img.url;
+              if (key && !seenExisting.has(key)) {
+                uniqueExisting.push(img);
+                seenExisting.add(key);
+              }
+            });
+            existingImagesMap[id] = uniqueExisting;
+          }
         }
-        if (node.content) node.content.forEach(traverseNodes);
-      };
-      editorJson.content?.forEach(traverseNodes);
+      });
 
       let cleanedContent = editor.getHTML();
 
@@ -477,8 +555,6 @@ const StaffBlogEdit = () => {
         const imgPattern = new RegExp(`<div[^>]*data-id=["']${blockId}["'][^>]*>.*?</div>`, 'i');
         cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
       });
-
-
 
       let uploadedImages = existingImage ? [existingImage] : [];
 
@@ -500,15 +576,27 @@ const StaffBlogEdit = () => {
       }
 
       // Upload image blocks
-      toast.loading("📤 Uploading image blocks...", { id: toastId });
-      let uploadedImageBlocks = {};
+      const uploadCount = Object.values(blocksToUpload).flat().length;
+      toast.loading(`📤 Uploading ${uploadCount} images from blocks...`, { id: toastId });
+
+      let finalImageBlocks = {};
       try {
-        uploadedImageBlocks = await mediaStaging.flushUploads(
+        const newlyUploadedBlocks = await mediaStaging.flushUploads(
           uploadToCloudinary,
           ({ current, total, fileName }) => {
             toast.loading(`📤 Uploading image ${current}/${total}: ${fileName}...`, { id: toastId });
-          }
+          },
+          blocksToUpload
         );
+
+        // Merge existing and newly uploaded images for each active block
+        imageBlockIds.forEach(id => {
+          const existing = existingImagesMap[id] || [];
+          const newlyUploaded = newlyUploadedBlocks[id] || [];
+          if (existing.length > 0 || newlyUploaded.length > 0) {
+            finalImageBlocks[id] = [...existing, ...newlyUploaded];
+          }
+        });
       } catch (uploadError) {
         console.error('Error uploading image blocks:', uploadError);
         toast.error(uploadError.message, { id: toastId });
@@ -522,14 +610,14 @@ const StaffBlogEdit = () => {
         content: cleanedContent,
         images: uploadedImages,
         ytlinks: youtubeLinks,
-        imageBlocks: uploadedImageBlocks,
+        imageBlocks: finalImageBlocks,
         status: "pending",
         retryFeedback: null,
         updatedAt: new Date(),
       });
 
       toast.success("Blog updated successfully and sent for review!", { id: toastId, duration: 5000 });
-      
+
       // Clear local storage draft
       localStorage.removeItem(`blog_edit_draft_${blogId}`);
 
@@ -540,6 +628,18 @@ const StaffBlogEdit = () => {
     } finally {
       setLoading(false);
     }
+
+
+    //printing data 
+    editor.state.doc.descendants((node) => {
+      if (node.type.name === 'imageBlock') {
+        console.log('node.attrs.images:', node.attrs.images);
+        console.log('node.attrs.stagedItems:', node.attrs.stagedItems);
+      }
+    });
+
+
+
   }, [editor, user, formData, imageFile, existingImage, blogId, navigate, mediaStaging]);
 
   const getPreviewData = useCallback(() => {
@@ -564,7 +664,7 @@ const StaffBlogEdit = () => {
     editorJson.content?.forEach(traverseNodes);
 
     let htmlContent = editor.getHTML();
-    
+
     youtubeLinks.forEach((url, index) => {
       const pattern = new RegExp(`<div[^>]*data-type="youtube-embed"[^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`, 'gi');
       htmlContent = htmlContent.replace(pattern, `<div id="yt${index}"></div>`);
@@ -758,8 +858,9 @@ const StaffBlogEdit = () => {
 
       <MultiImageUploadModal
         isOpen={showMultiImageModal}
-        onClose={() => setShowMultiImageModal(false)}
+        onCancel={() => setShowMultiImageModal(false)}
         onSave={handleMultiImageSave}
+        existingBlock={editingBlock}
       />
 
       <CropImageModal

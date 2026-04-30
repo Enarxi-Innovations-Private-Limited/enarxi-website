@@ -115,8 +115,9 @@ export const useMediaStaging = () => {
    * Upload all staged files to Cloudinary
    * Returns a map of blockId -> uploaded images array
    */
-  const flushUploads = useCallback(async (uploadFn, onProgress) => {
-    const blockIds = Object.keys(stagedBlocks);
+  const flushUploads = useCallback(async (uploadFn, onProgress, activeBlocks = null) => {
+    const blocksToProcess = activeBlocks || stagedBlocks;
+    const blockIds = Object.keys(blocksToProcess);
     
     if (blockIds.length === 0) {
       return {};
@@ -128,12 +129,12 @@ export const useMediaStaging = () => {
 
     // Count total files
     blockIds.forEach((blockId) => {
-      totalFiles += stagedBlocks[blockId].length;
+      totalFiles += blocksToProcess[blockId].length;
     });
 
     // Upload files block by block
     for (const blockId of blockIds) {
-      const files = stagedBlocks[blockId];
+      const files = blocksToProcess[blockId];
       const uploadedImages = [];
 
       for (const stagedItem of files) {

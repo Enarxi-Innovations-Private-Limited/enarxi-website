@@ -4,7 +4,7 @@ import { db } from "../config/firebase.js"
 export const updateBlog = async (req, res) => {
     try {
         const { blogId } = req.params;
-        const { title, content, images, ytlinks, status, retryFeedback, updatedAt } = req.body;
+        const { title, content, images, ytlinks, status, retryFeedback, updatedAt, imageBlocks } = req.body;
 
         const blogRef = db.collection("blogs").doc(blogId);
         const blogDoc = await blogRef.get();
@@ -26,6 +26,7 @@ export const updateBlog = async (req, res) => {
             status,
             retryFeedback,
             updatedAt: new Date(),
+            imageBlocks
         });
 
         res.json({ success: true, message: "Blog updated successfully" });

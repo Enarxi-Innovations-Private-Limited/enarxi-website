@@ -375,7 +375,7 @@ const AdminBlogDetail = () => {
               </div>
 
               <div
-                className="prose prose-lg max-w-none mb-8"
+                className="prose prose-lg max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed mb-8"
                 dangerouslySetInnerHTML={{ __html: injectBlogContent(blog.content, blog.ytlinks, blog.imageBlocks) }}
               />
 

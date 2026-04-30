@@ -18,13 +18,18 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
 
-  // Reset staged items when modal opens with existing block
+  const isOpenRef = React.useRef(false);
+
   React.useEffect(() => {
-    if (isOpen) {
-      setStagedItems(existingBlock?.stagedItems || []);
+    if (isOpen && !isOpenRef.current) {
+      // Only reset when modal first opens, not on every re-render while open
+      setStagedItems(
+        existingBlock?.stagedItems?.length > 0 ? existingBlock.stagedItems : []
+      );
       setError('');
     }
-  }, [isOpen, existingBlock]);
+    isOpenRef.current = isOpen;
+  }, [isOpen, existingBlock?.id]);
 
   // Cleanup object URLs when modal closes
   React.useEffect(() => {
@@ -105,17 +110,17 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
     return new Promise((resolve, reject) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
-      
+
       img.onload = () => {
         URL.revokeObjectURL(url);
         resolve({ width: img.width, height: img.height });
       };
-      
+
       img.onerror = () => {
         URL.revokeObjectURL(url);
         reject(new Error('Failed to load image'));
       };
-      
+
       img.src = url;
     });
   };
@@ -126,12 +131,12 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
   const handleRemoveImage = useCallback((itemId) => {
     setStagedItems((prev) => {
       const itemToRemove = prev.find((item) => item.id === itemId);
-      
+
       // Cleanup object URL if it's a blob
       if (itemToRemove?.previewUrl && itemToRemove.previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(itemToRemove.previewUrl);
       }
-      
+
       return prev.filter((item) => item.id !== itemId);
     });
   }, []);
@@ -190,7 +195,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                 </div>
               </div>
               <button
-                type="button"
+                type='button'
                 onClick={onCancel}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 disabled={processing}
@@ -267,7 +272,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                         className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors cursor-move"
                       >
                         <GripVertical className="w-5 h-5 text-gray-400 shrink-0" />
-                        <img
+                        {/* <img
                           src={item.previewUrl}
                           alt="Preview"
                           className="w-16 h-16 object-cover rounded-md shrink-0"
@@ -282,9 +287,26 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                           <p className="text-xs text-indigo-600 font-medium mt-0.5">
                             Staged (will upload on submit)
                           </p>
+                        </div> */}
+                        <img
+                          src={item.previewUrl || item.url}
+                          alt="Preview"
+                          className="w-16 h-16 object-cover rounded-md shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-700 truncate">
+                            {item.fileName || item.publicId || 'Uploaded image'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {item.width} × {item.height}
+                            {item.format ? ` • ${item.format.toUpperCase()}` : ''}
+                          </p>
+                          <p className={`text-xs font-medium mt-0.5 ${item.previewUrl ? 'text-indigo-600' : 'text-green-600'}`}>
+                            {item.previewUrl ? 'Staged (will upload on submit)' : 'Already uploaded'}
+                          </p>
                         </div>
                         <button
-                          type="button"
+                          type='button'
                           onClick={() => handleRemoveImage(item.id)}
                           className="p-2 hover:bg-red-100 rounded-lg transition-colors shrink-0"
                           disabled={processing}
@@ -306,7 +328,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
             {/* Footer */}
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end space-x-3">
               <button
-                type="button"
+                type='button'
                 onClick={onCancel}
                 className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 disabled={processing}
@@ -314,7 +336,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                 Cancel
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={handleSave}
                 disabled={processing || stagedItems.length === 0}
                 className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"

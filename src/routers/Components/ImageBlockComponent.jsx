@@ -1,32 +1,46 @@
+//path -> src/routers/Components/ImageBlockComponent.jsx
 import React, { useState } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import MultiImageUploadModal from './MultiImageUploadModal';
 
-/**
- * ImageBlockComponent - React Node View for ImageBlock
- * Renders a non-editable block with image previews and edit/delete controls
- * Works with staged items (local files with preview URLs) before upload
- */
 const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const { id, stagedItems = [] } = node.attrs;
-  
+
   // Support both old 'images' format and new 'stagedItems' format for backward compatibility
+  // const getItems = () => {
+  //   if (Array.isArray(stagedItems) && stagedItems.length > 0) return stagedItems;
+  //   if (Array.isArray(node.attrs.images) && node.attrs.images.length > 0) return node.attrs.images;
+  //   return [];
+  // };
+
+  // const items = getItems();
   const getItems = () => {
     if (Array.isArray(stagedItems) && stagedItems.length > 0) return stagedItems;
     if (Array.isArray(node.attrs.images) && node.attrs.images.length > 0) return node.attrs.images;
     return [];
   };
-  
-  const items = getItems();
+
+  // Ensure every item has a stable unique id for React keying and deletion
+  const items = getItems().map((item, index) => ({
+    ...item,
+    id: item.id || item.publicId || `existing-${index}`,
+  }));
 
   const handleEdit = () => {
     setShowEditModal(true);
   };
 
   const handleSave = ({ id: blockId, stagedItems: updatedItems }) => {
-    updateAttributes({ stagedItems: updatedItems });
+    updateAttributes({
+      stagedItems: updatedItems,
+      images: []
+    });
+    // Sync the mediaStaging hook in StaffBlogs so it knows about the removed images
+    window.dispatchEvent(new CustomEvent('sync-staged-block', {
+      detail: { id: blockId, stagedItems: updatedItems }
+    }));
     setShowEditModal(false);
   };
 
@@ -82,7 +96,7 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
                 // Support both staged items (previewUrl) and uploaded images (url)
                 const imageUrl = item.previewUrl || item.url;
                 const isStaged = !!item.previewUrl;
-                
+
                 return (
                   <div
                     key={item.id || item.publicId || index}
