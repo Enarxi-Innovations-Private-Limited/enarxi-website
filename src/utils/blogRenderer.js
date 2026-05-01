@@ -35,8 +35,11 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
 
   // 2. Inject Image Blocks
   if (imageBlocks && Object.keys(imageBlocks).length > 0) {
+    console.log(`🎨 blogRenderer: Injecting ${Object.keys(imageBlocks).length} image blocks`);
     Object.entries(imageBlocks).forEach(([blockId, images]) => {
       if (!images || images.length === 0) return;
+
+      console.log(`📸 blogRenderer: Block "${blockId}" has ${images.length} images`);
 
       // Create a grid for the images
       let gridHtml = '';
@@ -79,8 +82,16 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
       gridHtml += `</div>`;
 
       // Replace the placeholder div with the grid
-      const placeholderRegex = new RegExp(`<div\\s+class=["']image-block["']\\s+id=["']${blockId}["'][^>]*>\\s*</div>`, 'gi');
-      processedContent = processedContent.replace(placeholderRegex, gridHtml);
+      // Escape blockId for safe regex use
+      const escapedBlockId = blockId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const placeholderRegex = new RegExp(`<div[^>]*class=["']image-block["'][^>]*id=["']${escapedBlockId}["'][^>]*>\\s*</div>`, 'gi');
+      
+      if (placeholderRegex.test(processedContent)) {
+        console.log(`✅ blogRenderer: Found placeholder for "${blockId}", replacing...`);
+        processedContent = processedContent.replace(placeholderRegex, gridHtml);
+      } else {
+        console.warn(`❌ blogRenderer: Placeholder NOT found for "${blockId}". Regex: ${placeholderRegex}`);
+      }
     });
   }
 

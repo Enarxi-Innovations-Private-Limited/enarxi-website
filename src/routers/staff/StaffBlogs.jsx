@@ -642,14 +642,22 @@ const StaffBlogs = () => {
           ? node.attrs.images
           : null;
         const items = stagedItems || images || [];
+        
+        // Debug logging
+        console.log(`🔍 Preview: Found imageBlock ID="${id}", items=${items.length}, stagedItems=${stagedItems ? stagedItems.length : 0}, images=${images ? images.length : 0}`);
+        
         if (items.length > 0) {
           previewImageBlocks[id] = items.map(item => ({
             ...item,
             url: item.url || item.previewUrl,
           }));
+        } else {
+          console.warn(`⚠️  Preview: Image block "${id}" has NO items! stagedItems=${JSON.stringify(stagedItems)}, images=${JSON.stringify(images)}`);
         }
       }
     });
+
+    console.log(`📊 Preview: Total blocks found: ${Object.keys(previewImageBlocks).length}`, Object.keys(previewImageBlocks));
 
     let htmlContent = editor.getHTML();
 
@@ -662,36 +670,50 @@ const StaffBlogs = () => {
     });
 
     Object.keys(previewImageBlocks).forEach((blockId) => {
-      // Match the outer div with data-id, including any nested content inside
-      // Use a approach that finds the opening tag and replaces up to matching closing tag
+      // Escape blockId for safe regex use
+      const escapedBlockId = blockId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
+      // Find the opening tag
       const openTagPattern = new RegExp(
-        `<div[^>]*data-id=["']${blockId}["'][^>]*>`,
+        `<div[^>]*data-id=["']${escapedBlockId}["'][^>]*>`,
         'i'
       );
       const match = htmlContent.match(openTagPattern);
+      
       if (match) {
         const startIndex = htmlContent.indexOf(match[0]);
         const afterOpenTag = startIndex + match[0].length;
-        // Find the matching closing </div> by counting nesting
+        
+        // Count div depth to find the CORRECT closing tag
         let depth = 1;
         let i = afterOpenTag;
+        
         while (i < htmlContent.length && depth > 0) {
-          if (htmlContent.slice(i, i + 5) === '<div ' || htmlContent.slice(i, i + 4) === '<div>') {
+          // Check for opening div tag
+          // Both <div > and <div> are 5 chars, need to check both
+          if ((htmlContent.slice(i, i + 5) === '<div ' || htmlContent.slice(i, i + 5) === '<div>') && 
+              htmlContent.charCodeAt(i + 4) !== 47) { // Make sure it's not </div
             depth++;
-            i += 4;
-          } else if (htmlContent.slice(i, i + 6) === '</div>') {
+            i += 5; // FIXED: advance by 5, not 4
+          } 
+          // Check for closing div tag
+          else if (htmlContent.slice(i, i + 6) === '</div>') {
             depth--;
             if (depth === 0) break;
             i += 6;
-          } else {
+          } 
+          else {
             i++;
           }
         }
+        
         const endIndex = i + 6; // include </div>
-        htmlContent =
-          htmlContent.slice(0, startIndex) +
-          `<div class="image-block" id="${blockId}"></div>` +
-          htmlContent.slice(endIndex);
+        const replacement = `<div class="image-block" id="${blockId}"></div>`;
+        htmlContent = htmlContent.slice(0, startIndex) + replacement + htmlContent.slice(endIndex);
+        
+        console.log(`✅ Preview: Replaced imageBlock "${blockId}" (was chars ${startIndex}-${endIndex})`);
+      } else {
+        console.warn(`❌ Preview: Could NOT find imageBlock "${blockId}"`);
       }
     });
 

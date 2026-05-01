@@ -31,20 +31,6 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
     isOpenRef.current = isOpen;
   }, [isOpen, existingBlock?.id]);
 
-  // Cleanup object URLs when modal closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      // Cleanup any temporary object URLs that weren't saved
-      return () => {
-        stagedItems.forEach((item) => {
-          if (item.previewUrl && item.previewUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(item.previewUrl);
-          }
-        });
-      };
-    }
-  }, [isOpen, stagedItems]);
-
   /**
    * Handle file selection and stage locally (no upload yet)
    */
@@ -150,7 +136,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
       return;
     }
 
-    const blockId = existingBlock?.id || `image-block-${Date.now()}`;
+    const blockId = existingBlock?.id || `image-block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     onSave({ id: blockId, stagedItems });
   }, [stagedItems, existingBlock, onSave]);
 
