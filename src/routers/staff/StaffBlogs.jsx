@@ -620,47 +620,87 @@ const StaffBlogs = () => {
   }, [mediaStaging]);
 
 
-  
+
   const getPreviewData = useCallback(() => {
     if (!editor) return { content: '', ytlinks: [], imageBlocks: {} };
-    const editorJson = editor.getJSON();
+
     const previewImageBlocks = {};
     const youtubeLinks = [];
-    const traverseNodes = (node) => {
-      if (node.type === 'youtubeEmbed') {
+
+    // Use editor.state.doc.descendants instead of getJSON()
+    // because getJSON() serializes File objects to {} losing previewUrl/file data
+    editor.state.doc.descendants((node) => {
+      if (node.type.name === 'youtubeEmbed') {
         youtubeLinks.push(node.attrs.url);
-      } else if (node.type === 'imageBlock') {
+      } else if (node.type.name === 'imageBlock') {
         const id = node.attrs.id;
-        // Collect items from node attributes (source of truth in editor)
-        const items = node.attrs.stagedItems || node.attrs.images || [];
+        // Get items from live node attrs (not serialized JSON)
+        const stagedItems = Array.isArray(node.attrs.stagedItems) && node.attrs.stagedItems.length > 0
+          ? node.attrs.stagedItems
+          : null;
+        const images = Array.isArray(node.attrs.images) && node.attrs.images.length > 0
+          ? node.attrs.images
+          : null;
+        const items = stagedItems || images || [];
         if (items.length > 0) {
-          previewImageBlocks[id] = items;
+          previewImageBlocks[id] = items.map(item => ({
+            ...item,
+            url: item.url || item.previewUrl,
+          }));
         }
       }
-      if (node.content) {
-        node.content.forEach(traverseNodes);
-      }
-    };
-    editorJson.content?.forEach(traverseNodes);
+    });
 
     let htmlContent = editor.getHTML();
 
     youtubeLinks.forEach((url, index) => {
-      const pattern = new RegExp(`<div[^>]*data-type="youtube-embed"[^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`, 'gi');
+      const pattern = new RegExp(
+        `<div[^>]*data-type=["']youtube-embed["'][^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`,
+        'gi'
+      );
       htmlContent = htmlContent.replace(pattern, `<div id="yt${index}"></div>`);
     });
 
     Object.keys(previewImageBlocks).forEach((blockId) => {
-      const pattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?</div>`, 'gi');
-      htmlContent = htmlContent.replace(pattern, `<div class="image-block" id="${blockId}"></div>`);
+      // Match the outer div with data-id, including any nested content inside
+      // Use a approach that finds the opening tag and replaces up to matching closing tag
+      const openTagPattern = new RegExp(
+        `<div[^>]*data-id=["']${blockId}["'][^>]*>`,
+        'i'
+      );
+      const match = htmlContent.match(openTagPattern);
+      if (match) {
+        const startIndex = htmlContent.indexOf(match[0]);
+        const afterOpenTag = startIndex + match[0].length;
+        // Find the matching closing </div> by counting nesting
+        let depth = 1;
+        let i = afterOpenTag;
+        while (i < htmlContent.length && depth > 0) {
+          if (htmlContent.slice(i, i + 5) === '<div ' || htmlContent.slice(i, i + 4) === '<div>') {
+            depth++;
+            i += 4;
+          } else if (htmlContent.slice(i, i + 6) === '</div>') {
+            depth--;
+            if (depth === 0) break;
+            i += 6;
+          } else {
+            i++;
+          }
+        }
+        const endIndex = i + 6; // include </div>
+        htmlContent =
+          htmlContent.slice(0, startIndex) +
+          `<div class="image-block" id="${blockId}"></div>` +
+          htmlContent.slice(endIndex);
+      }
     });
 
     return {
       content: htmlContent,
       ytlinks: youtubeLinks,
-      imageBlocks: previewImageBlocks
+      imageBlocks: previewImageBlocks,
     };
-  }, [editor, mediaStaging]);
+  }, [editor]);
 
   if (!editor) return null;
   const previewData = showPreview ? getPreviewData() : null;

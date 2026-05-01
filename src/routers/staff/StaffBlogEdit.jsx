@@ -186,7 +186,6 @@ const StaffBlogEdit = () => {
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [originalFileName, setOriginalFileName] = useState("");
@@ -221,7 +220,6 @@ const StaffBlogEdit = () => {
     content: "",
   });
 
-  // Dedicated effect for initial content loading to follow "GOOD" pattern
   const [contentLoaded, setContentLoaded] = useState(false);
   const [initialContent, setInitialContent] = useState("");
 
@@ -237,12 +235,10 @@ const StaffBlogEdit = () => {
     }
   }, [editor, initialContent, contentLoaded]);
 
-
-  const [editingBlock, setEditingBlock] = useState(null); // { id, stagedItems }
+  const [editingBlock, setEditingBlock] = useState(null);
 
   useEffect(() => {
     const handleInsertImageEvent = (e) => {
-      // e.detail will carry existing block data when editing, or null when inserting fresh
       setEditingBlock(e.detail || null);
       setShowMultiImageModal(true);
     };
@@ -251,27 +247,24 @@ const StaffBlogEdit = () => {
   }, []);
 
   const mediaStaging = useMediaStaging();
+
+  useEffect(() => {
+    const handleSyncStaged = (e) => {
+      const { id, stagedItems } = e.detail;
+      mediaStaging.updateStagedFiles(id, stagedItems);
+    };
+    window.addEventListener('sync-staged-block', handleSyncStaged);
+    return () => window.removeEventListener('sync-staged-block', handleSyncStaged);
+  }, [mediaStaging]);
+
+  
   const [showMultiImageModal, setShowMultiImageModal] = useState(false);
 
-  // const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
-  //   mediaStaging.updateStagedFiles(id, stagedItems);
-  //   if (editor) {
-  //     editor.chain().focus().insertContent({
-  //       type: 'imageBlock',
-  //       attrs: { id, stagedItems },
-  //     }).run();
-  //   }
-  //   setShowMultiImageModal(false);
-  // }, [editor, mediaStaging]);
-
-
   const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
-    // Always sync the hook with the final item list
     mediaStaging.updateStagedFiles(id, stagedItems);
 
     if (editor) {
       if (editingBlock) {
-        // UPDATE the existing node in-place instead of inserting a new one
         let updated = false;
         editor.state.doc.descendants((node, pos) => {
           if (node.type.name === 'imageBlock' && node.attrs.id === id) {
@@ -284,18 +277,16 @@ const StaffBlogEdit = () => {
               })
               .run();
             updated = true;
-            return false; // stop traversal
+            return false;
           }
         });
         if (!updated) {
-          // Fallback: node not found, insert fresh
           editor.chain().focus().insertContent({
             type: 'imageBlock',
             attrs: { id, stagedItems },
           }).run();
         }
       } else {
-        // Fresh insert from toolbar button
         editor.chain().focus().insertContent({
           type: 'imageBlock',
           attrs: { id, stagedItems },
@@ -339,7 +330,6 @@ const StaffBlogEdit = () => {
   }, [editor, fetchLoading, blogId]);
 
   useEffect(() => {
-    // Only save if data has finished loading from DB to avoid saving empty state
     if (!fetchLoading && editor) {
       const content = editor.getHTML();
       if (formData.title || (content && content !== '<p></p>')) {
@@ -365,21 +355,17 @@ const StaffBlogEdit = () => {
 
         const data = blogSnap.data();
 
-        // Only the blog owner can edit
         if (data.userId !== user?.uid) {
           setFetchError("You do not have permission to edit this blog.");
           return;
         }
 
-        // Only retry blogs are editable here
         if (data.status !== "retry") {
           setFetchError("This blog is not in retry status and cannot be edited here.");
           return;
         }
 
         setRetryFeedback(data.retryFeedback || "");
-        console.log("content:", data.content);
-        console.log("ytlinks:", data.ytlinks);
         setFormData({
           authorName: data.authorName || firebaseUser?.name || user?.email || "",
           authorRole: data.authorRole || role || "",
@@ -412,7 +398,6 @@ const StaffBlogEdit = () => {
           });
         }
 
-        // editor.commands.setContent(contentToLoad);
         setInitialContent(contentToLoad);
       } catch (err) {
         console.error("Error fetching blog:", err);
@@ -423,7 +408,7 @@ const StaffBlogEdit = () => {
     };
 
     fetchBlog();
-  }, [blogId, editor, user, role, firebaseUser]); // Added missing dependencies
+  }, [blogId, editor, user, role, firebaseUser]);
 
   const handleInputChange = useCallback((e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -478,13 +463,11 @@ const StaffBlogEdit = () => {
     const toastId = toast.loading("Preparing blog update...");
 
     try {
-      const editorJson = editor.getJSON();
       const youtubeLinks = [];
       const imageBlockIds = [];
       const blocksToUpload = {};
       const existingImagesMap = {};
 
-      // Use a more robust traversal method
       editor.state.doc.descendants((node) => {
         if (node.type.name === 'youtubeEmbed') {
           youtubeLinks.push(node.attrs.url);
@@ -496,18 +479,17 @@ const StaffBlogEdit = () => {
             imageBlockIds.push(id);
           }
 
-          // 1. Get the IDs of staged items currently in THIS node
-          const currentStagedItems = stagedItems || [];
+          const currentStagedItems = Array.isArray(stagedItems) ? stagedItems : [];
+
+          // New files to upload (no url yet)
           const activeStagedIds = currentStagedItems
             .filter(item => !item.url)
             .map(item => item.id);
 
-          // 2. Get the "live" File objects from the hook state for these IDs
           const hookItems = mediaStaging.stagedBlocks[id] || [];
           const filteredHookItems = hookItems.filter(item => activeStagedIds.includes(item.id));
 
           if (filteredHookItems.length > 0) {
-            // Deduplicate based on item ID to be safe
             const uniqueItems = [];
             const seenIds = new Set();
             filteredHookItems.forEach(item => {
@@ -519,15 +501,19 @@ const StaffBlogEdit = () => {
             blocksToUpload[id] = uniqueItems;
           }
 
-          // 3. Track already uploaded images for this block
-          // const alreadyUploaded = [
-          //   ...(images || []),
-          //   ...(currentStagedItems || []).filter(item => item.url)
-          // ];
-          const alreadyUploaded = (currentStagedItems || []).filter(item => item.url);
+          // Already uploaded images:
+          // - If block was edited: stagedItems has the remaining images (images[] was cleared to [])
+          // - If block was NOT edited: stagedItems is [] and images[] has the original data
+          const stagedWithUrl = currentStagedItems.filter(item => item.url);
+          const originalImages = Array.isArray(images) ? images : [];
+
+          // Use stagedItems if it has uploaded images (block was edited),
+          // otherwise fall back to images[] (block untouched)
+          const alreadyUploaded = stagedWithUrl.length > 0
+            ? stagedWithUrl
+            : originalImages;
 
           if (alreadyUploaded.length > 0) {
-            // Deduplicate already uploaded images by publicId or url
             const uniqueExisting = [];
             const seenExisting = new Set();
             alreadyUploaded.forEach(img => {
@@ -575,7 +561,6 @@ const StaffBlogEdit = () => {
         }];
       }
 
-      // Upload image blocks
       const uploadCount = Object.values(blocksToUpload).flat().length;
       toast.loading(`📤 Uploading ${uploadCount} images from blocks...`, { id: toastId });
 
@@ -589,7 +574,6 @@ const StaffBlogEdit = () => {
           blocksToUpload
         );
 
-        // Merge existing and newly uploaded images for each active block
         imageBlockIds.forEach(id => {
           const existing = existingImagesMap[id] || [];
           const newlyUploaded = newlyUploadedBlocks[id] || [];
@@ -617,10 +601,7 @@ const StaffBlogEdit = () => {
       });
 
       toast.success("Blog updated successfully and sent for review!", { id: toastId, duration: 5000 });
-
-      // Clear local storage draft
       localStorage.removeItem(`blog_edit_draft_${blogId}`);
-
       setTimeout(() => navigate("/staff"), 2000);
     } catch (error) {
       console.error("Error updating blog:", error);
@@ -628,31 +609,29 @@ const StaffBlogEdit = () => {
     } finally {
       setLoading(false);
     }
-
-
-    //printing data 
-    editor.state.doc.descendants((node) => {
-      if (node.type.name === 'imageBlock') {
-        console.log('node.attrs.images:', node.attrs.images);
-        console.log('node.attrs.stagedItems:', node.attrs.stagedItems);
-      }
-    });
-
-
-
   }, [editor, user, formData, imageFile, existingImage, blogId, navigate, mediaStaging]);
 
+  // ── Preview ───────────────────────────────────────────────────────────────
   const getPreviewData = useCallback(() => {
     if (!editor) return { content: '', ytlinks: [], imageBlocks: {} };
+
     const editorJson = editor.getJSON();
     const previewImageBlocks = {};
     const youtubeLinks = [];
+
     const traverseNodes = (node) => {
       if (node.type === 'youtubeEmbed') {
         youtubeLinks.push(node.attrs.url);
       } else if (node.type === 'imageBlock') {
         const id = node.attrs.id;
-        const items = node.attrs.stagedItems || node.attrs.images || [];
+        // Safely check both stagedItems and images — prefer stagedItems
+        const stagedItems = Array.isArray(node.attrs.stagedItems) && node.attrs.stagedItems.length > 0
+          ? node.attrs.stagedItems
+          : null;
+        const images = Array.isArray(node.attrs.images) && node.attrs.images.length > 0
+          ? node.attrs.images
+          : null;
+        const items = stagedItems || images || [];
         if (items.length > 0) {
           previewImageBlocks[id] = items;
         }
@@ -663,24 +642,37 @@ const StaffBlogEdit = () => {
     };
     editorJson.content?.forEach(traverseNodes);
 
+    // Get raw HTML from editor
     let htmlContent = editor.getHTML();
 
+    // Replace YouTube NodeView HTML with placeholder
     youtubeLinks.forEach((url, index) => {
-      const pattern = new RegExp(`<div[^>]*data-type="youtube-embed"[^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`, 'gi');
+      const pattern = new RegExp(
+        `<div[^>]*data-type=["']youtube-embed["'][^>]*>.*?</div>`,
+        'gis'
+      );
       htmlContent = htmlContent.replace(pattern, `<div id="yt${index}"></div>`);
     });
 
+    // Replace ImageBlock NodeView HTML with placeholder
+    // The rendered HTML has: data-id="blockId" and class="image-block"
     Object.keys(previewImageBlocks).forEach((blockId) => {
-      const pattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?</div>`, 'gi');
-      htmlContent = htmlContent.replace(pattern, `<div class="image-block" id="${blockId}"></div>`);
+      const pattern = new RegExp(
+        `<div[^>]*data-id=["']${blockId}["'][^>]*>\\s*</div>`,
+        'gi'
+      );
+      htmlContent = htmlContent.replace(
+        pattern,
+        `<div class="image-block" id="${blockId}"></div>`
+      );
     });
 
     return {
       content: htmlContent,
       ytlinks: youtubeLinks,
-      imageBlocks: previewImageBlocks
+      imageBlocks: previewImageBlocks,
     };
-  }, [editor, mediaStaging]);
+  }, [editor]);
 
   const previewData = showPreview ? getPreviewData() : null;
 
@@ -701,7 +693,7 @@ const StaffBlogEdit = () => {
         null
       ) : (
         <form onSubmit={handleSubmit}>
-          {/* Combined Fixed Header (Nav + Toolbar + Actions) */}
+          {/* Combined Fixed Header */}
           <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-2 shrink-0 shadow-sm">
             <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
               <div className="flex items-center flex-1 overflow-x-auto no-scrollbar gap-2">
@@ -729,7 +721,7 @@ const StaffBlogEdit = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md font-semibold transition-all shadow-sm hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed`}
+                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md font-semibold transition-all shadow-sm hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed"
                 >
                   {loading ? "Saving..." : <><Save size={18} /> Resubmit Blog</>}
                 </button>
@@ -751,7 +743,7 @@ const StaffBlogEdit = () => {
                 </div>
               )}
 
-              {/* Title Section */}
+              {/* Title */}
               <input
                 type="text"
                 name="title"
@@ -763,7 +755,7 @@ const StaffBlogEdit = () => {
                 className="doc-title-input"
               />
 
-              {/* Author Section */}
+              {/* Author */}
               <div className="doc-author-section">
                 <div className="doc-author-item">
                   <User size={16} />
@@ -775,19 +767,18 @@ const StaffBlogEdit = () => {
                 </div>
               </div>
 
-              {/* Content Area */}
+              {/* Editor */}
               <div className="relative border border-gray-200 rounded-xl bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500 transition-all overflow-hidden">
                 <EditorContent editor={editor} />
               </div>
 
-              {/* Featured Image Section - Integrated subtly */}
+              {/* Featured Image */}
               <div className="mt-12 pt-8 border-t border-gray-100">
                 <label className="flex items-center gap-2 text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">
                   <FileImage size={16} /> Featured Image
                 </label>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  {/* Existing Image */}
                   {existingImage && !imageFile && (
                     <div className="relative group">
                       <img
@@ -805,7 +796,6 @@ const StaffBlogEdit = () => {
                     </div>
                   )}
 
-                  {/* Upload Button */}
                   <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200 rounded-xl px-6 py-4 transition-colors flex flex-col items-center gap-2">
                     <FileImage className="text-gray-400" />
                     <span className="text-xs font-medium text-gray-600">{existingImage ? "Replace Image" : "Choose Image"}</span>
@@ -817,7 +807,6 @@ const StaffBlogEdit = () => {
                     />
                   </label>
 
-                  {/* New Image Preview */}
                   {imageFile && (
                     <div className="relative group">
                       <img
@@ -842,8 +831,7 @@ const StaffBlogEdit = () => {
         </form>
       )}
 
-      {/* Modals are outside the form but inside the main div for stability */}
-      {/* Preview Modal */}
+      {/* Modals */}
       <BlogPreviewModal
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
@@ -858,7 +846,7 @@ const StaffBlogEdit = () => {
 
       <MultiImageUploadModal
         isOpen={showMultiImageModal}
-        onCancel={() => setShowMultiImageModal(false)}
+        onCancel={handleMultiImageCancel}
         onSave={handleMultiImageSave}
         existingBlock={editingBlock}
       />

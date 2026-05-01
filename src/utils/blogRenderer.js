@@ -39,28 +39,41 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
       if (!images || images.length === 0) return;
 
       // Create a grid for the images
-      let gridHtml = `
-        <div class="blog-image-block" style="margin: 2rem 0; display: grid; gap: 1rem; grid-template-columns: repeat(${Math.min(images.length, 2)}, 1fr);">
-      `;
+      let gridHtml = '';
 
-      // Adjust grid columns based on number of images
       if (images.length === 1) {
         gridHtml = `<div class="blog-image-block" style="margin: 2rem 0;">`;
-      } else if (images.length >= 3) {
-        gridHtml = `<div class="blog-image-block" style="margin: 2rem 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">`;
+      } else {
+        // Use flexbox so each image keeps its natural size/ratio
+        gridHtml = `<div class="blog-image-block" style="margin: 2rem 0; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;">`;
       }
 
       images.forEach((img, idx) => {
-        gridHtml += `
-          <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <img 
-              src="${img.url || img.previewUrl}" 
-              alt="Blog image ${idx + 1}" 
-              style="width: 100%; height: 100%; object-fit: cover; display: block;"
-              loading="lazy"
-            />
-          </div>
-        `;
+        if (images.length === 1) {
+          // Single image: full width, natural height
+          gridHtml += `
+      <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <img 
+          src="${img.url || img.previewUrl}" 
+          alt="Blog image ${idx + 1}" 
+          style="width: 100%; height: auto; display: block;"
+          loading="lazy"
+        />
+      </div>
+    `;
+        } else {
+          // Multiple images: each takes natural size, wraps if needed
+          gridHtml += `
+      <div style="flex: 1 1 calc(50% - 0.5rem); min-width: 200px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <img 
+          src="${img.url || img.previewUrl}" 
+          alt="Blog image ${idx + 1}" 
+          style="width: 100%; height: auto; display: block;"
+          loading="lazy"
+        />
+      </div>
+    `;
+        }
       });
 
       gridHtml += `</div>`;
