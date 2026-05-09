@@ -45,7 +45,7 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
       let gridHtml = '';
 
       if (images.length === 1) {
-        gridHtml = `<div class="blog-image-block" style="margin: 2rem 0;">`;
+        gridHtml = `<div class="blog-image-block" style="margin: 2rem 0; display: flex; justify-content: center;">`;
       } else {
         // Use flexbox so each image keeps its natural size/ratio
         gridHtml = `<div class="blog-image-block" style="margin: 2rem 0; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;">`;
@@ -53,13 +53,13 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
 
       images.forEach((img, idx) => {
         if (images.length === 1) {
-          // Single image: full width, natural height
+          // Single image: natural size, centered, max-height constrained so 1:1 or portrait images aren't gigantic
           gridHtml += `
-      <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+      <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 100%;">
         <img 
           src="${img.url || img.previewUrl}" 
           alt="Blog image ${idx + 1}" 
-          style="width: 100%; height: auto; display: block;"
+          style="max-width: 100%; max-height: 500px; width: auto; height: auto; display: block; margin: 0; object-fit: contain;"
           loading="lazy"
         />
       </div>
@@ -85,7 +85,7 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
       // Escape blockId for safe regex use
       const escapedBlockId = blockId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const placeholderRegex = new RegExp(`<div[^>]*class=["']image-block["'][^>]*id=["']${escapedBlockId}["'][^>]*>\\s*</div>`, 'gi');
-      
+
       if (placeholderRegex.test(processedContent)) {
         console.log(`✅ blogRenderer: Found placeholder for "${blockId}", replacing...`);
         processedContent = processedContent.replace(placeholderRegex, gridHtml);
