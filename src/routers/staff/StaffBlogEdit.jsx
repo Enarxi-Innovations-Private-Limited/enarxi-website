@@ -8,7 +8,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
-import { Youtube, AlertTriangle, ArrowLeft, Loader2, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, X, Minus, Eye } from "lucide-react";
+import { generateSeoFileName, validateAltText } from "@/utils/seoUtils";
+import { Youtube, AlertTriangle, ArrowLeft, Loader2, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Minus, Eye } from "lucide-react";
 import Heading from "@tiptap/extension-heading";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
@@ -145,6 +146,13 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
         >
           <AlignRight size={16} />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          isActive={editor.isActive({ textAlign: 'justify' })}
+          title="Justify"
+        >
+          <AlignJustify size={16} />
+        </ToolbarButton>  
       </div>
 
       {/* Media */}
@@ -184,6 +192,7 @@ const StaffBlogEdit = () => {
   const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "" });
   const [existingImage, setExistingImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [featuredImageAlt, setFeaturedImageAlt] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [showCropModal, setShowCropModal] = useState(false);
@@ -212,6 +221,7 @@ const StaffBlogEdit = () => {
     YouTubeEmbed,
     TextAlign.configure({
       types: ['heading', 'paragraph'],
+      alignments: ['left', 'center', 'right', 'justify'],
     }),
   ], []);
 
@@ -311,9 +321,12 @@ const StaffBlogEdit = () => {
     const savedDraft = localStorage.getItem(`blog_edit_draft_${blogId}`);
     if (savedDraft) {
       try {
-        const { formData: savedForm, content: savedContent } = JSON.parse(savedDraft);
+        const { formData: savedForm, content: savedContent, featuredImageAlt: savedAlt } = JSON.parse(savedDraft);
         if (savedForm?.title) {
           setFormData(prev => ({ ...prev, title: savedForm.title }));
+        }
+        if (savedAlt) {
+          setFeaturedImageAlt(savedAlt);
         }
         if (savedContent) {
           const timeoutId = setTimeout(() => {
@@ -333,10 +346,10 @@ const StaffBlogEdit = () => {
     if (!fetchLoading && editor) {
       const content = editor.getHTML();
       if (formData.title || (content && content !== '<p></p>')) {
-        localStorage.setItem(`blog_edit_draft_${blogId}`, JSON.stringify({ formData, content }));
+        localStorage.setItem(`blog_edit_draft_${blogId}`, JSON.stringify({ formData, content, featuredImageAlt }));
       }
     }
-  }, [formData, editor, fetchLoading, blogId]);
+  }, [formData, editor, fetchLoading, blogId, featuredImageAlt]);
 
   // ── Fetch existing blog data ──────────────────────────────────────────────
   useEffect(() => {
@@ -375,6 +388,7 @@ const StaffBlogEdit = () => {
         if (data.images && data.images.length > 0) {
           const first = data.images[0];
           setExistingImage(typeof first === "object" ? first : { url: first });
+          setFeaturedImageAlt(typeof first === "object" && first.altText ? first.altText : "");
         }
 
         let contentToLoad = data.content || "";
@@ -457,6 +471,14 @@ const StaffBlogEdit = () => {
     if (finalHtmlContent === "<p></p>") {
       toast.error("Blog content cannot be empty.");
       return;
+    }
+
+    if (imageFile || existingImage) {
+      const altValidation = validateAltText(featuredImageAlt, 3);
+      if (!altValidation.valid) {
+        toast.error(altValidation.error);
+        return;
+      }
     }
 
     setLoading(true);
@@ -542,7 +564,7 @@ const StaffBlogEdit = () => {
         cleanedContent = cleanedContent.replace(imgPattern, `<div class="image-block" id="${blockId}"></div>`);
       });
 
-      let uploadedImages = existingImage ? [existingImage] : [];
+      let uploadedImages = existingImage ? [{ ...existingImage, altText: featuredImageAlt }] : [];
 
       if (imageFile) {
         if (imageFile.size > 5 * 1024 * 1024) {
@@ -551,13 +573,16 @@ const StaffBlogEdit = () => {
           return;
         }
         toast.loading("📤 Uploading new image...", { id: toastId });
-        const uploadResult = await uploadToCloudinary(imageFile);
+        const seoName = generateSeoFileName(featuredImageAlt, imageFile.name);
+        const seoFile = new File([imageFile], seoName, { type: imageFile.type });
+        const uploadResult = await uploadToCloudinary(seoFile);
         uploadedImages = [{
           url: uploadResult.url,
           publicId: uploadResult.publicId,
           format: uploadResult.format,
           width: uploadResult.width,
           height: uploadResult.height,
+          altText: featuredImageAlt,
         }];
       }
 
@@ -825,6 +850,23 @@ const StaffBlogEdit = () => {
                   )}
                 </div>
                 <p className="mt-2 text-xs text-gray-400">Updating the featured image will replace the current one.</p>
+
+                {(existingImage || imageFile) && (
+                  <div className="mt-4 w-full">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Alt Text (Mandatory for SEO)
+                    </label>
+                    <input
+                      type="text"
+                      value={featuredImageAlt}
+                      onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                      placeholder="Describe the image (e.g., 'Authentication workflow using JWT')"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Make it descriptive (minimum 3 words) to help search engines understand this image.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

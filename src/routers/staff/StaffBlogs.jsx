@@ -7,12 +7,13 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
+import { generateSeoFileName, validateAltText } from "@/utils/seoUtils";
 // import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import MultiImageUploadModal from "../Components/MultiImageUploadModal";
 import { isYouTubeUrl } from "@/utils/youtubeUtils";
 // import { useMediaStaging } from "@/hooks/useMediaStaging";
 import { useMediaStaging } from "@/hooks/useMediaStaging";
-import { Youtube, Image, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, X, Minus, Loader2, Eye } from "lucide-react";
+import { Youtube, Image, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Minus, Loader2, Eye } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 // --- Import all required Tiptap extensions for customization ---
@@ -162,6 +163,13 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
         >
           <AlignRight size={16} />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          isActive={editor.isActive({ textAlign: 'justify' })}
+          title="Justify"
+        >
+          <AlignJustify size={16} />
+        </ToolbarButton>
       </div>
 
       {/* Media */}
@@ -225,6 +233,7 @@ const StaffBlogs = () => {
 
   const [blogContent, setBlogContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [featuredImageAlt, setFeaturedImageAlt] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Crop modal state
@@ -260,6 +269,7 @@ const StaffBlogs = () => {
       YouTubeEmbed,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
       }),
     ],
     content: "",
@@ -272,10 +282,13 @@ const StaffBlogs = () => {
     const savedDraft = localStorage.getItem("blog_draft");
     if (savedDraft) {
       try {
-        const { formData: savedForm, content: savedContent } = JSON.parse(savedDraft);
+        const { formData: savedForm, content: savedContent, featuredImageAlt: savedAlt } = JSON.parse(savedDraft);
         // Only restore the title, as author info might have changed or been updated by auth useEffect
         if (savedForm?.title) {
           setFormData(prev => ({ ...prev, title: savedForm.title }));
+        }
+        if (savedAlt) {
+          setFeaturedImageAlt(savedAlt);
         }
         if (savedContent) {
           editor.commands.setContent(savedContent);
@@ -290,9 +303,9 @@ const StaffBlogs = () => {
   useEffect(() => {
     // Only save if there's actual content to avoid saving empty state over a draft
     if (formData.title || (blogContent && blogContent !== '<p></p>')) {
-      localStorage.setItem("blog_draft", JSON.stringify({ formData, content: blogContent }));
+      localStorage.setItem("blog_draft", JSON.stringify({ formData, content: blogContent, featuredImageAlt }));
     }
-  }, [formData.title, blogContent]);
+  }, [formData.title, blogContent, featuredImageAlt]);
 
   useEffect(() => () => editor?.destroy(), [editor]);
 
@@ -447,6 +460,14 @@ const StaffBlogs = () => {
       e.preventDefault();
       if (!editor || !user) return;
 
+      if (imageFile) {
+        const altValidation = validateAltText(featuredImageAlt, 3);
+        if (!altValidation.valid) {
+          toast.error(altValidation.error);
+          return;
+        }
+      }
+
       setLoading(true);
       const finalHtmlContent = editor.getHTML();
 
@@ -496,13 +517,16 @@ const StaffBlogs = () => {
           toast.loading("Uploading featured image...", { id: toastId });
 
           try {
-            const uploadResult = await uploadToCloudinary(imageFile);
+            const seoName = generateSeoFileName(featuredImageAlt, imageFile.name);
+            const seoFile = new File([imageFile], seoName, { type: imageFile.type });
+            const uploadResult = await uploadToCloudinary(seoFile);
             uploadedImages.push({
               url: uploadResult.url,
               publicId: uploadResult.publicId,
               format: uploadResult.format,
               width: uploadResult.width,
               height: uploadResult.height,
+              altText: featuredImageAlt,
             });
           } catch (uploadError) {
             console.error(`Error uploading ${imageFile.name}:`, uploadError);
@@ -592,6 +616,7 @@ const StaffBlogs = () => {
           editor.commands.clearContent(true);
           setBlogContent("");
           setFormData(prev => ({ ...prev, title: '' }));
+          setFeaturedImageAlt("");
 
           // Clear file input
           const fileInput = e.target.querySelector('input[type="file"]');
@@ -818,20 +843,37 @@ const StaffBlogs = () => {
                     />
                   </label>
                 ) : (
-                  <div className="relative group rounded-xl overflow-hidden border border-gray-200 w-full max-w-2xl aspect-video bg-gray-100 flex items-center justify-center shadow-sm">
-                    <img
-                      src={URL.createObjectURL(imageFile)}
-                      alt={imageFile.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md"
-                      >
-                        <X size={16} /> Remove Image
-                      </button>
+                  <div className="flex flex-col gap-4 w-full max-w-2xl">
+                    <div className="relative group rounded-xl overflow-hidden border border-gray-200 w-full aspect-video bg-gray-100 flex items-center justify-center shadow-sm">
+                      <img
+                        src={URL.createObjectURL(imageFile)}
+                        alt={imageFile.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md"
+                        >
+                          <X size={16} /> Remove Image
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-bold text-gray-700 mb-1">
+                        Alt Text (Mandatory for SEO)
+                      </label>
+                      <input
+                        type="text"
+                        value={featuredImageAlt}
+                        onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                        placeholder="Describe the image (e.g., 'Authentication workflow using JWT')"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Make it descriptive (minimum 3 words) to help search engines understand this image.</p>
                     </div>
                   </div>
                 )}

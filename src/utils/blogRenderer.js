@@ -27,7 +27,7 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
             ></iframe>
           </div>
         `;
-        const placeholderRegex = new RegExp(`<div\\s+id=["']yt${index}["'][^>]*>\\s*</div>`, 'gi');
+        const placeholderRegex = new RegExp(`<div\\s+id=["']yt${index}["'][^>]*>\\s*</div>`, 'i');
         processedContent = processedContent.replace(placeholderRegex, iframeHtml);
       }
     });
@@ -36,61 +36,97 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
   // 2. Inject Image Blocks
   if (imageBlocks && Object.keys(imageBlocks).length > 0) {
     console.log(`🎨 blogRenderer: Injecting ${Object.keys(imageBlocks).length} image blocks`);
+
     Object.entries(imageBlocks).forEach(([blockId, images]) => {
       if (!images || images.length === 0) return;
 
       console.log(`📸 blogRenderer: Block "${blockId}" has ${images.length} images`);
 
-      // Create a grid for the images
-      let gridHtml = '';
-
-      if (images.length === 1) {
-        gridHtml = `<div class="blog-image-block" style="margin: 2rem 0; display: flex; justify-content: center;">`;
-      } else {
-        // Use flexbox so each image keeps its natural size/ratio
-        gridHtml = `<div class="blog-image-block" style="margin: 2rem 0; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;">`;
-      }
+      let gridHtml = images.length === 1
+        ? `<div class="blog-image-block" style="margin: 2rem 0; display: flex; justify-content: center;">`
+        : `<div class="blog-image-block" style="margin: 2rem 0; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;">`;
 
       images.forEach((img, idx) => {
+        const src     = img.url || img.previewUrl || '';
+        const alt     = img.altText || `Blog image ${idx + 1}`;
+        const title   = img.title?.trim() || '';   // empty string = don't render the label
+        const showLabel = title.length > 0;
+
         if (images.length === 1) {
-          // Single image: natural size, centered, max-height constrained so 1:1 or portrait images aren't gigantic
           gridHtml += `
-      <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 100%;">
-        <img 
-          src="${img.url || img.previewUrl}" 
-          alt="Blog image ${idx + 1}" 
-          style="max-width: 100%; max-height: 500px; width: auto; height: auto; display: block; margin: 0; object-fit: contain;"
-          loading="lazy"
-        />
-      </div>
-    `;
+            <div style="display: flex; flex-direction: column; align-items: center; max-width: 100%;">
+              <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); max-width: 100%;">
+                <img
+                  src="${src}"
+                  alt="${alt}"
+                  title="${title || alt}"
+                  style="max-width: 100%; max-height: 500px; width: auto; height: auto; display: block; margin: 0; object-fit: contain;"
+                  loading="lazy"
+                />
+              </div>
+              ${showLabel ? `
+              <p style="margin: 0.1rem 0 0; font-size: 1.1rem; color: #000000ff; text-align: center; font-style: italic;">
+                ${title}
+              </p>` : ''}
+            </div>
+          `;
         } else {
-          // Multiple images: each takes natural size, wraps if needed
           gridHtml += `
-      <div style="flex: 1 1 calc(50% - 0.5rem); min-width: 200px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <img 
-          src="${img.url || img.previewUrl}" 
-          alt="Blog image ${idx + 1}" 
-          style="width: 100%; height: auto; display: block;"
-          loading="lazy"
-        />
-      </div>
-    `;
+            <div style="flex: 1 1 calc(50% - 0.5rem); min-width: 200px; display: flex; flex-direction: column;">
+              <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                <img
+                  src="${src}"
+                  alt="${alt}"
+                  title="${title || alt}"
+                  style="width: 100%; height: auto; display: block;"
+                  loading="lazy"
+                />
+              </div>
+              ${showLabel ? `
+              <p style="margin: 0.4rem 0 0; font-size: 1.1rem; color: #000102ff; text-align: center; font-style: italic;">
+                ${title}
+              </p>` : ''}
+            </div>
+          `;
         }
       });
 
       gridHtml += `</div>`;
 
-      // Replace the placeholder div with the grid
-      // Escape blockId for safe regex use
       const escapedBlockId = blockId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const placeholderRegex = new RegExp(`<div[^>]*class=["']image-block["'][^>]*id=["']${escapedBlockId}["'][^>]*>\\s*</div>`, 'gi');
 
-      if (placeholderRegex.test(processedContent)) {
-        console.log(`✅ blogRenderer: Found placeholder for "${blockId}", replacing...`);
-        processedContent = processedContent.replace(placeholderRegex, gridHtml);
+      // 'i' only — no 'g'. Never .test() before .replace() on same regex instance.
+      const placeholderRegex = new RegExp(
+        `<div[^>]*class=["']image-block["'][^>]*id=["']${escapedBlockId}["'][^>]*>\\s*</div>`,
+        'i'
+      );
+
+      const replaced = processedContent.replace(placeholderRegex, gridHtml);
+
+      if (replaced !== processedContent) {
+        console.log(`✅ blogRenderer: Replaced placeholder for "${blockId}"`);
+        processedContent = replaced;
       } else {
-        console.warn(`❌ blogRenderer: Placeholder NOT found for "${blockId}". Regex: ${placeholderRegex}`);
+        // Fallback: alternate attribute order (id before class)
+        const fallbackRegex = new RegExp(
+          `<div[^>]*id=["']${escapedBlockId}["'][^>]*class=["']image-block["'][^>]*>\\s*</div>`,
+          'i'
+        );
+        const fallbackReplaced = processedContent.replace(fallbackRegex, gridHtml);
+        if (fallbackReplaced !== processedContent) {
+          console.log(`✅ blogRenderer: Replaced placeholder for "${blockId}" (fallback attr order)`);
+          processedContent = fallbackReplaced;
+        } else {
+          console.warn(
+            `❌ blogRenderer: Placeholder NOT found for "${blockId}". Nearby HTML:`,
+            processedContent.includes(blockId)
+              ? processedContent.slice(
+                  Math.max(0, processedContent.indexOf(blockId) - 50),
+                  processedContent.indexOf(blockId) + 100
+                )
+              : '(blockId not found anywhere in HTML)'
+          );
+        }
       }
     });
   }
