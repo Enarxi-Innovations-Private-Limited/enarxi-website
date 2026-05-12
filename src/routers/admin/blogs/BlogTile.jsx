@@ -98,10 +98,15 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
           <span className="line-clamp-1">{blog.authorName || 'Unknown'}</span>
         </div>
 
-        {/* Date */}
-        <div className="flex items-center text-xs text-gray-500 mb-3">
-          <Calendar className="h-3 w-3 mr-1" />
-          <span>{formatDate(blog.updatedAt)}</span>
+        <div className="flex items-center space-x-3 text-xs text-gray-500 mb-3">
+          <div className="flex items-center">
+            <Calendar className="h-3 w-3 mr-1" />
+            <span>{formatDate(blog.updatedAt)}</span>
+          </div>
+          <div className="flex items-center">
+            <Eye className="h-3 w-3 mr-1" />
+            <span>{blog.views || 0}</span>
+          </div>
         </div>
 
         {/* Action Buttons */}

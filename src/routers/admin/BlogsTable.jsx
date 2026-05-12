@@ -323,12 +323,20 @@ const BlogsTable = () => {
             <div className="text-sm text-gray-600">Active Authors</div>
           </div>
           {filterStatus === 'approved' && (
-            <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-              <div className="text-2xl font-bold text-[#0A1524]">
-                {blogs.filter(blog => blog.visibility !== false).length}
+            <>
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-[#0A1524]">
+                  {blogs.filter(blog => blog.visibility !== false).length}
+                </div>
+                <div className="text-sm text-gray-600">Visible Blogs</div>
               </div>
-              <div className="text-sm text-gray-600">Visible Blogs</div>
-            </div>
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-[#0A1524]">
+                  {blogs.reduce((sum, blog) => sum + (blog.views || 0), 0)}
+                </div>
+                <div className="text-sm text-gray-600">Total Views</div>
+              </div>
+            </>
           )}
         </motion.div>
       </div>

@@ -3,8 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Loader2, Eye } from 'lucide-react';
 import { injectBlogContent } from '@/utils/blogRenderer';
+import { incrementBlogViews } from '@/lib/api';
 import styles from './Blog.module.css';
 
 const BlogDetail = () => {
@@ -18,10 +19,10 @@ const BlogDetail = () => {
     const fetchBlog = async () => {
       try {
         setLoading(true);
-        
+
         // Extract blog ID from slug (last part after last hyphen)
         const blogId = slug.split('-').pop();
-        
+
         const blogRef = doc(db, 'blogs', blogId);
         const blogSnap = await getDoc(blogRef);
 
@@ -31,8 +32,11 @@ const BlogDetail = () => {
           return;
         }
 
+        //session based view count for the blog
+        incrementViewCount(blogId, blogRef);
+
         const data = blogSnap.data();
-        
+
         // Check if blog is approved and visible
         if (!data.isAdminAccepted || data.visibility === false) {
           setError('Blog not available');
@@ -68,6 +72,7 @@ const BlogDetail = () => {
           authorRole: data.authorRole || 'Staff',
           ytlinks: data.ytlinks || [],
           imageBlocks: data.imageBlocks || {},
+          views: data.views || 0,
         });
       } catch (err) {
         console.error('Error fetching blog:', err);
@@ -79,6 +84,31 @@ const BlogDetail = () => {
 
     fetchBlog();
   }, [slug]);
+
+
+  //blogs view count using session 
+  const incrementViewCount = async (blogId, blogRef) => {
+    const SESSION_KEY = "enarxi-session-for-blog";
+    const savedSession = sessionStorage.getItem(SESSION_KEY);
+    let session = savedSession ? JSON.parse(savedSession) : { viewedBlogs: [] };
+
+    if (!session.viewedBlogs.includes(blogId)) {
+
+      try {
+        // Call backend to increment views instead of direct Firestore update
+        await incrementBlogViews(blogId);
+        
+        // Update local state to show the incremented count immediately
+        setBlog(prev => prev ? { ...prev, views: (prev.views || 0) + 1 } : prev);
+
+        session.viewedBlogs.push(blogId);
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      } catch (err) {
+        console.error('Error incrementing view count:', err);
+      }
+
+    }
+  }
 
   if (loading) {
     return (
@@ -146,7 +176,7 @@ const BlogDetail = () => {
             <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 mb-8 pb-8 border-b border-gray-200">
               <div className="flex items-center gap-2">
                 <User size={18} />
-                <Link 
+                <Link
                   to={`/users/${blog.authorName}`}
                   className="hover:text-blue-600 transition-colors font-medium"
                 >
@@ -158,6 +188,10 @@ const BlogDetail = () => {
               <div className="flex items-center gap-2">
                 <Calendar size={18} />
                 <span>{blog.date}</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-500">
+                <Eye size={18} />
+                <span>{blog.views} views</span>
               </div>
             </div>
 

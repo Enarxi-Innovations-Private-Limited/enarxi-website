@@ -1,6 +1,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 import { db } from "../config/firebase.js";
+import admin from "../config/firebase.js";
 import { authenticateUser, requireAdmin } from "../middleware/auth.js";
 import cloudinary from "../config/cloudinary.js";
 import { retryBlog } from "../controllers/adminBlog.controller.js";
@@ -309,6 +310,43 @@ router.put(
 );
 
 
-router.put("/:blogId", authenticateUser, updateBlog)
+router.put("/:blogId", authenticateUser, updateBlog);
+
+/**
+ * @route   POST /api/blogs/:blogId/view
+ * @desc    Increment blog view count (Public)
+ * @access  Public
+ */
+router.post("/:blogId/view", async (req, res) => {
+  try {
+    const { blogId } = req.params;
+    const blogRef = db.collection("blogs").doc(blogId);
+
+    // Get the current document to check if it exists
+    const doc = await blogRef.get();
+    if (!doc.exists) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found",
+      });
+    }
+
+    // Increment views field
+    await blogRef.update({
+      views: admin.firestore.FieldValue.increment(1),
+    });
+
+    res.json({
+      success: true,
+      message: "View count incremented",
+    });
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to increment view count",
+    });
+  }
+});
 
 export default router;

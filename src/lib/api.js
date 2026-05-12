@@ -46,6 +46,34 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
+/**
+ * Make a public API request (no authentication required)
+ */
+async function publicRequest(endpoint, options = {}) {
+  try {
+    const headers = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Public API request failed");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Public API request error:", error);
+    throw error;
+  }
+}
+
 // ============================================================================
 // USER MANAGEMENT APIs
 // ============================================================================
@@ -150,7 +178,7 @@ export async function approveBlog(blogId) {
  */
 export async function rejectBlog(blogId, reason = null) {
   return await apiRequest(`/blogs/${blogId}/reject`, {
-    method: "PUT",
+    method: "PUT",   
     body: JSON.stringify({ reason }),
   });
 }
@@ -168,6 +196,15 @@ export async function updateBlog(blogId, data) {
   return await apiRequest(`/blogs/${blogId}`, {
     method: "PUT",
     body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Increment blog view count (Public)
+ */
+export async function incrementBlogViews(blogId) {
+  return await publicRequest(`/blogs/${blogId}/view`, {
+    method: "POST",
   });
 }
 

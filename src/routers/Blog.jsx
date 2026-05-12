@@ -5,6 +5,7 @@ import { db } from "@/lib/firebase";
 import { motion } from "framer-motion";
 import BlogSkeleton from "@/components/shared/BlogSkeleton";
 import { createFullSlug } from "@/utils/slugUtils";
+import { Eye } from "lucide-react";
 
 export default function Blog() {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ export default function Blog() {
               authorName: data.authorName || "Anonymous",
               authorRole: data.authorRole || "Staff",
               visibility: data.visibility, // Include visibility field
+              views: data.views || 0,
             };
           })
           // Filter to show only visible blogs (visibility === true OR visibility field doesn't exist)
@@ -138,7 +140,7 @@ export default function Blog() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="p-3">
+              <div className="p-3 flex flex-col h-full">
                 <h3 className="text-base font-semibold mb-2 line-clamp-2 leading-tight">{blog.title}</h3>
                 <p
                   className="text-xs text-gray-600 mb-2 line-clamp-2"
@@ -147,7 +149,13 @@ export default function Blog() {
                   }}
                 />
                 <p className="text-xs text-gray-500 mb-1">By <span className="font-medium">{blog.authorName}</span></p>
-                <p className="text-xs text-gray-400">{blog.date}</p>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-xs text-gray-400">{blog.date}</p>
+                  <div className="flex items-center gap-1 text-gray-400">
+                    <Eye size={14} />
+                    <span className="text-xs">{blog.views}</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ))
