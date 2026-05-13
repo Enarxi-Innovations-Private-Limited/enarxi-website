@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Star, Users, Clock, ArrowRight, RefreshCw } from 'lucide-react';
+import { FileText, Star, Users, Clock, ArrowRight, RefreshCw, TrendingUp } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/AuthProvider';
+import { getVisitorStats } from '@/lib/api';
+import VisitorTrendChart from './VisitorTrendChart';
 
 const DashboardStats = () => {
   const navigate = useNavigate();
@@ -13,8 +15,12 @@ const DashboardStats = () => {
   const [retryBlogs, setRetryBlogs] = useState(0);
   const [pendingReviews, setPendingReviews] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalVisitors, setTotalVisitors] = useState(0);
+  const [visitorData, setVisitorData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [viewPeriod, setViewPeriod] = useState('daily'); // 'daily', 'weekly', 'monthly'
 
   // Fetch pending blogs from Firestore
   useEffect(() => {
@@ -27,7 +33,7 @@ const DashboardStats = () => {
       const allPending = snapshot.docs.map(doc => doc.data());
       const retryCount = allPending.filter(blog => blog.status === 'retry').length;
       const trulyPending = allPending.length - retryCount;
-      
+
       setPendingBlogs(trulyPending);
       setRetryBlogs(retryCount);
     });
@@ -89,6 +95,25 @@ const DashboardStats = () => {
     return () => unsubscribe();
   }, []);
 
+  // Fetch visitor statistics from Backend
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await getVisitorStats();
+        if (response.success) {
+          setTotalVisitors(response.data.totalVisitors);
+          setVisitorData(response.data.dailyStats);
+        }
+      } catch (error) {
+        console.error('Error fetching visitor stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const stats = [
     {
       id: 1,
@@ -98,7 +123,7 @@ const DashboardStats = () => {
       color: 'bg-blue-500',
       textColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      action: () => navigate('/admin', { state: {activeTab:'blogs'} }),
+      action: () => navigate('/admin', { state: { activeTab: 'blogs' } }),
     },
     {
       id: 4,
@@ -108,17 +133,17 @@ const DashboardStats = () => {
       color: 'bg-orange-500',
       textColor: 'text-orange-600',
       bgColor: 'bg-orange-50',
-      action: () => navigate('/admin', { state: {activeTab:'blogs', blogFilter: 'retry'} }),
+      action: () => navigate('/admin', { state: { activeTab: 'blogs', blogFilter: 'retry' } }),
     },
     {
-      id: 2,  
+      id: 2,
       title: 'Pending Customer Reviews',
       value: pendingReviews,
       icon: Star,
       color: 'bg-yellow-500',
       textColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
-      action: () => navigate('/admin', { state: {activeTab:'reviews'} }),
+      action: () => navigate('/admin', { state: { activeTab: 'reviews' } }),
     },
     {
       id: 3,
@@ -128,9 +153,57 @@ const DashboardStats = () => {
       color: 'bg-green-500',
       textColor: 'text-green-600',
       bgColor: 'bg-green-50',
-      action: () => navigate('/admin', { state: {activeTab:'staff'} }),
+      action: () => navigate('/admin', { state: { activeTab: 'staff' } }),
+    },
+    {
+      id: 5,
+      title: 'Total Visitors',
+      value: totalVisitors,
+      icon: TrendingUp,
+      color: 'bg-purple-500',
+      textColor: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      action: () => { }, // No specific tab for visitors yet
     },
   ];
+
+  // Helper to group data by period
+  const getFilteredData = () => {
+    if (viewPeriod === 'daily') return visitorData;
+
+    if (viewPeriod === 'weekly') {
+      const grouped = [];
+      // Group by 7-day chunks (KISS)
+      for (let i = 0; i < visitorData.length; i += 7) {
+        const chunk = visitorData.slice(i, i + 7);
+        const total = chunk.reduce((sum, item) => sum + item.count, 0);
+        grouped.push({
+          date: chunk[0].date,
+          count: total,
+          isWeekly: true
+        });
+      }
+      return grouped;
+    }
+
+    if (viewPeriod === 'monthly') {
+      const months = {};
+      visitorData.forEach(item => {
+        const month = item.date.substring(0, 7); // YYYY-MM
+        if (!months[month]) months[month] = 0;
+        months[month] += item.count;
+      });
+      return Object.keys(months).map(m => ({
+        date: `${m}-01`,
+        count: months[m],
+        isMonthly: true
+      })).sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    return visitorData;
+  };
+
+  const filteredVisitorData = getFilteredData();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -143,13 +216,13 @@ const DashboardStats = () => {
   };
 
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 20,
-      scale: 0.9 
+      scale: 0.9
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -175,12 +248,12 @@ const DashboardStats = () => {
       >
         {stats.map((stat) => {
           const Icon = stat.icon;
-          
+
           return (
             <motion.div
               key={stat.id}
               variants={cardVariants}
-              whileHover={{ 
+              whileHover={{
                 scale: 1.05,
                 transition: { duration: 0.2 }
               }}
@@ -200,7 +273,7 @@ const DashboardStats = () => {
                   </p>
                 </div>
               </div>
-              
+
               <div className="mt-4">
                 <div className="flex items-center justify-between text-sm text-poppins text-weight-300 text-gray-500">
                   <span className="flex items-center">
@@ -213,6 +286,53 @@ const DashboardStats = () => {
             </motion.div>
           );
         })}
+      </motion.div>
+
+      {/* Visitor Trend Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg text-poppins text-weight-600 text-[#0A1524]">Visitor Trend</h3>
+            <p className="text-sm text-gray-500 text-poppins">
+              {viewPeriod === 'daily' ? 'Unique visitors over the last 30 days' :
+                viewPeriod === 'weekly' ? 'Weekly visitor accumulation' :
+                  'Monthly visitor accumulation'}
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              {['daily', 'weekly', 'monthly'].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setViewPeriod(p)}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 ${viewPeriod === p
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div className="hidden md:flex items-center">
+              <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+              <span className="text-xs text-gray-600">Visitors</span>
+            </div>
+          </div>
+        </div>
+
+        {statsLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <VisitorTrendChart data={filteredVisitorData} period={viewPeriod} />
+        )}
       </motion.div>
 
       {/* Additional Dashboard Content */}
@@ -245,7 +365,7 @@ const DashboardStats = () => {
                   if (!timestamp) return 'Just now';
                   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
                   const seconds = Math.floor((new Date() - date) / 1000);
-                  
+
                   if (seconds < 60) return 'Just now';
                   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
                   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -278,7 +398,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: {activeTab: 'blogs'} })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'blogs' } })}
               className="w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -292,7 +412,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: {activeTab: 'reviews'} })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'reviews' } })}
               className="w-full text-left p-3 rounded-lg bg-yellow-50 hover:bg-yellow-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -306,7 +426,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: {activeTab: 'staff'} })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'staff' } })}
               className="w-full text-left p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">
@@ -320,7 +440,7 @@ const DashboardStats = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/admin', { state: {activeTab: 'team'} })}
+              onClick={() => navigate('/admin', { state: { activeTab: 'team' } })}
               className="w-full text-left p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors duration-200 group"
             >
               <div className="flex items-center justify-between">

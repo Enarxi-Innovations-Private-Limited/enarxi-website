@@ -1,36 +1,32 @@
+//path -> src/routers/Components/ImageBlockComponent.jsx
 import React, { useState } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import MultiImageUploadModal from './MultiImageUploadModal';
 
-/**
- * ImageBlockComponent - React Node View for ImageBlock
- * Renders a non-editable block with image previews and edit/delete controls
- * Works with staged items (local files with preview URLs) before upload
- */
 const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const { id, stagedItems = [] } = node.attrs;
-  
-  // Support both old 'images' format and new 'stagedItems' format for backward compatibility
+
   const getItems = () => {
     if (Array.isArray(stagedItems) && stagedItems.length > 0) return stagedItems;
     if (Array.isArray(node.attrs.images) && node.attrs.images.length > 0) return node.attrs.images;
     return [];
   };
-  
-  const items = getItems();
 
-  const handleEdit = () => {
-    setShowEditModal(true);
-  };
+  const items = getItems().map((item, index) => ({
+    ...item,
+    id: item.id || item.publicId || `existing-${index}`,
+  }));
+
+  const handleEdit = () => setShowEditModal(true);
+  const handleCancel = () => setShowEditModal(false);
 
   const handleSave = ({ id: blockId, stagedItems: updatedItems }) => {
-    updateAttributes({ stagedItems: updatedItems });
-    setShowEditModal(false);
-  };
-
-  const handleCancel = () => {
+    updateAttributes({ stagedItems: updatedItems, images: [] });
+    window.dispatchEvent(new CustomEvent('sync-staged-block', {
+      detail: { id: blockId, stagedItems: updatedItems },
+    }));
     setShowEditModal(false);
   };
 
@@ -79,29 +75,44 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
           {items.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {items.map((item, index) => {
-                // Support both staged items (previewUrl) and uploaded images (url)
                 const imageUrl = item.previewUrl || item.url;
                 const isStaged = !!item.previewUrl;
-                
+
+                // Display name: prefer altText, fall back to fileName, then generic
+                const displayName = item.altText || item.fileName || `Image ${index + 1}`;
+
                 return (
                   <div
                     key={item.id || item.publicId || index}
-                    className="relative aspect-square rounded-lg overflow-hidden bg-gray-200 shadow-sm"
+                    className="flex flex-col rounded-lg overflow-hidden bg-gray-200 shadow-sm"
                   >
-                    <img
-                      src={imageUrl}
-                      alt={`Image ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/60 to-transparent p-2">
-                      <p className="text-xs text-white truncate">
-                        {item.width} × {item.height}
-                      </p>
+                    {/* Image */}
+                    <div className="relative aspect-square">
+                      <img
+                        src={imageUrl}
+                        alt={item.altText || `Image ${index + 1}`}
+                        title={item.title || item.altText || `Image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Staged badge */}
                       {isStaged && (
-                        <p className="text-xs text-yellow-300 font-medium mt-0.5">
+                        <span className="absolute top-1.5 right-1.5 bg-yellow-400 text-yellow-900 text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none">
                           Staged
-                        </p>
+                        </span>
                       )}
+                    </div>
+
+                    {/* Image name below */}
+                    <div className="bg-white px-2 py-1.5 border-t border-gray-100">
+                      <p
+                        className="text-xs text-gray-700 font-medium truncate"
+                        title={displayName}
+                      >
+                        {displayName}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {item.width && item.height ? `${item.width} × ${item.height}` : ''}
+                      </p>
                     </div>
                   </div>
                 );
@@ -123,7 +134,6 @@ const ImageBlockComponent = ({ node, updateAttributes, deleteNode }) => {
         </div>
       </NodeViewWrapper>
 
-      {/* Edit Modal */}
       <MultiImageUploadModal
         isOpen={showEditModal}
         onSave={handleSave}

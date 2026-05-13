@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { X, Upload, Trash2, GripVertical, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { generateSeoFileName, validateAltText } from '@/utils/seoUtils';
 
 /**
  * MultiImageUploadModal Component
  * Modal for selecting, previewing, reordering, and managing multiple images
  * Images are staged locally (not uploaded to Cloudinary until blog submission)
- * 
+ *
  * @param {Object} props
  * @param {boolean} props.isOpen - Modal open state
  * @param {Function} props.onSave - Callback with { id, stagedItems } when saved
@@ -18,27 +19,17 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
 
-  // Reset staged items when modal opens with existing block
+  const isOpenRef = React.useRef(false);
+
   React.useEffect(() => {
-    if (isOpen) {
-      setStagedItems(existingBlock?.stagedItems || []);
+    if (isOpen && !isOpenRef.current) {
+      setStagedItems(
+        existingBlock?.stagedItems?.length > 0 ? existingBlock.stagedItems : []
+      );
       setError('');
     }
-  }, [isOpen, existingBlock]);
-
-  // Cleanup object URLs when modal closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      // Cleanup any temporary object URLs that weren't saved
-      return () => {
-        stagedItems.forEach((item) => {
-          if (item.previewUrl && item.previewUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(item.previewUrl);
-          }
-        });
-      };
-    }
-  }, [isOpen, stagedItems]);
+    isOpenRef.current = isOpen;
+  }, [isOpen, existingBlock?.id]);
 
   /**
    * Handle file selection and stage locally (no upload yet)
@@ -54,19 +45,16 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
     let validCount = 0;
 
     for (const file of files) {
-      // Validate file
       if (!file.type.startsWith('image/')) {
         setError(`"${file.name}" is not an image file`);
         continue;
       }
-
       if (file.size > 5 * 1024 * 1024) {
         setError(`"${file.name}" is too large (max 5MB)`);
         continue;
       }
 
       try {
-        // Create preview URL and get dimensions
         const previewUrl = URL.createObjectURL(file);
         const dimensions = await getImageDimensions(file);
 
@@ -79,6 +67,9 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
           width: dimensions.width,
           height: dimensions.height,
           fileName: file.name,
+          altText: '',
+          title: '',        // optional — auto-filled from altText on blur/change
+          titleEdited: false, // track if user manually edited title
         });
         validCount++;
       } catch (err) {
@@ -89,69 +80,131 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
 
     setStagedItems((prev) => [...prev, ...newStagedItems]);
     setProcessing(false);
-
-    // Clear file input
     e.target.value = '';
-
-    if (validCount > 0) {
-      setError('');
-    }
+    if (validCount > 0) setError('');
   }, []);
 
-  /**
-   * Helper to get image dimensions from file
-   */
   const getImageDimensions = (file) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
-      
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        resolve({ width: img.width, height: img.height });
-      };
-      
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject(new Error('Failed to load image'));
-      };
-      
+      img.onload = () => { URL.revokeObjectURL(url); resolve({ width: img.width, height: img.height }); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to load image')); };
       img.src = url;
     });
   };
 
-  /**
-   * Remove a staged item from the list
-   */
   const handleRemoveImage = useCallback((itemId) => {
     setStagedItems((prev) => {
       const itemToRemove = prev.find((item) => item.id === itemId);
-      
-      // Cleanup object URL if it's a blob
-      if (itemToRemove?.previewUrl && itemToRemove.previewUrl.startsWith('blob:')) {
+      if (itemToRemove?.previewUrl?.startsWith('blob:')) {
         URL.revokeObjectURL(itemToRemove.previewUrl);
       }
-      
       return prev.filter((item) => item.id !== itemId);
     });
   }, []);
 
   /**
-   * Handle save
+   * Handle alt text change — also auto-fills title and fileName live as user types
    */
+  const handleAltTextChange = useCallback((id, value) => {
+    setStagedItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+
+        // Generate SEO file name live from alt text
+        const ext = item.file
+          ? `.${item.file.name.split('.').pop()}`
+          : item.fileName
+            ? `.${item.fileName.split('.').pop()}`
+            : '';
+        const seoBase = value
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .slice(0, 80);
+        const liveFileName = seoBase ? `${seoBase}${ext}` : item.fileName;
+
+        return {
+          ...item,
+          altText: value,
+          fileName: liveFileName,
+          // Auto-fill title only if user hasn't manually edited it
+          title: item.titleEdited ? item.title : value,
+        };
+      })
+    );
+  }, []);
+
+  /**
+   * Handle title change — marks as manually edited so auto-fill stops
+   */
+  const handleTitleChange = useCallback((id, value) => {
+    setStagedItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, title: value, titleEdited: value !== item.altText }
+          : item
+      )
+    );
+  }, []);
+
+  /**
+   * If user clears the title field, revert to auto-fill from altText
+   */
+  const handleTitleBlur = useCallback((id) => {
+    setStagedItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        if (!item.title.trim()) {
+          return { ...item, title: item.altText, titleEdited: false };
+        }
+        return item;
+      })
+    );
+  }, []);
+
   const handleSave = useCallback(() => {
     if (stagedItems.length === 0) {
       setError('Please select at least one image');
       return;
     }
 
-    const blockId = existingBlock?.id || `image-block-${Date.now()}`;
-    onSave({ id: blockId, stagedItems });
+    for (const item of stagedItems) {
+      const validation = validateAltText(item.altText, 3);
+      if (!validation.valid) {
+        setError(`Alt text for "${item.fileName || 'image'}" is invalid: ${validation.error}`);
+        return;
+      }
+    }
+
+    const renamedStagedItems = stagedItems.map((item) => {
+      // Always derive file name from alt text
+      const seoName = item.file && item.altText
+        ? generateSeoFileName(item.altText, item.file.name)
+        : item.fileName;
+
+      const seoFile = item.file && item.altText
+        ? new File([item.file], seoName, { type: item.file.type })
+        : item.file;
+
+      // Title: use whatever is in the field (auto-filled or edited), fallback to altText
+      const resolvedTitle = item.title?.trim() || item.altText;
+
+      return {
+        ...item,
+        file: seoFile,
+        fileName: seoName,
+        title: resolvedTitle,
+      };
+    });
+
+    const blockId = existingBlock?.id || `image-block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    onSave({ id: blockId, stagedItems: renamedStagedItems });
   }, [stagedItems, existingBlock, onSave]);
 
-  /**
-   * Handle reorder
-   */
   const handleReorder = useCallback((newOrder) => {
     setStagedItems(newOrder);
   }, []);
@@ -209,9 +262,7 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 font-medium">
-                      Click to select images
-                    </p>
+                    <p className="text-sm text-gray-600 font-medium">Click to select images</p>
                     <p className="text-xs text-gray-500 mt-1">
                       PNG, JPG, GIF up to 5MB each (will upload on blog submission)
                     </p>
@@ -264,25 +315,64 @@ const MultiImageUploadModal = ({ isOpen, onSave, onCancel, existingBlock = null 
                       <Reorder.Item
                         key={item.id}
                         value={item}
-                        className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors cursor-move"
+                        className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition-colors cursor-move"
                       >
-                        <GripVertical className="w-5 h-5 text-gray-400 shrink-0" />
+                        <GripVertical className="w-5 h-5 text-gray-400 shrink-0 mt-1" />
+
                         <img
-                          src={item.previewUrl}
+                          src={item.previewUrl || item.url}
                           alt="Preview"
                           className="w-16 h-16 object-cover rounded-md shrink-0"
                         />
-                        <div className="flex-1 min-w-0">
+
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          {/* File name */}
                           <p className="text-sm font-medium text-gray-700 truncate">
-                            {item.fileName}
+                            {item.fileName || item.publicId || 'Uploaded image'}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {item.width} × {item.height} • {item.format.toUpperCase()}
+                            {item.width} × {item.height}
+                            {item.format ? ` • ${item.format.toUpperCase()}` : ''}
                           </p>
-                          <p className="text-xs text-indigo-600 font-medium mt-0.5">
-                            Staged (will upload on submit)
+
+                          {/* Alt Text — mandatory */}
+                          <div>
+                            <input
+                              type="text"
+                              value={item.altText || ''}
+                              onChange={(e) => handleAltTextChange(item.id, e.target.value)}
+                              placeholder="Alt text (min 3 words) *"
+                              className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              onPointerDown={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => e.stopPropagation()}
+                            />
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              Required · used for SEO and accessibility
+                            </p>
+                          </div>
+
+                          {/* Image Title — optional, auto-filled */}
+                          <div>
+                            <input
+                              type="text"
+                              value={item.title || ''}
+                              onChange={(e) => handleTitleChange(item.id, e.target.value)}
+                              onBlur={() => handleTitleBlur(item.id)}
+                              placeholder="Image title (optional — auto-filled from alt text)"
+                              className="w-full text-sm border border-gray-200 rounded px-2 py-1 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 text-gray-600"
+                              onPointerDown={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => e.stopPropagation()}
+                            />
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              Optional · shown as tooltip on hover
+                            </p>
+                          </div>
+
+                          <p className={`text-xs font-medium ${item.previewUrl ? 'text-indigo-600' : 'text-green-600'}`}>
+                            {item.previewUrl ? 'Staged (will upload on submit)' : 'Already uploaded'}
                           </p>
                         </div>
+
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(item.id)}

@@ -12,13 +12,14 @@
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
+  /* gray-400 */
   pointer-events: none;
   height: 0;
 }
 
 /* Content spacing */
-.ProseMirror > * + * {
+.ProseMirror>*+* {
   margin-top: 1.2rem;
 }
 
@@ -66,7 +67,8 @@
 }
 
 /* Image blocks and YouTube embeds */
-.image-block, .youtube-embed {
+.image-block,
+.youtube-embed {
   margin: 2rem 0;
   border-radius: 0.75rem;
   overflow: hidden;
@@ -122,7 +124,8 @@
   border-radius: 4px;
   border: none;
   background: transparent;
-  color: #4b5563; /* gray-600 */
+  color: #4b5563;
+  /* gray-600 */
   cursor: pointer;
   transition: all 0.2s;
   padding: 0;
@@ -134,8 +137,10 @@
 }
 
 .menu-bar button.is-active {
-  background-color: #eff6ff; /* blue-50 */
-  color: #2563eb; /* blue-600 */
+  background-color: #eff6ff;
+  /* blue-50 */
+  color: #2563eb;
+  /* blue-600 */
 }
 
 .menu-bar button svg {
@@ -155,8 +160,10 @@
   WORKSPACE & CANVAS STYLES
 ==============================================*/
 .editor-workspace {
-  background-color: #f9fafb; /* gray-50 */
-  min-height: calc(100vh - 64px); /* Subtracting header height */
+  background-color: #f9fafb;
+  /* gray-50 */
+  min-height: calc(100vh - 64px);
+  /* Subtracting header height */
   padding: 2rem 1rem;
   display: flex;
   justify-content: center;
@@ -166,7 +173,8 @@
   background-color: white;
   width: 100%;
   max-width: 1280px;
-  min-height: 1056px; /* A4-ish height ratio */
+  min-height: 1056px;
+  /* A4-ish height ratio */
   padding: 4rem 5rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 1px;
@@ -210,4 +218,28 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/*==============================================
+  IMAGE BLOCK NODE VIEW STYLES
+==============================================*/
+.image-block-wrapper {
+  user-select: none;
+}
+
+.image-block-wrapper .ProseMirror-selectednode {
+  outline: 2px solid #4f46e5;
+  border-radius: 0.5rem;
+}
+
+/*==============================================
+  YOUTUBE EMBED NODE VIEW STYLES
+==============================================*/
+.youtube-embed-wrapper {
+  user-select: none;
+}
+
+.youtube-embed-wrapper .ProseMirror-selectednode {
+  outline: 2px solid #4f46e5;
+  border-radius: 0.5rem;
 }

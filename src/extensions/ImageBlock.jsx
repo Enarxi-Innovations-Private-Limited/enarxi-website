@@ -1,6 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-// import ImageBlockComponent from '@/components/ImageBlockComponent';
 import ImageBlockComponent from '@/routers/Components/ImageBlockComponent';
 
 export const ImageBlock = Node.create({

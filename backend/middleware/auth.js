@@ -40,6 +40,37 @@ export const authenticateUser = async (req, res, next) => {
 };
 
 /**
+ * Middleware to optionally verify Firebase ID token
+ * Does not return error if token is missing or invalid
+ */
+export const optionalAuthenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const idToken = authHeader.split('Bearer ')[1];
+      const decodedToken = await auth.verifyIdToken(idToken);
+      
+      req.user = {
+        uid: decodedToken.uid,
+        email: decodedToken.email,
+        emailVerified: decodedToken.email_verified,
+      };
+
+      // Also get user doc for role
+      const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+      if (userDoc.exists) {
+        req.userData = userDoc.data();
+      }
+    }
+    next();
+  } catch (error) {
+    // Silently fail authentication for optional paths
+    next();
+  }
+};
+
+/**
  * Middleware to verify user is an admin
  */
 export const requireAdmin = async (req, res, next) => {

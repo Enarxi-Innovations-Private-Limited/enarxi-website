@@ -5,13 +5,13 @@ import BrandedLoader from '@components/shared/BrandedLoader';
 export default function StaffProtectedRoute({ children }) {
   const { user, role, loading,firebaseUser } = useAuth();
 
-  if (loading) {
-    // You might want a more sophisticated loading spinner here
+  if (loading || (user && !firebaseUser)) {
+    // Wait for auth to initialize and user data to be fetched
     return <div className="flex justify-center items-center h-screen"> <BrandedLoader />   </div>;
   }
 
-  if (!user || firebaseUser.status!="active") {
-    // User not logged in, redirect to staff login page
+  if (!user || firebaseUser?.status !== "active") {
+    // User not logged in or inactive, redirect to staff login page
     return <Navigate to="/stafflogin" replace />;
   }
 

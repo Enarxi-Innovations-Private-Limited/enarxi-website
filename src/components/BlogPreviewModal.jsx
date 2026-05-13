@@ -3,16 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Calendar, ExternalLink } from 'lucide-react';
 import { injectBlogContent } from '@/utils/blogRenderer';
 
-const BlogPreviewModal = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  content, 
-  authorName, 
-  authorRole, 
-  featuredImage, 
-  ytlinks = [], 
-  imageBlocks = {} 
+const BlogPreviewModal = ({
+  isOpen,
+  onClose,
+  title,
+  content,
+  authorName,
+  authorRole,
+  featuredImage,
+  ytlinks = [],
+  imageBlocks = {}
 }) => {
   if (!isOpen) return null;
 
@@ -59,13 +59,13 @@ const BlogPreviewModal = ({
             <div className="max-w-4xl mx-auto py-12 px-6 sm:px-8">
               {/* Actual Blog Layout Mockup */}
               <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                
+
                 {/* Featured Image */}
                 {featuredImage && (
                   <div className="w-full aspect-[21/9] overflow-hidden bg-gray-100">
                     <img
                       src={typeof featuredImage === 'string' ? featuredImage : URL.createObjectURL(featuredImage)}
-                      alt="Featured"
+                      alt="Thumbnail"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -95,10 +95,10 @@ const BlogPreviewModal = ({
                   </div>
 
                   {/* Rich Text Content */}
-                  <div 
+                  <div
                     className="prose prose-lg max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed"
-                    dangerouslySetInnerHTML={{ 
-                      __html: injectBlogContent(content, ytlinks, imageBlocks) 
+                    dangerouslySetInnerHTML={{
+                      __html: injectBlogContent(content, ytlinks, imageBlocks)
                     }}
                   />
                 </div>

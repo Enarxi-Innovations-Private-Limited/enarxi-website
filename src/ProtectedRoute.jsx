@@ -8,7 +8,8 @@ export default function ProtectedRoute({ children }) {
 
   if (loading) return <BrandedLoader />;
 
-  if (user && !role) return <BrandedLoader />;
+  if (user && !role) return <BrandedLoader />
+
 
   if (!user || role == 'employee' || role == "intern") return <Login />;
   if (role !== 'admin') {

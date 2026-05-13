@@ -4,17 +4,23 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import session from 'express-session';
 
 // Import routes
 import usersRoutes from './routes/users.js';
 import cloudinaryRoutes from './routes/cloudinary.js';
 import blogsRoutes from './routes/blogs.js';
+import statsRoutes from './routes/stats.js';
+
+// Import middleware
+import { optionalAuthenticate } from './middleware/auth.js';
+import { trackVisitor } from './middleware/visitorTracker.js';
 
 // Load environment variables
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ['PORT', 'FRONTEND_URL'];
+const requiredEnvVars = ['PORT', 'FRONTEND_URL', 'SESSION_SECRET'];
 const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingVars.length > 0) {
@@ -44,9 +50,25 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Visitor tracking (applied globally)
+app.use(optionalAuthenticate);
+app.use(trackVisitor);
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -71,7 +93,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'Enarxi Backend API is running',
@@ -84,20 +106,35 @@ app.get('/health', (req, res) => {
 app.use('/api/users', usersRoutes);
 app.use('/api/cloudinary', cloudinaryRoutes);
 app.use('/api/blogs', blogsRoutes);
+app.use('/api/stats', statsRoutes);
 
 // 404 handler
+// Enhanced 404 handler with detailed logging
 app.use((req, res) => {
+  console.error('❌ 404 - Route Not Found');
+  console.error('🧭 Method:', req.method);
+  console.error('📍 Path:', req.originalUrl);
+  console.error('🔢 Query:', req.query);
+  console.error('📦 Body:', req.body);
+
   res.status(404).json({
     success: false,
     error: 'Not Found',
-    message: 'The requested endpoint does not exist'
+    message: 'The requested endpoint does not exist',
+    debug: {
+      method: req.method,
+      path: req.originalUrl,
+      query: req.query,
+      body: req.body
+    }
   });
 });
+
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     error: err.name || 'Internal Server Error',
@@ -108,28 +145,32 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log('');
+  console.log('🚀 Enarxi Backend API Server');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log(`📦 PORT = ${PORT}`);
   console.log('═══════════════════════════════════════════════════════════');
   console.log('🚀 Enarxi Backend API Server');
   console.log('═══════════════════════════════════════════════════════════');
+  console.log('🚀 Enarxi Backend API Server');
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('═══════════════════════════════════════════════════════════');
   console.log(`📡 Server running on: http://localhost:${PORT}`);
-  // console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  // console.log(`🔒 CORS enabled for: ${process.env.FRONTEND_URL}`);
   console.log('');
   console.log('Available endpoints:');
-  console.log('  GET  /health                          - Health check');
+  console.log('  GET    /api/health                          - Health check');
   console.log('  DELETE /api/users/:uid                - Delete user');
-  console.log('  PUT  /api/users/:uid/email            - Update user email');
-  console.log('  PUT  /api/users/:uid/password         - Update user password');
-  console.log('  PUT  /api/users/:uid                  - Update user profile');
-  console.log('  POST /api/cloudinary/delete           - Delete Cloudinary image');
-  console.log('  POST /api/cloudinary/delete-by-url    - Delete by URL');
-  console.log('  POST /api/cloudinary/delete-multiple  - Delete multiple images');
+  console.log('  PUT    /api/users/:uid/email            - Update user email');
+  console.log('  PUT    /api/users/:uid/password         - Update user password');
+  console.log('  PUT    /api/users/:uid                  - Update user profile');
+  console.log('  POST   /api/cloudinary/delete           - Delete Cloudinary image');
+  console.log('  POST   /api/cloudinary/delete-by-url    - Delete by URL');
+  console.log('  POST   /api/cloudinary/delete-multiple  - Delete multiple images');
   console.log('  DELETE /api/blogs/:blogId             - Delete blog');
-  console.log('  PUT  /api/blogs/:blogId/approve       - Approve blog');
-  console.log('  PUT  /api/blogs/:blogId/reject        - Reject blog');
+  console.log('  PUT    /api/blogs/:blogId/approve       - Approve blog');
+  console.log('  PUT    /api/blogs/:blogId/reject        - Reject blog');
+  console.log('  PUT    /api/blogs/:blogId/retry         - Request blog revision');
+  console.log('  PUT    /api/blogs/:blogId               - Update blog content');
   console.log('═══════════════════════════════════════════════════════════');
-  // console.log('');
 });
 
 // Handle unhandled promise rejections

@@ -13,7 +13,7 @@ import ConfirmModal from '@/components/shared/ConfirmModal';
 import { createFullSlug } from '@/utils/slugUtils';
 import { useLocation } from 'react-router-dom';
 
-const BlogsTable = ({setActiveSection}) => {
+const BlogsTable = ({ setActiveSection }) => {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
   const location = useLocation();
@@ -204,7 +204,7 @@ const BlogsTable = ({setActiveSection}) => {
   };
 
   const handleViewBlog = (blog) => {
-    const slug = createFullSlug(blog.title, blog.id);
+    const slug = blog.slug || createFullSlug(blog.title, blog.id);
     navigate(`/admin/blog/${slug}`);
   };
 
@@ -259,9 +259,8 @@ const BlogsTable = ({setActiveSection}) => {
                 </button>
                 <button
                   onClick={() => handleFilterChange('retry')}
-                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${
-                    filterStatus === 'retry' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors cursor-pointer ${filterStatus === 'retry' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700'
+                    }`}
                 >
                   Retry
                 </button>
@@ -285,9 +284,9 @@ const BlogsTable = ({setActiveSection}) => {
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-12 text-center">
             <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">
-              {filterStatus === 'pending' ? 'No new blogs pending review' : 
-               filterStatus === 'retry' ? 'No blogs in retry status' : 
-               'No approved blogs'}
+              {filterStatus === 'pending' ? 'No new blogs pending review' :
+                filterStatus === 'retry' ? 'No blogs in retry status' :
+                  'No approved blogs'}
             </p>
           </div>
         ) : (
@@ -330,12 +329,20 @@ const BlogsTable = ({setActiveSection}) => {
             <div className="text-sm text-gray-600">Active Authors</div>
           </div>
           {filterStatus === 'approved' && (
-            <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-              <div className="text-2xl font-bold text-[#0A1524]">
-                {blogs.filter(blog => blog.visibility !== false).length}
+            <>
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-[#0A1524]">
+                  {blogs.filter(blog => blog.visibility !== false).length}
+                </div>
+                <div className="text-sm text-gray-600">Visible Blogs</div>
               </div>
-              <div className="text-sm text-gray-600">Visible Blogs</div>
-            </div>
+              <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-[#0A1524]">
+                  {blogs.reduce((sum, blog) => sum + (blog.views || 0), 0)}
+                </div>
+                <div className="text-sm text-gray-600">Total Views</div>
+              </div>
+            </>
           )}
         </motion.div>
       </div>

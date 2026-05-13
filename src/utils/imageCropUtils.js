@@ -48,6 +48,7 @@ export function getImageDimensions(file) {
 
 /**
  * Create cropped image from canvas
+ * This is the official implementation from react-easy-crop documentation
  * @param {string} imageSrc - Source image URL
  * @param {Object} pixelCrop - Crop area in pixels {x, y, width, height}
  * @param {number} rotation - Rotation angle in degrees
@@ -55,6 +56,10 @@ export function getImageDimensions(file) {
  */
 export async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
   const image = await createImage(imageSrc);
+  console.log('Original image dimensions:', image.width, 'x', image.height);
+  console.log('Pixel crop:', pixelCrop);
+  console.log('Rotation:', rotation);
+  
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -64,76 +69,58 @@ export async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
 
   const rotRad = getRadianAngle(rotation);
 
-  // Set canvas size to the final crop size
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  // Calculate bounding box of the rotated image
+  const bBoxWidth =
+    Math.abs(Math.cos(rotRad) * image.width) +
+    Math.abs(Math.sin(rotRad) * image.height);
+  const bBoxHeight =
+    Math.abs(Math.sin(rotRad) * image.width) +
+    Math.abs(Math.cos(rotRad) * image.height);
+
+  // Set canvas size to match the bounding box
+  canvas.width = bBoxWidth;
+  canvas.height = bBoxHeight;
+
+  // Translate canvas context to center
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
+  ctx.rotate(rotRad);
+  ctx.translate(-image.width / 2, -image.height / 2);
+
+  // Draw rotated image
+  ctx.drawImage(image, 0, 0);
+
+  // Create a new canvas for the cropped image
+  const croppedCanvas = document.createElement("canvas");
+  const croppedCtx = croppedCanvas.getContext("2d");
+
+  if (!croppedCtx) {
+    throw new Error("No 2d context for cropped canvas");
+  }
+
+  // Set the size of the cropped canvas
+  croppedCanvas.width = pixelCrop.width;
+  croppedCanvas.height = pixelCrop.height;
 
   // Enable high-quality image smoothing
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
+  croppedCtx.imageSmoothingEnabled = true;
+  croppedCtx.imageSmoothingQuality = "high";
 
-  // If there's rotation, we need to handle it differently
-  if (rotation !== 0) {
-    // Calculate bounding box of the rotated image
-    const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
-      image.width,
-      image.height,
-      rotation
-    );
-
-    // Create temporary canvas for rotation
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-
-    if (!tempCtx) {
-      throw new Error("No 2d context for temp canvas");
-    }
-
-    tempCanvas.width = bBoxWidth;
-    tempCanvas.height = bBoxHeight;
-
-    // Enable high-quality image smoothing for temp canvas
-    tempCtx.imageSmoothingEnabled = true;
-    tempCtx.imageSmoothingQuality = "high";
-
-    // Translate and rotate on temp canvas
-    tempCtx.translate(bBoxWidth / 2, bBoxHeight / 2);
-    tempCtx.rotate(rotRad);
-    tempCtx.translate(-image.width / 2, -image.height / 2);
-    tempCtx.drawImage(image, 0, 0);
-
-    // Draw the cropped area from temp canvas to final canvas
-    ctx.drawImage(
-      tempCanvas,
-      Math.round(pixelCrop.x),
-      Math.round(pixelCrop.y),
-      Math.round(pixelCrop.width),
-      Math.round(pixelCrop.height),
-      0,
-      0,
-      Math.round(pixelCrop.width),
-      Math.round(pixelCrop.height)
-    );
-  } else {
-    // No rotation - direct crop from source image
-    ctx.drawImage(
-      image,
-      Math.round(pixelCrop.x),
-      Math.round(pixelCrop.y),
-      Math.round(pixelCrop.width),
-      Math.round(pixelCrop.height),
-      0,
-      0,
-      Math.round(pixelCrop.width),
-      Math.round(pixelCrop.height)
-    );
-  }
+  // Draw the cropped image
+  croppedCtx.drawImage(
+    canvas,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
 
   // Return as blob
   return new Promise((resolve, reject) => {
-    // Determine MIME type from image source
-    const mimeType = imageSrc.startsWith("data:image/png") ? "image/png" : "image/jpeg";
-    canvas.toBlob(
+    croppedCanvas.toBlob(
       (blob) => {
         if (!blob) {
           reject(new Error("Canvas is empty"));
@@ -141,7 +128,7 @@ export async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
         }
         resolve(blob);
       },
-      mimeType,
+      "image/jpeg",
       0.95
     );
   });

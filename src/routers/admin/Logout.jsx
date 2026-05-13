@@ -4,11 +4,15 @@ import { signOut } from "firebase/auth";
 import logout from "@/assets/logout.png";
 import ConfirmModal from "@/components/shared/ConfirmModal";
 
-const Logout = () => {
+const Logout = ({ onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const logoutAdmin = async () => {
     try {
+      // Clear persisted state before logout
+      if (onLogout) {
+        onLogout();
+      }
       await signOut(auth);
       console.log("Admin logged out successfully.");
     } catch (error) {

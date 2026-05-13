@@ -7,12 +7,14 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
+import { generateSeoFileName, validateAltText } from "@/utils/seoUtils";
+import { resolveUniqueSlug } from "@/utils/slugUtils";
 // import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import MultiImageUploadModal from "../Components/MultiImageUploadModal";
 import { isYouTubeUrl } from "@/utils/youtubeUtils";
 // import { useMediaStaging } from "@/hooks/useMediaStaging";
 import { useMediaStaging } from "@/hooks/useMediaStaging";
-import { Youtube, Image, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, X, Minus, Loader2, Eye } from "lucide-react";
+import { Youtube, Image, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Minus, Loader2, Eye } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 // --- Import all required Tiptap extensions for customization ---
@@ -141,34 +143,41 @@ const MenuBar = memo(({ editor, onInsertImageBlock }) => {
 
       {/* Alignment */}
       <div className="flex items-center gap-1 border-r border-gray-300 pr-4">
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('left').run()} 
-          isActive={editor.isActive({ textAlign: 'left' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          isActive={editor.isActive({ textAlign: 'left' })}
           title="Align Left"
         >
           <AlignLeft size={16} />
         </ToolbarButton>
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('center').run()} 
-          isActive={editor.isActive({ textAlign: 'center' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          isActive={editor.isActive({ textAlign: 'center' })}
           title="Align Center"
         >
           <AlignCenter size={16} />
         </ToolbarButton>
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setTextAlign('right').run()} 
-          isActive={editor.isActive({ textAlign: 'right' })} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          isActive={editor.isActive({ textAlign: 'right' })}
           title="Align Right"
         >
           <AlignRight size={16} />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          isActive={editor.isActive({ textAlign: 'justify' })}
+          title="Justify"
+        >
+          <AlignJustify size={16} />
         </ToolbarButton>
       </div>
 
       {/* Media */}
       <div className="flex items-center gap-1">
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setHorizontalRule().run()} 
-          isActive={false} 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          isActive={false}
           title="Add Divider Line"
         >
           <Minus size={16} />
@@ -208,6 +217,7 @@ const AuthorDetails = memo(({ formData }) => {
 const StaffBlogs = () => {
   const { user, role, firebaseUser } = useAuth(); // Get authenticated user and role
   const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "" });
+  const [editingBlock, setEditingBlock] = useState(null);
 
   useEffect(() => {
     // Pre-fill author details from the authenticated user context
@@ -220,8 +230,11 @@ const StaffBlogs = () => {
     }
   }, [user, role]);
 
+
+
   const [blogContent, setBlogContent] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [featuredImageAlt, setFeaturedImageAlt] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Crop modal state
@@ -257,6 +270,7 @@ const StaffBlogs = () => {
       YouTubeEmbed,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
       }),
     ],
     content: "",
@@ -269,10 +283,13 @@ const StaffBlogs = () => {
     const savedDraft = localStorage.getItem("blog_draft");
     if (savedDraft) {
       try {
-        const { formData: savedForm, content: savedContent } = JSON.parse(savedDraft);
+        const { formData: savedForm, content: savedContent, featuredImageAlt: savedAlt } = JSON.parse(savedDraft);
         // Only restore the title, as author info might have changed or been updated by auth useEffect
         if (savedForm?.title) {
           setFormData(prev => ({ ...prev, title: savedForm.title }));
+        }
+        if (savedAlt) {
+          setFeaturedImageAlt(savedAlt);
         }
         if (savedContent) {
           editor.commands.setContent(savedContent);
@@ -287,9 +304,9 @@ const StaffBlogs = () => {
   useEffect(() => {
     // Only save if there's actual content to avoid saving empty state over a draft
     if (formData.title || (blogContent && blogContent !== '<p></p>')) {
-      localStorage.setItem("blog_draft", JSON.stringify({ formData, content: blogContent }));
+      localStorage.setItem("blog_draft", JSON.stringify({ formData, content: blogContent, featuredImageAlt }));
     }
-  }, [formData.title, blogContent]);
+  }, [formData.title, blogContent, featuredImageAlt]);
 
   useEffect(() => () => editor?.destroy(), [editor]);
 
@@ -378,7 +395,17 @@ const StaffBlogs = () => {
   /**
    * Handle insert image block button click
    */
+  useEffect(() => {
+    const handleInsertImageEvent = (e) => {
+      setEditingBlock(e.detail || null);
+      setShowMultiImageModal(true);
+    };
+    window.addEventListener('insert-image-block', handleInsertImageEvent);
+    return () => window.removeEventListener('insert-image-block', handleInsertImageEvent);
+  }, []);
+
   const handleInsertImageBlock = useCallback(() => {
+    setEditingBlock(null); // fresh insert
     setShowMultiImageModal(true);
   }, []);
 
@@ -386,28 +413,46 @@ const StaffBlogs = () => {
    * Handle multi-image modal save
    */
   const handleMultiImageSave = useCallback(({ id, stagedItems }) => {
-    // Store staged files in media staging
     mediaStaging.updateStagedFiles(id, stagedItems);
 
-    // Insert ImageBlock node in editor with staged items
     if (editor) {
-      editor
-        .chain()
-        .focus()
-        .insertContent({
+      if (editingBlock) {
+        // Update existing node in-place
+        let updated = false;
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'imageBlock' && node.attrs.id === id) {
+            editor.chain().focus().command(({ tr }) => {
+              tr.setNodeMarkup(pos, undefined, { ...node.attrs, stagedItems });
+              return true;
+            }).run();
+            updated = true;
+            return false;
+          }
+        });
+        if (!updated) {
+          editor.chain().focus().insertContent({
+            type: 'imageBlock',
+            attrs: { id, stagedItems },
+          }).run();
+        }
+      } else {
+        // Fresh insert
+        editor.chain().focus().insertContent({
           type: 'imageBlock',
           attrs: { id, stagedItems },
-        })
-        .run();
+        }).run();
+      }
     }
 
+    setEditingBlock(null);
     setShowMultiImageModal(false);
-  }, [editor, mediaStaging]);
+  }, [editor, mediaStaging, editingBlock]);
 
   /**
    * Handle multi-image modal cancel
    */
   const handleMultiImageCancel = useCallback(() => {
+    setEditingBlock(null);
     setShowMultiImageModal(false);
   }, []);
 
@@ -415,6 +460,14 @@ const StaffBlogs = () => {
     async (e) => {
       e.preventDefault();
       if (!editor || !user) return;
+
+      if (imageFile) {
+        const altValidation = validateAltText(featuredImageAlt, 3);
+        if (!altValidation.valid) {
+          toast.error(altValidation.error);
+          return;
+        }
+      }
 
       setLoading(true);
       const finalHtmlContent = editor.getHTML();
@@ -462,16 +515,19 @@ const StaffBlogs = () => {
             return;
           }
 
-          toast.loading("Uploading featured image...", { id: toastId });
+          toast.loading("Uploading thumbnail image...", { id: toastId });
 
           try {
-            const uploadResult = await uploadToCloudinary(imageFile);
+            const seoName = generateSeoFileName(featuredImageAlt, imageFile.name);
+            const seoFile = new File([imageFile], seoName, { type: imageFile.type });
+            const uploadResult = await uploadToCloudinary(seoFile);
             uploadedImages.push({
               url: uploadResult.url,
               publicId: uploadResult.publicId,
               format: uploadResult.format,
               width: uploadResult.width,
               height: uploadResult.height,
+              altText: featuredImageAlt,
             });
           } catch (uploadError) {
             console.error(`Error uploading ${imageFile.name}:`, uploadError);
@@ -487,11 +543,21 @@ const StaffBlogs = () => {
         let uploadedImageBlocks = {};
 
         try {
+          // Build activeBlocks only from blocks still present in the editor
+          const activeBlocks = {};
+          imageBlockIds.forEach((blockId) => {
+            const hookItems = mediaStaging.stagedBlocks[blockId] || [];
+            if (hookItems.length > 0) {
+              activeBlocks[blockId] = hookItems;
+            }
+          });
+
           uploadedImageBlocks = await mediaStaging.flushUploads(
             uploadToCloudinary,
             ({ current, total, fileName }) => {
               toast.loading(`Uploading image ${current}/${total}: ${fileName}...`, { id: toastId });
-            }
+            },
+            activeBlocks
           );
 
           console.log('✅ All image blocks uploaded:', uploadedImageBlocks);
@@ -523,10 +589,13 @@ const StaffBlogs = () => {
         // Step 5: Save blog to Firestore with Cloudinary URLs and YouTube links
         toast.loading("Saving blog to database...", { id: toastId });
 
+        const slug = await resolveUniqueSlug(formData.title);
+
         await addDoc(collection(db, "blogs"), {
           userId: user.uid,
           isAdminAccepted: false,
           title: formData.title,
+          slug,
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: cleanedContent, // Store cleaned content without YouTube links
@@ -538,7 +607,7 @@ const StaffBlogs = () => {
         });
 
         // ✅ Success message
-        const imageMsg = uploadedImages.length > 0 ? ` Featured image uploaded.` : '';
+        const imageMsg = uploadedImages.length > 0 ? ` Thumbnail image uploaded.` : '';
         const blockMsg = Object.keys(uploadedImageBlocks).length > 0 ? ` ${Object.keys(uploadedImageBlocks).length} image block(s) uploaded.` : '';
         const ytMsg = youtubeLinks.length > 0 ? ` ${youtubeLinks.length} YouTube link(s) detected.` : '';
 
@@ -551,6 +620,7 @@ const StaffBlogs = () => {
           editor.commands.clearContent(true);
           setBlogContent("");
           setFormData(prev => ({ ...prev, title: '' }));
+          setFeaturedImageAlt("");
 
           // Clear file input
           const fileInput = e.target.querySelector('input[type="file"]');
@@ -568,46 +638,120 @@ const StaffBlogs = () => {
     },
     [editor, user, formData, imageFile, mediaStaging]
   );
+
+  useEffect(() => {
+    const handleSyncStaged = (e) => {
+      const { id, stagedItems } = e.detail;
+      mediaStaging.updateStagedFiles(id, stagedItems);
+    };
+    window.addEventListener('sync-staged-block', handleSyncStaged);
+    return () => window.removeEventListener('sync-staged-block', handleSyncStaged);
+  }, [mediaStaging]);
+
+
+
   const getPreviewData = useCallback(() => {
     if (!editor) return { content: '', ytlinks: [], imageBlocks: {} };
-    const editorJson = editor.getJSON();
+
     const previewImageBlocks = {};
     const youtubeLinks = [];
-    const traverseNodes = (node) => {
-      if (node.type === 'youtubeEmbed') {
+
+    // Use editor.state.doc.descendants instead of getJSON()
+    // because getJSON() serializes File objects to {} losing previewUrl/file data
+    editor.state.doc.descendants((node) => {
+      if (node.type.name === 'youtubeEmbed') {
         youtubeLinks.push(node.attrs.url);
-      } else if (node.type === 'imageBlock') {
+      } else if (node.type.name === 'imageBlock') {
         const id = node.attrs.id;
-        // Collect items from node attributes (source of truth in editor)
-        const items = node.attrs.stagedItems || node.attrs.images || [];
+        // Get items from live node attrs (not serialized JSON)
+        const stagedItems = Array.isArray(node.attrs.stagedItems) && node.attrs.stagedItems.length > 0
+          ? node.attrs.stagedItems
+          : null;
+        const images = Array.isArray(node.attrs.images) && node.attrs.images.length > 0
+          ? node.attrs.images
+          : null;
+        const items = stagedItems || images || [];
+
+        // Debug logging
+        console.log(`🔍 Preview: Found imageBlock ID="${id}", items=${items.length}, stagedItems=${stagedItems ? stagedItems.length : 0}, images=${images ? images.length : 0}`);
+
         if (items.length > 0) {
-          previewImageBlocks[id] = items;
+          previewImageBlocks[id] = items.map(item => ({
+            ...item,
+            url: item.url || item.previewUrl,
+          }));
+        } else {
+          console.warn(`⚠️  Preview: Image block "${id}" has NO items! stagedItems=${JSON.stringify(stagedItems)}, images=${JSON.stringify(images)}`);
         }
       }
-      if (node.content) {
-        node.content.forEach(traverseNodes);
-      }
-    };
-    editorJson.content?.forEach(traverseNodes);
+    });
+
+    console.log(`📊 Preview: Total blocks found: ${Object.keys(previewImageBlocks).length}`, Object.keys(previewImageBlocks));
 
     let htmlContent = editor.getHTML();
-    
+
     youtubeLinks.forEach((url, index) => {
-      const pattern = new RegExp(`<div[^>]*data-type="youtube-embed"[^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`, 'gi');
+      const pattern = new RegExp(
+        `<div[^>]*data-type=["']youtube-embed["'][^>]*data-url="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>.*?</div>`,
+        'gi'
+      );
       htmlContent = htmlContent.replace(pattern, `<div id="yt${index}"></div>`);
     });
 
     Object.keys(previewImageBlocks).forEach((blockId) => {
-      const pattern = new RegExp(`<div[^>]*data-type="image-block"[^>]*data-id="${blockId}"[^>]*>.*?</div>`, 'gi');
-      htmlContent = htmlContent.replace(pattern, `<div class="image-block" id="${blockId}"></div>`);
+      // Escape blockId for safe regex use
+      const escapedBlockId = blockId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      // Find the opening tag
+      const openTagPattern = new RegExp(
+        `<div[^>]*data-id=["']${escapedBlockId}["'][^>]*>`,
+        'i'
+      );
+      const match = htmlContent.match(openTagPattern);
+
+      if (match) {
+        const startIndex = htmlContent.indexOf(match[0]);
+        const afterOpenTag = startIndex + match[0].length;
+
+        // Count div depth to find the CORRECT closing tag
+        let depth = 1;
+        let i = afterOpenTag;
+
+        while (i < htmlContent.length && depth > 0) {
+          // Check for opening div tag
+          // Both <div > and <div> are 5 chars, need to check both
+          if ((htmlContent.slice(i, i + 5) === '<div ' || htmlContent.slice(i, i + 5) === '<div>') &&
+            htmlContent.charCodeAt(i + 4) !== 47) { // Make sure it's not </div
+            depth++;
+            i += 5; // FIXED: advance by 5, not 4
+          }
+          // Check for closing div tag
+          else if (htmlContent.slice(i, i + 6) === '</div>') {
+            depth--;
+            if (depth === 0) break;
+            i += 6;
+          }
+          else {
+            i++;
+          }
+        }
+
+        const endIndex = i + 6; // include </div>
+        const replacement = `<div class="image-block" id="${blockId}"></div>`;
+        htmlContent = htmlContent.slice(0, startIndex) + replacement + htmlContent.slice(endIndex);
+
+        console.log(`✅ Preview: Replaced imageBlock "${blockId}" (was chars ${startIndex}-${endIndex})`);
+      } else {
+        console.warn(`❌ Preview: Could NOT find imageBlock "${blockId}"`);
+      }
     });
 
     return {
       content: htmlContent,
       ytlinks: youtubeLinks,
-      imageBlocks: previewImageBlocks
+      imageBlocks: previewImageBlocks,
     };
-  }, [editor, mediaStaging]);
+  }, [editor]);
 
   if (!editor) return null;
   const previewData = showPreview ? getPreviewData() : null;
@@ -682,7 +826,7 @@ const StaffBlogs = () => {
 
             {/* D. Featured Image Section */}
             <div className="pt-8 border-t border-gray-200">
-              <h2 className="text-lg font-bold text-gray-800 mb-4">Featured Image</h2>
+              <h2 className="text-lg font-bold text-gray-800 mb-4">Thumbnail Image</h2>
 
               {/* Upload Area */}
               <div className="flex flex-col gap-4">
@@ -693,7 +837,7 @@ const StaffBlogs = () => {
                     </div>
                     <div className="text-center">
                       <span className="text-sm font-semibold text-blue-600">Upload Thumbnail</span>
-                      <p className="mt-1 text-xs text-gray-500">One high-quality 16:9 featured image is required.</p>
+                      <p className="mt-1 text-xs text-gray-500">One high-quality 16:9 thumbnail image is required.</p>
                     </div>
                     <input
                       type="file"
@@ -703,20 +847,37 @@ const StaffBlogs = () => {
                     />
                   </label>
                 ) : (
-                  <div className="relative group rounded-xl overflow-hidden border border-gray-200 w-full max-w-2xl aspect-video bg-gray-100 flex items-center justify-center shadow-sm">
-                    <img
-                      src={URL.createObjectURL(imageFile)}
-                      alt={imageFile.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md"
-                      >
-                        <X size={16} /> Remove Image
-                      </button>
+                  <div className="flex flex-col gap-4 w-full max-w-2xl">
+                    <div className="relative group rounded-xl overflow-hidden border border-gray-200 w-full aspect-video bg-gray-100 flex items-center justify-center shadow-sm">
+                      <img
+                        src={URL.createObjectURL(imageFile)}
+                        alt={imageFile.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md"
+                        >
+                          <X size={16} /> Remove Image
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-bold text-gray-700 mb-1">
+                        Alt Text (Mandatory for SEO)
+                      </label>
+                      <input
+                        type="text"
+                        value={featuredImageAlt}
+                        onChange={(e) => setFeaturedImageAlt(e.target.value)}
+                        placeholder="Describe the image (e.g., 'Authentication workflow using JWT')"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Make it descriptive (minimum 3 words) to help search engines understand this image.</p>
                     </div>
                   </div>
                 )}
@@ -742,8 +903,9 @@ const StaffBlogs = () => {
 
       <MultiImageUploadModal
         isOpen={showMultiImageModal}
-        onClose={handleMultiImageCancel}
+        onCancel={handleMultiImageCancel}
         onSave={handleMultiImageSave}
+        existingBlock={editingBlock}
       />
       <CropImageModal
         isOpen={showCropModal}

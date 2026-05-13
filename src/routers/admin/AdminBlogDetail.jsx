@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Loader2, Eye, EyeOff, CheckCircle, Trash2, RefreshCw } from 'lucide-react'; // ← added RefreshCw
@@ -86,21 +86,50 @@ const AdminBlogDetail = () => {
     const fetchBlog = async () => {
       try {
         setLoading(true);
-        const blogId = slug.split('-').pop();
-        const blogRef = doc(db, 'blogs', blogId);
-        const blogSnap = await getDoc(blogRef);
 
-        if (!blogSnap.exists()) {
+        let blogSnap = null;
+        let blogData = null;
+        let blogId = null;
+
+        // 1. Try to fetch by slug field
+        const blogsRef = collection(db, 'blogs');
+        const q = query(blogsRef, where('slug', '==', slug), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          blogSnap = querySnapshot.docs[0];
+          blogData = blogSnap.data();
+          blogId = blogSnap.id;
+        } else {
+          // 2. Fallback: try to extract ID from legacy slug (title-id)
+          const potentialId = slug.split('-').pop();
+          if (potentialId && potentialId.length >= 20) {
+            const blogRef = doc(db, 'blogs', potentialId);
+            blogSnap = await getDoc(blogRef);
+
+            if (blogSnap.exists()) {
+              const data = blogSnap.data();
+              if (data.slug) {
+                // Found legacy URL, redirect to new slug
+                navigate(`/admin/blog/${data.slug}`, { replace: true });
+                return;
+              }
+              // If no slug field yet, use this one
+              blogData = data;
+              blogId = blogSnap.id;
+            }
+          }
+        }
+
+        if (!blogSnap || !blogSnap.exists()) {
           setError('Blog not found');
           setLoading(false);
           return;
         }
 
-        const data = blogSnap.data();
-
         let imageUrl = '/blogs/default.jpg';
-        if (data.images && data.images.length > 0) {
-          const firstImage = data.images[0];
+        if (blogData.images && blogData.images.length > 0) {
+          const firstImage = blogData.images[0];
           if (typeof firstImage === 'object' && firstImage.url) {
             imageUrl = firstImage.url;
           } else if (typeof firstImage === 'string' && firstImage.includes('cloudinary')) {
@@ -111,24 +140,24 @@ const AdminBlogDetail = () => {
         }
 
         setBlog({
-          id: blogSnap.id,
-          title: data.title || 'Untitled Blog',
-          content: data.content || '',
-          createdAt: data.createdAt?.toDate().toLocaleDateString('en-US', {
+          id: blogId,
+          title: blogData.title || 'Untitled Blog',
+          content: blogData.content || '',
+          createdAt: blogData.createdAt?.toDate().toLocaleDateString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric'
           }) || '',
-          updatedAt: data.updatedAt?.toDate().toLocaleDateString('en-US', {
+          updatedAt: blogData.updatedAt?.toDate().toLocaleDateString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric'
           }) || '',
           img: imageUrl,
-          images: data.images || [],
-          authorName: data.authorName || 'Anonymous',
-          authorRole: data.authorRole || 'Staff',
-          ytlinks: data.ytlinks || [],
-          imageBlocks: data.imageBlocks || {},
-          isAdminAccepted: data.isAdminAccepted || false,
-          visibility: data.visibility !== false,
-          status: data.status || 'pending',
+          images: blogData.images || [],
+          authorName: blogData.authorName || 'Anonymous',
+          authorRole: blogData.authorRole || 'Staff',
+          ytlinks: blogData.ytlinks || [],
+          imageBlocks: blogData.imageBlocks || {},
+          isAdminAccepted: blogData.isAdminAccepted || false,
+          visibility: blogData.visibility !== false,
+          status: blogData.status || 'pending',
         });
       } catch (err) {
         console.error('Error fetching blog:', err);
@@ -139,7 +168,7 @@ const AdminBlogDetail = () => {
     };
 
     fetchBlog();
-  }, [slug]);
+  }, [slug, navigate]);
 
 
   const handleNavigate = () => {
@@ -375,7 +404,7 @@ const AdminBlogDetail = () => {
               </div>
 
               <div
-                className="prose prose-lg max-w-none mb-8"
+                className="prose prose-lg max-w-none prose-slate prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed mb-8"
                 dangerouslySetInnerHTML={{ __html: injectBlogContent(blog.content, blog.ytlinks, blog.imageBlocks) }}
               />
 

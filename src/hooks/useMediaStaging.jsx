@@ -14,7 +14,7 @@ export const useMediaStaging = () => {
   // Map of blockId -> array of staged items
   // Each item: { id, file, previewUrl, status: 'staged' | 'uploading' | 'uploaded' | 'error', url?, publicId?, error? }
   const [stagedBlocks, setStagedBlocks] = useState({});
-  
+
   // Track object URLs for cleanup
   const objectUrlsRef = useRef(new Set());
 
@@ -25,7 +25,7 @@ export const useMediaStaging = () => {
     const stagedItems = files.map((file) => {
       const previewUrl = URL.createObjectURL(file);
       objectUrlsRef.current.add(previewUrl);
-      
+
       return {
         id: `${blockId}-${Date.now()}-${Math.random()}`,
         file,
@@ -63,7 +63,7 @@ export const useMediaStaging = () => {
     setStagedBlocks((prev) => {
       const blockFiles = prev[blockId] || [];
       const fileToRemove = blockFiles.find((f) => f.id === fileId);
-      
+
       // Cleanup object URL
       if (fileToRemove?.previewUrl) {
         URL.revokeObjectURL(fileToRemove.previewUrl);
@@ -71,7 +71,7 @@ export const useMediaStaging = () => {
       }
 
       const updatedFiles = blockFiles.filter((f) => f.id !== fileId);
-      
+
       if (updatedFiles.length === 0) {
         const { [blockId]: _, ...rest } = prev;
         return rest;
@@ -90,7 +90,7 @@ export const useMediaStaging = () => {
   const removeStagedBlock = useCallback((blockId) => {
     setStagedBlocks((prev) => {
       const blockFiles = prev[blockId] || [];
-      
+
       // Cleanup all object URLs for this block
       blockFiles.forEach((file) => {
         if (file.previewUrl) {
@@ -115,9 +115,10 @@ export const useMediaStaging = () => {
    * Upload all staged files to Cloudinary
    * Returns a map of blockId -> uploaded images array
    */
-  const flushUploads = useCallback(async (uploadFn, onProgress) => {
-    const blockIds = Object.keys(stagedBlocks);
-    
+  const flushUploads = useCallback(async (uploadFn, onProgress, activeBlocks = null) => {
+    const blocksToProcess = activeBlocks || stagedBlocks;
+    const blockIds = Object.keys(blocksToProcess);
+
     if (blockIds.length === 0) {
       return {};
     }
@@ -128,12 +129,12 @@ export const useMediaStaging = () => {
 
     // Count total files
     blockIds.forEach((blockId) => {
-      totalFiles += stagedBlocks[blockId].length;
+      totalFiles += blocksToProcess[blockId].length;
     });
 
     // Upload files block by block
     for (const blockId of blockIds) {
-      const files = stagedBlocks[blockId];
+      const files = blocksToProcess[blockId];
       const uploadedImages = [];
 
       for (const stagedItem of files) {
@@ -165,6 +166,8 @@ export const useMediaStaging = () => {
             format: result.format,
             width: result.width,
             height: result.height,
+            altText: stagedItem.altText || '',
+            title: stagedItem.title || '',
           });
 
           // Update status to uploaded
@@ -180,7 +183,7 @@ export const useMediaStaging = () => {
           uploadedCount++;
         } catch (error) {
           console.error(`Failed to upload ${stagedItem.file.name}:`, error);
-          
+
           // Update status to error
           setStagedBlocks((prev) => ({
             ...prev,
