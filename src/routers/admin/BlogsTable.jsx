@@ -204,7 +204,7 @@ const BlogsTable = () => {
   };
 
   const handleViewBlog = (blog) => {
-    const slug = createFullSlug(blog.title, blog.id);
+    const slug = blog.slug || createFullSlug(blog.title, blog.id);
     navigate(`/admin/blog/${slug}`);
   };
 

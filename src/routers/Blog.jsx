@@ -58,6 +58,7 @@ export default function Blog() {
               authorRole: data.authorRole || "Staff",
               visibility: data.visibility, // Include visibility field
               views: data.views || 0,
+              slug: data.slug || "",
             };
           })
           // Filter to show only visible blogs (visibility === true OR visibility field doesn't exist)
@@ -89,7 +90,7 @@ export default function Blog() {
   }, []);
 
   const handleBlogClick = (blog) => {
-    const slug = createFullSlug(blog.title, blog.id);
+    const slug = blog.slug || createFullSlug(blog.title, blog.id);
     navigate(`/blog/${slug}`);
   };
 

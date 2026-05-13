@@ -4,17 +4,23 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import session from 'express-session';
 
 // Import routes
 import usersRoutes from './routes/users.js';
 import cloudinaryRoutes from './routes/cloudinary.js';
 import blogsRoutes from './routes/blogs.js';
+import statsRoutes from './routes/stats.js';
+
+// Import middleware
+import { optionalAuthenticate } from './middleware/auth.js';
+import { trackVisitor } from './middleware/visitorTracker.js';
 
 // Load environment variables
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ['PORT', 'FRONTEND_URL'];
+const requiredEnvVars = ['PORT', 'FRONTEND_URL', 'SESSION_SECRET'];
 const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingVars.length > 0) {
@@ -44,9 +50,25 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Visitor tracking (applied globally)
+app.use(optionalAuthenticate);
+app.use(trackVisitor);
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {
@@ -84,6 +106,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/users', usersRoutes);
 app.use('/api/cloudinary', cloudinaryRoutes);
 app.use('/api/blogs', blogsRoutes);
+app.use('/api/stats', statsRoutes);
 
 // 404 handler
 // Enhanced 404 handler with detailed logging

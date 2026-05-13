@@ -5,6 +5,8 @@ import { Eye, Calendar, Linkedin, MapPin, X } from "lucide-react";
 // Import firebase tools
 import { db } from "@lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { createFullSlug } from "@/utils/slugUtils";
+import { useNavigate } from "react-router-dom";
 
 // Helper function for view count formatting
 const formatViews = (num) => {
@@ -16,6 +18,7 @@ const formatViews = (num) => {
 
 export default function UserProfile() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -424,7 +427,10 @@ export default function UserProfile() {
               {blogs.map((blog, index) => (
                 <motion.div
                   key={blog.id}
-                  onClick={() => setSelectedBlog(blog)}
+                  onClick={() => {
+                    const slug = blog.slug || createFullSlug(blog.title, blog.id);
+                    navigate(`/blog/${slug}`);
+                  }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + index * 0.05, duration: 0.4 }}

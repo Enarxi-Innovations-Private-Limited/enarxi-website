@@ -8,6 +8,7 @@ import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
 import { generateSeoFileName, validateAltText } from "@/utils/seoUtils";
+import { resolveUniqueSlug } from "@/utils/slugUtils";
 // import MultiImageUploadModal from "@/components/MultiImageUploadModal";
 import MultiImageUploadModal from "../Components/MultiImageUploadModal";
 import { isYouTubeUrl } from "@/utils/youtubeUtils";
@@ -514,7 +515,7 @@ const StaffBlogs = () => {
             return;
           }
 
-          toast.loading("Uploading featured image...", { id: toastId });
+          toast.loading("Uploading thumbnail image...", { id: toastId });
 
           try {
             const seoName = generateSeoFileName(featuredImageAlt, imageFile.name);
@@ -588,10 +589,13 @@ const StaffBlogs = () => {
         // Step 5: Save blog to Firestore with Cloudinary URLs and YouTube links
         toast.loading("Saving blog to database...", { id: toastId });
 
+        const slug = await resolveUniqueSlug(formData.title);
+
         await addDoc(collection(db, "blogs"), {
           userId: user.uid,
           isAdminAccepted: false,
           title: formData.title,
+          slug,
           authorName: formData.authorName,
           authorRole: formData.authorRole,
           content: cleanedContent, // Store cleaned content without YouTube links
@@ -603,7 +607,7 @@ const StaffBlogs = () => {
         });
 
         // ✅ Success message
-        const imageMsg = uploadedImages.length > 0 ? ` Featured image uploaded.` : '';
+        const imageMsg = uploadedImages.length > 0 ? ` Thumbnail image uploaded.` : '';
         const blockMsg = Object.keys(uploadedImageBlocks).length > 0 ? ` ${Object.keys(uploadedImageBlocks).length} image block(s) uploaded.` : '';
         const ytMsg = youtubeLinks.length > 0 ? ` ${youtubeLinks.length} YouTube link(s) detected.` : '';
 
@@ -822,7 +826,7 @@ const StaffBlogs = () => {
 
             {/* D. Featured Image Section */}
             <div className="pt-8 border-t border-gray-200">
-              <h2 className="text-lg font-bold text-gray-800 mb-4">Featured Image</h2>
+              <h2 className="text-lg font-bold text-gray-800 mb-4">Thumbnail Image</h2>
 
               {/* Upload Area */}
               <div className="flex flex-col gap-4">
@@ -833,7 +837,7 @@ const StaffBlogs = () => {
                     </div>
                     <div className="text-center">
                       <span className="text-sm font-semibold text-blue-600">Upload Thumbnail</span>
-                      <p className="mt-1 text-xs text-gray-500">One high-quality 16:9 featured image is required.</p>
+                      <p className="mt-1 text-xs text-gray-500">One high-quality 16:9 thumbnail image is required.</p>
                     </div>
                     <input
                       type="file"

@@ -9,6 +9,7 @@ import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { getImageDimensions, isAspectRatio16x9, validateImageFile } from "@/utils/imageCropUtils";
 import CropImageModal from "@/components/CropImageModal";
 import { generateSeoFileName, validateAltText } from "@/utils/seoUtils";
+import { resolveUniqueSlug } from "@/utils/slugUtils";
 import { Youtube, AlertTriangle, ArrowLeft, Loader2, Bold, Italic, Heading1, Heading2, Heading3, List, ListOrdered, Type, Save, User, Briefcase, FileImage, AlignLeft, AlignCenter, AlignRight, AlignJustify, X, Minus, Eye } from "lucide-react";
 import Heading from "@tiptap/extension-heading";
 import ListItem from "@tiptap/extension-list-item";
@@ -189,7 +190,7 @@ const StaffBlogEdit = () => {
   const [fetchError, setFetchError] = useState(null);
   const [retryFeedback, setRetryFeedback] = useState("");
 
-  const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "" });
+  const [formData, setFormData] = useState({ authorName: "", authorRole: "", title: "", slug: "" });
   const [existingImage, setExistingImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [featuredImageAlt, setFeaturedImageAlt] = useState("");
@@ -383,6 +384,7 @@ const StaffBlogEdit = () => {
           authorName: data.authorName || firebaseUser?.name || user?.email || "",
           authorRole: data.authorRole || role || "",
           title: data.title || "",
+          slug: data.slug || "",
         });
 
         if (data.images && data.images.length > 0) {
@@ -614,8 +616,14 @@ const StaffBlogEdit = () => {
       }
 
       toast.loading("💾 Saving changes...", { id: toastId });
+
+      // Generate/Update slug if needed
+      // Since this is a retry blog (not public yet), we can update the slug if the title changed
+      const slug = await resolveUniqueSlug(formData.title, blogId);
+
       await updateBlog(blogId, {
         title: formData.title,
+        slug,
         content: cleanedContent,
         images: uploadedImages,
         ytlinks: youtubeLinks,
@@ -800,7 +808,7 @@ const StaffBlogEdit = () => {
               {/* Featured Image */}
               <div className="mt-12 pt-8 border-t border-gray-100">
                 <label className="flex items-center gap-2 text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">
-                  <FileImage size={16} /> Featured Image
+                  <FileImage size={16} /> Thumbnail Image
                 </label>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -849,7 +857,7 @@ const StaffBlogEdit = () => {
                     </div>
                   )}
                 </div>
-                <p className="mt-2 text-xs text-gray-400">Updating the featured image will replace the current one.</p>
+                <p className="mt-2 text-xs text-gray-400">Updating the thumbnail image will replace the current one.</p>
 
                 {(existingImage || imageFile) && (
                   <div className="mt-4 w-full">

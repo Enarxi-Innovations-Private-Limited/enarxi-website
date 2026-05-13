@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Star, Users, Clock, ArrowRight, RefreshCw } from 'lucide-react';
+import { FileText, Star, Users, Clock, ArrowRight, RefreshCw, TrendingUp } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/AuthProvider';
+import { getVisitorStats } from '@/lib/api';
+import VisitorTrendChart from './VisitorTrendChart';
 
 const DashboardStats = () => {
   const navigate = useNavigate();
@@ -13,8 +15,12 @@ const DashboardStats = () => {
   const [retryBlogs, setRetryBlogs] = useState(0);
   const [pendingReviews, setPendingReviews] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalVisitors, setTotalVisitors] = useState(0);
+  const [visitorData, setVisitorData] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [viewPeriod, setViewPeriod] = useState('daily'); // 'daily', 'weekly', 'monthly'
 
   // Fetch pending blogs from Firestore
   useEffect(() => {
@@ -89,6 +95,25 @@ const DashboardStats = () => {
     return () => unsubscribe();
   }, []);
 
+  // Fetch visitor statistics from Backend
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await getVisitorStats();
+        if (response.success) {
+          setTotalVisitors(response.data.totalVisitors);
+          setVisitorData(response.data.dailyStats);
+        }
+      } catch (error) {
+        console.error('Error fetching visitor stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const stats = [
     {
       id: 1,
@@ -130,7 +155,55 @@ const DashboardStats = () => {
       bgColor: 'bg-green-50',
       action: () => navigate('/admin', { state: {activeTab:'staff'} }),
     },
+    {
+      id: 5,
+      title: 'Total Visitors',
+      value: totalVisitors,
+      icon: TrendingUp,
+      color: 'bg-purple-500',
+      textColor: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      action: () => {}, // No specific tab for visitors yet
+    },
   ];
+
+  // Helper to group data by period
+  const getFilteredData = () => {
+    if (viewPeriod === 'daily') return visitorData;
+
+    if (viewPeriod === 'weekly') {
+      const grouped = [];
+      // Group by 7-day chunks (KISS)
+      for (let i = 0; i < visitorData.length; i += 7) {
+        const chunk = visitorData.slice(i, i + 7);
+        const total = chunk.reduce((sum, item) => sum + item.count, 0);
+        grouped.push({
+          date: chunk[0].date,
+          count: total,
+          isWeekly: true
+        });
+      }
+      return grouped;
+    }
+
+    if (viewPeriod === 'monthly') {
+      const months = {};
+      visitorData.forEach(item => {
+        const month = item.date.substring(0, 7); // YYYY-MM
+        if (!months[month]) months[month] = 0;
+        months[month] += item.count;
+      });
+      return Object.keys(months).map(m => ({
+        date: `${m}-01`,
+        count: months[m],
+        isMonthly: true
+      })).sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    return visitorData;
+  };
+
+  const filteredVisitorData = getFilteredData();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -213,6 +286,54 @@ const DashboardStats = () => {
             </motion.div>
           );
         })}
+      </motion.div>
+
+      {/* Visitor Trend Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-white rounded-lg shadow-lg border border-gray-200 p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg text-poppins text-weight-600 text-[#0A1524]">Visitor Trend</h3>
+            <p className="text-sm text-gray-500 text-poppins">
+              {viewPeriod === 'daily' ? 'Unique visitors over the last 30 days' : 
+               viewPeriod === 'weekly' ? 'Weekly visitor accumulation' : 
+               'Monthly visitor accumulation'}
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              {['daily', 'weekly', 'monthly'].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setViewPeriod(p)}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+                    viewPeriod === p 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div className="hidden md:flex items-center">
+              <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+              <span className="text-xs text-gray-600">Visitors</span>
+            </div>
+          </div>
+        </div>
+        
+        {statsLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <VisitorTrendChart data={filteredVisitorData} period={viewPeriod} />
+        )}
       </motion.div>
 
       {/* Additional Dashboard Content */}

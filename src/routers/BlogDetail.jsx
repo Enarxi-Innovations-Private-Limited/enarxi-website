@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, User, Loader2, Eye } from 'lucide-react';
@@ -15,30 +15,73 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const blogIdFromQuery = queryParams.get('id');
+
   useEffect(() => {
     const fetchBlog = async () => {
       try {
         setLoading(true);
 
-        // Extract blog ID from slug (last part after last hyphen)
-        const blogId = slug.split('-').pop();
+        let blogSnap = null;
+        let blogData = null;
+        let blogId = null;
 
-        const blogRef = doc(db, 'blogs', blogId);
-        const blogSnap = await getDoc(blogRef);
+        // 1. Handle legacy ?id=123 redirect
+        if (blogIdFromQuery) {
+          const blogRef = doc(db, 'blogs', blogIdFromQuery);
+          blogSnap = await getDoc(blogRef);
+          if (blogSnap.exists()) {
+            const data = blogSnap.data();
+            if (data.slug) {
+              navigate(`/blog/${data.slug}`, { replace: true });
+              return;
+            }
+          }
+        }
 
-        if (!blogSnap.exists()) {
+        // 2. Fetch by slug field
+        const blogsRef = collection(db, 'blogs');
+        const q = query(blogsRef, where('slug', '==', slug), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          blogSnap = querySnapshot.docs[0];
+          blogData = blogSnap.data();
+          blogId = blogSnap.id;
+        } else {
+          // 3. Fallback: try to extract ID from legacy slug (title-id)
+          const potentialId = slug.split('-').pop();
+          if (potentialId && potentialId.length >= 20) { // Firestore IDs are usually 20 chars
+            const blogRef = doc(db, 'blogs', potentialId);
+            blogSnap = await getDoc(blogRef);
+            
+            if (blogSnap.exists()) {
+              const data = blogSnap.data();
+              if (data.slug) {
+                // Found legacy URL, redirect to new slug
+                navigate(`/blog/${data.slug}`, { replace: true });
+                return;
+              }
+              // If no slug field yet, use this one but we'll need to migrate later
+              blogData = data;
+              blogId = blogSnap.id;
+            }
+          }
+        }
+
+        if (!blogSnap || !blogSnap.exists()) {
           setError('Blog not found');
           setLoading(false);
           return;
         }
 
-        //session based view count for the blog
-        incrementViewCount(blogId, blogRef);
-
-        const data = blogSnap.data();
+        // Session based view count
+        incrementViewCount(blogId);
 
         // Check if blog is approved and visible
-        if (!data.isAdminAccepted || data.visibility === false) {
+        if (!blogData.isAdminAccepted || blogData.visibility === false) {
           setError('Blog not available');
           setLoading(false);
           return;
@@ -46,8 +89,8 @@ const BlogDetail = () => {
 
         // Handle image URL
         let imageUrl = '/blogs/default.jpg';
-        if (data.images && data.images.length > 0) {
-          const firstImage = data.images[0];
+        if (blogData.images && blogData.images.length > 0) {
+          const firstImage = blogData.images[0];
           if (typeof firstImage === 'object' && firstImage.url) {
             imageUrl = firstImage.url;
           } else if (typeof firstImage === 'string' && firstImage.includes('cloudinary')) {
@@ -58,21 +101,21 @@ const BlogDetail = () => {
         }
 
         setBlog({
-          id: blogSnap.id,
-          title: data.title || 'Untitled Blog',
-          content: data.content || '',
-          date: data.createdAt?.toDate().toLocaleDateString('en-US', {
+          id: blogId,
+          title: blogData.title || 'Untitled Blog',
+          content: blogData.content || '',
+          date: blogData.createdAt?.toDate().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
           }) || '',
           img: imageUrl,
-          images: data.images || [],
-          authorName: data.authorName || 'Anonymous',
-          authorRole: data.authorRole || 'Staff',
-          ytlinks: data.ytlinks || [],
-          imageBlocks: data.imageBlocks || {},
-          views: data.views || 0,
+          images: blogData.images || [],
+          authorName: blogData.authorName || 'Anonymous',
+          authorRole: blogData.authorRole || 'Staff',
+          ytlinks: blogData.ytlinks || [],
+          imageBlocks: blogData.imageBlocks || {},
+          views: blogData.views || 0,
         });
       } catch (err) {
         console.error('Error fetching blog:', err);
@@ -83,11 +126,11 @@ const BlogDetail = () => {
     };
 
     fetchBlog();
-  }, [slug]);
+  }, [slug, blogIdFromQuery, navigate]);
 
 
   //blogs view count using session 
-  const incrementViewCount = async (blogId, blogRef) => {
+  const incrementViewCount = async (blogId) => {
     const SESSION_KEY = "enarxi-session-for-blog";
     const savedSession = sessionStorage.getItem(SESSION_KEY);
     let session = savedSession ? JSON.parse(savedSession) : { viewedBlogs: [] };

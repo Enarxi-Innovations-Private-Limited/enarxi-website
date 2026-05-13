@@ -65,7 +65,7 @@ const BlogPreviewModal = ({
                   <div className="w-full aspect-[21/9] overflow-hidden bg-gray-100">
                     <img
                       src={typeof featuredImage === 'string' ? featuredImage : URL.createObjectURL(featuredImage)}
-                      alt="Featured"
+                      alt="Thumbnail"
                       className="w-full h-full object-cover"
                     />
                   </div>
