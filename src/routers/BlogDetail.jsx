@@ -110,10 +110,12 @@ const BlogDetail = () => {
             day: 'numeric'
           }) || '',
           img: imageUrl,
-          images: data.images || [],
-          authorName: data.authorName || 'Anonymous',
-          authorRole: data.authorRole || 'Staff',
-          ytlinks: data.ytlinks || [],
+          images: blogData.images || [],
+          authorName: blogData.authorName || 'Anonymous',
+          authorRole: blogData.authorRole || 'Staff',
+          ytlinks: blogData.ytlinks || [],
+          imageBlocks: blogData.imageBlocks || {},
+          views: blogData.views || 0,
         });
       } catch (err) {
         console.error('Error fetching blog:', err);
