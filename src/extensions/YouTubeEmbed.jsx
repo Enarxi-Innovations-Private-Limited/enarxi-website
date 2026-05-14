@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import YouTubeEmbedComponent from '@/routers/Components/YouTubeEmbedComponent';
+import YouTubeEmbedComponent from '@/layout/YouTubeEmbedComponent';
 
 /**
  * Extract YouTube video ID from URL

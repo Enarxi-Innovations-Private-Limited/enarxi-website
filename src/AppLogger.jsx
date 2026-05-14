@@ -11,9 +11,9 @@ export default function AppLogger() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // console.log('Logged in user:', user.name || user.email || user.displayName);
-        console.log("Admin or staff logged in")
+        // console.log("Admin or staff logged in")
       } else {
-        console.log('No user logged in');
+        // console.log('No user logged in');
       }
     });
 

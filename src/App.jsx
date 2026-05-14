@@ -1,32 +1,32 @@
 import { useEffect } from "react";
-import Footer from "./routers/Components/Footer";
-import Header from "./routers/Components/Header";
-import Hero from "./routers/Hero";
-import Services from "./routers/Services";
+import Footer from "./layout/Footer";
+import Header from "./layout/Header";
+import Hero from "./pages/Hero";
+import Services from "./pages/Services";
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from "react-router-dom";
-import Testimonials from "./routers/Testimonials";
-import Blog from "./routers/Blog";
-import BlogDetail from "./routers/BlogDetail";
-import Gallery from "./routers/Gallery";
-import AboutUs from "./routers/AboutUs";
+import Testimonials from "./pages/Testimonials";
+import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
+import Gallery from "./pages/Gallery";
+import AboutUs from "./pages/AboutUs";
 import AboutUs1 from "@components/new/Aboutus";
-import AdminPortal from "./routers/AdminPortal";
-import AdminBlogDetail from "./routers/admin/AdminBlogDetail";
-import FeedBack from "./routers/FeedBack";
-import TestSupa from "./routers/new/TestSupa";
+import AdminPortal from "./pages/admin/AdminPortal";
+import AdminBlogDetail from "./pages/admin/AdminBlogDetail";
+import FeedBack from "./pages/FeedBack";
+import TestSupa from "./pages/client/TestSupa";
 
 import { AuthProvider } from "./AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
-import StaffProtectedRoute from "././routers/admin/StaffProtectedRoute"; // Import the new protected route
-import Login from "././routers/admin/Login";
-import StaffLogin from "././routers/admin/StaffLogin"; // Import the new login page
-import StaffPortal from "./routers/StaffPortal"; // Import the new portal
-import UserProfile from "./routers/UserProfile"; // Import user profile page
+import StaffProtectedRoute from "./pages/admin/StaffProtectedRoute";
+import Login from "./pages/admin/Login";
+import StaffLogin from "./pages/admin/StaffLogin";
+import StaffPortal from "./pages/staff/StaffPortal";
+import UserProfile from "./pages/UserProfile";
 import AppLogger from "./AppLogger";
-import Logout from "./routers/admin/Logout";
-import ErrorBoundary from "./routers/ErrorBoundary";
+import Logout from "./pages/admin/Logout";
+import ErrorBoundary from "./pages/ErrorBoundary";
 import OfflineIndicator from "./components/shared/OfflineIndicator";
-import StaffBlogEdit from "./routers/staff/StaffBlogEdit";
+import StaffBlogEdit from "./pages/staff/StaffBlogEdit";
 
 // Scroll to top component
 function ScrollToTop() {
