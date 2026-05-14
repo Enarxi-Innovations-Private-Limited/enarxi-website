@@ -2,7 +2,7 @@ import { useState } from "react";
 import { auth } from "../../lib/firebase";
 import { signOut } from "firebase/auth";
 import logout from "@/assets/logout.png";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 const Logout = ({ onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);

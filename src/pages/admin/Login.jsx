@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../AuthProvider";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from "lucide-react";
-import BrandedLoader from "@/components/shared/BrandedLoader";
+import BrandedLoader from "@/components/ui/BrandedLoader";
 
 export default function Login() {
   const { role, loading } = useAuth();

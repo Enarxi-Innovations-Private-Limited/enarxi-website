@@ -12,9 +12,9 @@ import GalleryTable from "./GalleryTable";
 
 import { useAuth } from "@/AuthProvider";
 import Logout from "./Logout";
-import BrandedLoader from "@/components/shared/BrandedLoader";
-import AccessDenied from "@/components/shared/AccessDenied";
-import OfflineIndicator from "@/components/shared/OfflineIndicator";
+import BrandedLoader from "@/components/ui/BrandedLoader";
+import AccessDenied from "@/components/ui/AccessDenied";
+import OfflineIndicator from "@/components/ui/OfflineIndicator";
 
 const AdminPortal = () => {
   const location = useLocation();

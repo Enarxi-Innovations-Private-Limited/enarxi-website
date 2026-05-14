@@ -25,7 +25,7 @@ import UserProfile from "./pages/UserProfile";
 import AppLogger from "./AppLogger";
 import Logout from "./pages/admin/Logout";
 import ErrorBoundary from "./pages/ErrorBoundary";
-import OfflineIndicator from "./components/shared/OfflineIndicator";
+import OfflineIndicator from "./components/ui/OfflineIndicator";
 import StaffBlogEdit from "./pages/staff/StaffBlogEdit";
 
 // Scroll to top component

@@ -19,7 +19,7 @@ import { extractPublicId, deleteFromCloudinary } from '@/utils/uploadToCloudinar
 import AddEditTeamModal from './AddEditTeamModal';
 import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
-import ConfirmModal from '@/components/shared/ConfirmModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import {
   DndContext,
   closestCenter,

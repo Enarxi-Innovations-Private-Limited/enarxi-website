@@ -7,10 +7,10 @@ import { useAuth } from "@/AuthProvider";
 import { usePortalPersistence } from "@/hooks/usePortalPersistence";
 import StaffDashboard from "./StaffDashboard";
 import StaffBlogs from "./StaffBlogs";
-import BrandedLoader from "@/components/shared/BrandedLoader";
-import AccessDenied from "@/components/shared/AccessDenied";
-import ConfirmModal from "@/components/shared/ConfirmModal";
-import OfflineIndicator from "@/components/shared/OfflineIndicator";
+import BrandedLoader from "@/components/ui/BrandedLoader";
+import AccessDenied from "@/components/ui/AccessDenied";
+import ConfirmModal from "@/components/ui/ConfirmModal";
+import OfflineIndicator from "@/components/ui/OfflineIndicator";
 
 const StaffPortal = () => {
   const { activeSection: activeTab, setActiveSection: setActiveTab, clearPersistedState } = usePortalPersistence('staff-portal', 'dashboard');

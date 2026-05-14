@@ -8,7 +8,7 @@ import { injectBlogContent } from '@/utils/blogRenderer';
 import { toast, Toaster } from 'react-hot-toast';
 import { deleteBlog, approveBlog, retryBlog } from '@/lib/api'; // ← added retryBlog
 import { useAuth } from '@/AuthProvider';
-import ConfirmModal from '@/components/shared/ConfirmModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 // ── Retry feedback modal ──────────────────────────────────────────────────────
 const RetryModal = ({ isOpen, onClose, onConfirm }) => {

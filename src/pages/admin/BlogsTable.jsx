@@ -9,7 +9,7 @@ import { deleteBlog, approveBlog } from '@/lib/api';
 import { logAdminActivity } from '@/utils/adminActivityLogger';
 import { useAuth } from '@/AuthProvider';
 import BlogTile from './blogs/BlogTile';
-import ConfirmModal from '@/components/shared/ConfirmModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { createFullSlug } from '@/utils/slugUtils';
 import { useLocation } from 'react-router-dom';
 
