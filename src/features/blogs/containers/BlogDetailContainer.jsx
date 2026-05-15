@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useBlogDetail } from "../hooks/useBlogs";
 import { BlogDetailView } from "../presentational/BlogDetailView";
+import SEO from "@/components/SEO";
 
 const BlogDetailContainer = () => {
   const { slug } = useParams();
@@ -27,12 +28,23 @@ const BlogDetailContainer = () => {
   }, [blog, incrementViews]);
 
   return (
-    <BlogDetailView 
-      blog={blog} 
-      loading={loading} 
-      error={error} 
-      onBack={() => navigate("/blogs")} 
-    />
+    <>  
+      {blog && (
+        <SEO 
+          title={blog.title}
+          description={blog.excerpt || blog.content?.substring(0, 160).replace(/<[^>]*>/g, '')}
+          keywords={blog.tags?.join(', ') || "electronic manufacturing, IoT, software development"}
+          ogImage={blog.featuredImage}
+          ogType="article"
+        />
+      )}
+      <BlogDetailView 
+        blog={blog} 
+        loading={loading} 
+        error={error} 
+        onBack={() => navigate("/blogs")} 
+      />
+    </>
   );
 };
 

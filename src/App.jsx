@@ -4,6 +4,7 @@ import Header from "./layout/Header";
 import Hero from "./pages/Hero";
 import Services from "./pages/Services";
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import Testimonials from "./pages/Testimonials";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
@@ -64,37 +65,39 @@ function AdminLayout() {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
-          <ScrollToTop />
-          <AppLogger />
-          <OfflineIndicator />
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Hero />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/blogs" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogDetail />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/testimonials" element={<Testimonials />} />
-              <Route path="/aboutus" element={<AboutUs1 />} />
-              <Route path="/feedback" element={<FeedBack />} />
-              <Route path="/users/:username" element={<UserProfile />} />
-            </Route>
+      <HelmetProvider>
+        <AuthProvider>
+          <Router>
+            <ScrollToTop />
+            <AppLogger />
+            <OfflineIndicator />
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Hero />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/blogs" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogDetail />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/testimonials" element={<Testimonials />} />
+                <Route path="/aboutus" element={<AboutUs1 />} />
+                <Route path="/feedback" element={<FeedBack />} />
+                <Route path="/users/:username" element={<UserProfile />} />
+              </Route>
 
-            <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<ProtectedRoute><AdminPortal /></ProtectedRoute>} />
-              <Route path="/admin/blog/:slug" element={<ProtectedRoute><AdminBlogDetail /></ProtectedRoute>} />
-              <Route path="/user" element={<TestSupa />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/stafflogin" element={<StaffLogin />} />
-              <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
-              <Route path="/staff/blogs/:blogId/edit" element={<StaffProtectedRoute><StaffBlogEdit /></StaffProtectedRoute>} />
-            </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<ProtectedRoute><AdminPortal /></ProtectedRoute>} />
+                <Route path="/admin/blog/:slug" element={<ProtectedRoute><AdminBlogDetail /></ProtectedRoute>} />
+                <Route path="/user" element={<TestSupa />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/stafflogin" element={<StaffLogin />} />
+                <Route path="/staff" element={<StaffProtectedRoute><StaffPortal /></StaffProtectedRoute>} />
+                <Route path="/staff/blogs/:blogId/edit" element={<StaffProtectedRoute><StaffBlogEdit /></StaffProtectedRoute>} />
+              </Route>
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }

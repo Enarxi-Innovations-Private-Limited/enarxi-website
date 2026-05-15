@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import SEO from "../components/SEO";
 import aboutsus1 from "../assets/images/aboutUs1.svg";
 import aboutusEye from "../assets/images/aboutusEye.svg";
 import syedCTO from "../assets/images/syedCTO.jpeg";
@@ -13,6 +14,11 @@ const fadeInUp = {
 const AboutUs = () => {
   return (
     <div className="w-full font-sans bg-[#F8FFFF]">
+      <SEO 
+        title="About Us - Our Story & Vision"
+        description="Learn about Enarxi Innovations, our journey since 2017, and our mission to empower businesses through innovative electronic manufacturing and IT digital solutions."
+        keywords="Enarxi story, electronics company mission, manufacturing vision, technology startup Chennai, Syed Sameeullah, Ayaz Shaik"
+      />
       {/* About Header */}
       <motion.section
         className="py-12 text-center"

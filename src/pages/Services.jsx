@@ -1,5 +1,6 @@
 "use client";
 import React, { memo, useState, useMemo } from "react";
+import SEO from "../components/SEO";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -426,6 +427,11 @@ export default function Services() {
 
   return (
     <section className="bg-gradient-to-b from-[#F5FBFF] via-white to-[#F5FBFF] overflow-hidden">
+      <SEO 
+        title="Our Services - Manufacturing & IT Solutions"
+        description="Explore Enarxi's comprehensive range of services including PCB design, OEM manufacturing, web development, mobile apps, and custom software development in Chennai."
+        keywords="PCB fabrication, OEM manufacturing, embedded systems, firmware development, web development services, mobile app development, 3D printing Chennai"
+      />
       <div className="w-[90%] max-w-7xl mx-auto mt-10">
         <motion.header
           className="text-center mb-16"
