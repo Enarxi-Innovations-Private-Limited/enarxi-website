@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 // --- ASSETS ---
 import service_1 from "../assets/images/service_1.svg";
@@ -12,6 +13,9 @@ import service_2 from "../assets/images/service_2.svg";
 import service_3 from "../assets/images/service_3.svg";
 import service_4 from "../assets/images/service_4.svg";
 import service_5 from "../assets/images/service_5.svg";
+import service_6 from "../assets/images/service_6.svg";
+import software_icon from "../assets/images/software.svg";
+import computer_icon from "../assets/images/computer.svg";
 import service_bottom_girl from "../assets/images/service-bottom-girl.svg";
 
 // --- DATA ---
@@ -21,30 +25,56 @@ const SERVICES_DATA = [
     title: "PCB Design & Fabrication",
     desc: "At Enarxi, we turn your “crazy circuit ideas” into real, working PCBs. Multi-layer, high-speed, or just a tiny IoT board — we handle the design, fabrication, and testing so you can focus on what really matters: making cool stuff (and maybe bragging a little).",
     img: service_1,
+    link: "/services/pcb-design-fabrication"
   },
   {
     id: "02",
     title: "OEM Manufacturing",
     desc: "Got a product idea? We make it happen, start to finish. From sourcing components to SMT/THT assembly, wiring, and final QA - we scale from a one-off prototype to full production runs. You dream it, we build it, and yes, we promise to handle the chaos.",
     img: service_2,
+    link: "/services/oem-manufacturing"
   },
   {
     id: "03",
     title: "Microcontroller and Processor Firmware",
     desc: "The brains behind your hardware. We speak fluent C, C++, and occasionally “why isn’t this compiling?” STM32, ESP32, Arduino, ARM - sensors, actuators, communication protocols (CAN, Modbus, I²C, SPI, UART) - we code it so your devices run smarter, faster, and sometimes even cooler than you imagined.",
     img: service_3,
+    link: "/services/embedded-firmware-development"
   },
   {
     id: "04",
     title: "3D Printing",
     desc: "Your ideas, printed into reality. From quick concept models to functional prototypes, we deliver precise, clean, and ready-to-use 3D prints. It’s the perfect way to test, tweak, and bring your designs to life — one layer at a time.",
     img: service_4,
+    link: "/services/3d-printing-prototyping"
   },
   {
     id: "05",
     title: "Technical Workshop & Training",
     desc: "We don’t just build tech - we teach it, hands-on. PCB design, embedded systems, IoT, microcontroller programming - our workshops turn curious minds into confident creators. Bring your curiosity; leave with working prototypes (and maybe a few bragging rights).",
     img: service_5,
+    link: "/services/technical-workshops"
+  },
+  {
+    id: "06",
+    title: "Web Development",
+    desc: "From corporate sites to complex web applications, we build fast, secure, and scalable solutions using modern frameworks like React and Next.js. Our focus is on performance, accessibility, and seamless user experiences.",
+    img: software_icon,
+    link: "/services/web-development"
+  },
+  {
+    id: "07",
+    title: "Mobile App Development",
+    desc: "Reach your users anywhere with high-performance native and cross-platform mobile applications. We specialize in React Native and Flutter to deliver smooth, feature-rich apps for iOS and Android.",
+    img: service_6,
+    link: "/services/mobile-app-development"
+  },
+  {
+    id: "08",
+    title: "UI/UX Design",
+    desc: "Design that speaks to your users. We create intuitive interfaces and engaging experiences through deep research, wireframing, and interactive prototyping. We turn complexity into simplicity.",
+    img: computer_icon,
+    link: "/services/ui-ux-design"
   },
 ];
 
@@ -219,6 +249,27 @@ const ServiceCard = memo(({ service, reverse, index }) => {
         >
           {service.desc}
         </motion.p>
+        {service.link && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <Link 
+              to={service.link}
+              className="inline-flex items-center gap-2 text-[#09B8DC] font-bold hover:text-sky-600 transition-colors group/link"
+            >
+              Explore Service 
+              <motion.span
+                animate={{ x: [0, 5, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              >
+                →
+              </motion.span>
+            </Link>
+          </motion.div>
+        )}
       </div>
     </motion.article>
   );
