@@ -66,6 +66,7 @@ const ServicesSection = () => {
 
           <a
             href="/services"
+            aria-label="See all services we offer"
             className="mt-4 md:mt-5 inline-flex items-center gap-2 text-sm md:text-base font-semibold text-slate-900 underline underline-offset-4 decoration-slate-300 hover:decoration-slate-800 transition-colors"
           >
             SEE WHAT WE CAN DO
@@ -94,6 +95,7 @@ const ServicesSection = () => {
                   <div className="mt-5 md:mt-6">
                     <a
                       href="/services"
+                      aria-label={`Learn more about ${service.title}`}
                       className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-lg text-sm md:text-base font-semibold hover:bg-slate-800 transition-colors"
                     >
                       Learn More

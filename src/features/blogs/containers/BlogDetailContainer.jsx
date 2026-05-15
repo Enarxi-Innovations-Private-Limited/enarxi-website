@@ -36,6 +36,25 @@ const BlogDetailContainer = () => {
           keywords={blog.tags?.join(', ') || "electronic manufacturing, IoT, software development"}
           ogImage={blog.featuredImage}
           ogType="article"
+          structuredData={{
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": blog.title,
+            "image": blog.featuredImage ? [blog.featuredImage] : [],
+            "datePublished": blog.createdAt?.seconds ? new Date(blog.createdAt.seconds * 1000).toISOString() : new Date().toISOString(),
+            "author": [{
+              "@type": "Person",
+              "name": blog.authorName || "Enarxi Team"
+            }],
+            "publisher": {
+              "@type": "Organization",
+              "name": "Enarxi Innovations",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.enarxi.com/favicon/apple-touch-icon.png"
+              }
+            }
+          }}
         />
       )}
       <BlogDetailView 

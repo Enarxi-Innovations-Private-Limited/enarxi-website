@@ -47,7 +47,8 @@ export const injectBlogContent = (htmlContent, ytlinks = [], imageBlocks = {}) =
         : `<div class="blog-image-block" style="margin: 2rem 0; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start;">`;
 
       images.forEach((img, idx) => {
-        const src = img.url || img.previewUrl || '';
+        const rawSrc = img.url || img.previewUrl || '';
+        const src = rawSrc.includes('res.cloudinary.com') ? rawSrc.replace('/upload/', '/upload/f_auto,q_auto/') : rawSrc;
         const alt = img.altText || `Blog image ${idx + 1}`;
         const title = img.title?.trim() || '';   // empty string = don't render the label
         const showLabel = title.length > 0;

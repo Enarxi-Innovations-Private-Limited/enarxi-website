@@ -50,8 +50,11 @@ export const BlogDetailView = ({ blog, loading, error, onBack }) => {
         >
           <div className="w-full aspect-video overflow-hidden bg-gray-100">
             <img
-              src={blog.img}
+              src={blog.img?.includes('res.cloudinary.com') ? blog.img.replace('/upload/', '/upload/f_auto,q_auto/') : blog.img}
               alt={blog.title}
+              width="1280"
+              height="720"
+              fetchpriority="high"
               className="w-full h-full object-cover"
               onError={(e) => { e.target.src = "/blogs/default.jpg"; }}
             />
@@ -98,8 +101,9 @@ export const BlogDetailView = ({ blog, loading, error, onBack }) => {
                     return (
                       <img
                         key={idx}
-                        src={imgUrl}
+                        src={imgUrl?.includes('res.cloudinary.com') ? imgUrl.replace('/upload/', '/upload/f_auto,q_auto/') : imgUrl}
                         alt={`${blog.title} - ${idx + 2}`}
+                        loading="lazy"
                         className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer"
                         onError={(e) => { e.target.style.display = "none"; }}
                       />

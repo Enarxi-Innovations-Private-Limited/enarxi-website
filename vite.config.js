@@ -25,4 +25,16 @@ export default defineConfig({
     port: 3001,
     host: '0.0.0.0', // Change this to the port you want
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          ui: ['framer-motion', 'lucide-react', 'gsap'],
+          editor: ['@tiptap/react', '@tiptap/starter-kit', '@tiptap/core']
+        }
+      }
+    }
+  }
 })
