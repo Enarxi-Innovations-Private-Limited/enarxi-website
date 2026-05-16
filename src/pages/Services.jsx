@@ -479,9 +479,10 @@ export default function Services() {
   return (
     <section className="bg-gradient-to-b from-[#F5FBFF] via-white to-[#F5FBFF] overflow-hidden">
       <SEO 
-        title="Our Services - Manufacturing & IT Solutions"
+        title="Our Services - Manufacturing & IT Solutions | Enarxi"
         description="Explore Enarxi's comprehensive range of services including PCB design, OEM manufacturing, web development, mobile apps, and custom software development in Chennai."
-        keywords="PCB fabrication, OEM manufacturing, embedded systems, firmware development, web development services, mobile app development, 3D printing Chennai"
+        keywords="PCB fabrication, OEM manufacturing, embedded systems, firmware development, web development services, mobile app development, 3D printing Chennai, IT software solutions"
+        canonical="https://www.enarxi.com/services"
       />
       <div className="w-[90%] max-w-7xl mx-auto mt-10">
         <motion.header
@@ -498,8 +499,8 @@ export default function Services() {
             <h2 className="text-40 font-bold text-gray-900 font-oswald mb-4">
               Services We Offer You
             </h2>
-            <p className="text-gray-600 font-poppins max-w-2xl mx-auto">
-              Comprehensive solutions tailored to bring your innovative ideas to life
+            <p className="text-gray-600 font-poppins max-w-2xl mx-auto mb-4">
+              Comprehensive solutions tailored to bring your innovative ideas to life. From our base in Chennai, we deliver end-to-end electronic manufacturing, rapid prototyping, and custom IT software development that empower global businesses to scale.
             </p>
           </motion.div>
         </motion.header>

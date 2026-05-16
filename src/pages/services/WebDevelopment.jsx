@@ -11,9 +11,10 @@ export default function WebDevelopment() {
   return (
     <section className="bg-gradient-to-b from-[#F5FBFF] via-white to-[#F5FBFF] overflow-hidden">
       <SEO 
-        title="Web Development Services in Chennai"
+        title="Web Development Services in Chennai | Enarxi"
         description="Expert custom web development services in Chennai. We build high-performance React, Next.js, and Full-stack web applications tailored for your business needs."
-        keywords="web development chennai, custom website development, React developers, Next.js development, full stack web development india"
+        keywords="web development chennai, custom website development, React developers, Next.js development, full stack web development india, IT software solutions"
+        canonical="https://www.enarxi.com/services/web-development"
       />
       
       <div className="w-[90%] max-w-7xl mx-auto mt-10">
@@ -33,14 +34,17 @@ export default function WebDevelopment() {
 
         <div className="flex flex-col md:flex-row items-center bg-white rounded-2xl shadow-lg p-6 md:p-10 gap-10 mb-20">
           <div className="w-full md:w-1/2 flex justify-center">
-            <img src={software} alt="Web Development" className="max-h-80 object-contain" />
+            <img src={software} alt="Web Development" className="max-h-80 object-contain" loading="lazy" />
           </div>
           <div className="w-full md:w-1/2 space-y-6">
             <h3 className="text-3xl font-bold text-gray-900 font-oswald">
               Custom Web Solutions
             </h3>
             <p className="text-gray-600 leading-relaxed font-poppins text-lg">
-              At Enarxi, we specialize in creating modern web platforms that are not just visually stunning but also technically superior. From corporate websites to complex enterprise dashboards, we use the latest technology stacks like React, Node.js, and Supabase to ensure your web presence is fast, secure, and future-proof.
+              At Enarxi, we specialize in creating modern web platforms that are not just visually stunning but also technically superior. As a leading IT software provider in Chennai, we understand the local and global market demands. From corporate websites to complex enterprise dashboards, we use the latest technology stacks like React, Node.js, and Supabase to ensure your web presence is fast, secure, and future-proof.
+            </p>
+            <p className="text-gray-600 leading-relaxed font-poppins text-lg mt-4">
+              Our web development lifecycle encompasses deep research, scalable architecture design, and rigorous testing. We believe that a powerful digital footprint is essential for modern businesses to thrive, which is why we build SEO-friendly, mobile-first applications that rank well on search engines and engage users effortlessly.
             </p>
             <ul className="space-y-3 text-gray-700 font-poppins">
               <li className="flex items-center gap-2">

@@ -19,7 +19,7 @@ export default function Home() {
     "name": "Enarxi Innovations",
     "description": "Electronic Manufacturing and IT Digital Solutions in Chennai.",
     "url": "https://enarxi.com",
-    "telephone": "+91XXXXXXXXXX",
+    "telephone": "+919600076639",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Chennai",
@@ -40,6 +40,7 @@ export default function Home() {
           description="Enarxi Innovations: Your premier partner for PCB design, OEM manufacturing, and custom IT services (Web, App, Software) in Chennai. Scale your business today."
           keywords="electronic manufacturing chennai, PCB design chennai, web development chennai, mobile app development chennai, software development company chennai, OEM manufacturing india"
           structuredData={localBusinessSchema}
+          canonical="https://www.enarxi.com/"
         />
         <HeroComponent />
         <ServiceWeOffer />

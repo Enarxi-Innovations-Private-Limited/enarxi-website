@@ -15,9 +15,10 @@ const AboutUs = () => {
   return (
     <div className="w-full font-sans bg-[#F8FFFF]">
       <SEO 
-        title="About Us - Our Story & Vision"
-        description="Learn about Enarxi Innovations, our journey since 2017, and our mission to empower businesses through innovative electronic manufacturing and IT digital solutions."
-        keywords="Enarxi story, electronics company mission, manufacturing vision, technology startup Chennai, Syed Sameeullah, Ayaz Shaik"
+        title="About Us - Our Story & Vision | Enarxi Innovations"
+        description="Learn about Enarxi Innovations, our journey since 2017, and our mission to empower businesses through innovative electronic manufacturing and IT digital solutions in Chennai."
+        keywords="Enarxi story, electronics company mission, manufacturing vision, technology startup Chennai, custom IT services Chennai, PCB design India"
+        canonical="https://www.enarxi.com/aboutus"
       />
       {/* About Header */}
       <motion.section
@@ -26,9 +27,9 @@ const AboutUs = () => {
         animate="visible"
         variants={fadeInUp}
       >
-        <h2 className="text-4xl font-semibold tracking-wide flex items-center justify-center gap-2 font-oswald">
+        <h1 className="text-4xl font-semibold tracking-wide flex items-center justify-center gap-2 font-oswald">
           About Enarxi
-        </h2>
+        </h1>
       </motion.section>
 
       {/* Our Story */}
@@ -45,7 +46,10 @@ const AboutUs = () => {
             <span className="font-bold">Mr. Syed Sameeullah </span> and{" "}
             <span className="font-bold">Mr. Ayaz Shaik</span>. Two different
             people with two different mindsets have come together with a common
-            passion of initiating a technology startup...
+            passion of initiating a technology startup in Chennai.
+          </p>
+          <p className="text-md leading-relaxed mb-3 font-poppins">
+            Today, Enarxi stands as a premier partner for <a href="/services/pcb-design-fabrication" className="text-blue-600 hover:underline">electronic manufacturing</a> and <a href="/services/web-development" className="text-blue-600 hover:underline">custom IT services</a>. Based in Chennai, India, we cater to businesses of all sizes, offering scalable solutions from prototype design to mass OEM production. Our goal is to bridge the gap between hardware innovations and digital experiences.
           </p>
         </motion.div>
 
