@@ -27,11 +27,10 @@ import senlogic from "../assets/trustedBy/senlogic.png";
 import forge from "../assets/trustedBy/forge.png";
 import aurolab from "../assets/trustedBy/aurolab.webp";
 import srm from "../assets/trustedBy/srm.png";
-import arkin from "../assets/trustedBy/arkin.png";
 import zafi from "../assets/trustedBy/zafi.jpg";
 
 const logos = [
-  ascentia, impensus, senlogic, forge, aurolab, srm, arkin, zafi,
+  ascentia, impensus, senlogic, forge, aurolab, srm, zafi,
   vatio, propeller, crescent, airatom, emobiliti, kardle,
   tp1, tp2, tp5,
   unova, aditya, prystin, greenbreathe, trayam,
