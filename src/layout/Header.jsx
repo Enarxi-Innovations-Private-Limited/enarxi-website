@@ -407,8 +407,8 @@ export default function Header() {
                   />
                   {errors.location && (
                     <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle className="h-4 w-4" />{" "}
-                      {errors.location.message}
+                     <AlertCircle className="h-4 w-4" />{" "}
+                    {errors.location.message}
                     </p>
                   )}
                 </div>

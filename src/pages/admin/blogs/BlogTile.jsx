@@ -31,12 +31,12 @@ const BlogTile = ({ blog, onView, onApprove, onDelete, onToggleVisibility, isPen
       transition={{ duration: 0.3 }}
     >
       {/* Thumbnail Image */}
-      <div className="relative h-48 bg-gradient-to-br from-blue-50 to-gray-100 overflow-hidden">
+      <div className="relative w-full bg-gray-100 overflow-hidden rounded-t-lg">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
             alt={blog.title}
-            className="w-full h-full object-cover"
+            className="w-full h-auto block"
             onError={(e) => {
               e.target.style.display = 'none';
             }}

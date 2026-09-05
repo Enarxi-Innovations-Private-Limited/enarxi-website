@@ -58,15 +58,22 @@ const BlogPreviewModal = ({
           <div className="flex-1 overflow-y-auto bg-gray-50/50">
             <div className="max-w-4xl mx-auto py-12 px-6 sm:px-8">
               {/* Actual Blog Layout Mockup */}
-              <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <article className="bg-white rounded-2xl shadow-sm border border-gray-100">
 
                 {/* Featured Image */}
                 {featuredImage && (
-                  <div className="w-full aspect-[21/9] overflow-hidden bg-gray-100">
+                  <div className="w-full bg-gray-100 rounded-t-2xl flex items-center justify-center">
                     <img
                       src={typeof featuredImage === 'string' ? featuredImage : URL.createObjectURL(featuredImage)}
                       alt="Thumbnail"
-                      className="w-full h-full object-cover"
+                      className="rounded-t-2xl"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '50vh',
+                        width: 'auto',
+                        height: 'auto',
+                        display: 'block'
+                      }}
                     />
                   </div>
                 )}
